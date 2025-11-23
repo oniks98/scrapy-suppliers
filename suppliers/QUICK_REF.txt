@@ -1,0 +1,165 @@
+════════════════════════════════════════════════════════
+  ⚡ VIATEC.UA - БЫСТРАЯ СПРАВКА СЕЛЕКТОРОВ
+════════════════════════════════════════════════════════
+
+🎯 ОСНОВНЫЕ СЕЛЕКТОРЫ (скопируй прямо в код)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ НАЗВАНИЕ ТОВАРА
+───────────────────
+selector = "h1::text"
+example = "DS-2CD1321G0-I 2МП (2.8мм) IP відеокамера Hikvision"
+
+✅ ЦЕНА (ГЛАВНЫЙ!)
+──────────────────
+selector = "div.card-header__card-price-new::text"
+raw = "2\xa0537"  (含 &nbsp;)
+clean = "2537"  (после _clean_price)
+
+✅ ИЗОБРАЖЕНИЕ
+──────────────
+selector = "img.card-header__card-images-image::attr(src)"
+example = "/upload/images/prod/2024-06/DS-2CD1321G0-I.webp"
+
+✅ ОПИСАНИЕ
+──────────
+selector = "div.card-header__card-description p::text"
+example = "● Роздільна здатність 2МП, 1/2.9\" CMOS..."
+
+✅ НАЛИЧИЕ (ФИЛЬТР!)
+────────────────────
+selector = "div.card-header__card-status-badge::text"
+values = "В наявності" → "В наличии" (записываем)
+        "Під замовлення" → пропускаем
+        "Немає" → пропускаем
+
+✅ ПРОИЗВОДИТЕЛЬ
+────────────────
+method = _extract_manufacturer_from_url(url)
+from_url = "proizvoditel:hikvision" → "Hikvision"
+from_csv = manufacturers_viatec.csv lookup
+
+✅ ХАРАКТЕРИСТИКИ
+─────────────────
+selector = "div.card-tabs__characteristic-content table tbody tr"
+loop = for each row: name = th::text, value = td::text
+
+✅ ССЫЛКИ НА ТОВАРЫ (категория)
+───────────────────────────────
+selector = "a[href*='/product/']::attr(href)"
+
+✅ ПАГИНАЦИЯ
+────────────
+selector = "a.paggination__next::attr(href)"
+
+
+🔴 КРИТИЧНЫЕ ФИЛЬТРЫ (PIPELINE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ КОД ТОВАРА
+─────────────
+НЕ ПАРСИМ! Генерируем: 200000, 200001, 200002, ...
+method = _generate_product_code()
+
+⚠️ ЗАПИСЫВАЕМ ТОЛЬКО ЕСЛИ (все три условия!):
+──────────────────────────────────────────────
+1. название != "" ✓
+2. цена != "" AND цена > 0 ✓
+3. наявність == "В наличии" ✓
+
+→ prom_import.csv
+
+⚠️ ПРОПУСКАЕМ:
+──────────────
+- Нет названия
+- Нет цены или цена = 0
+- Наявність != "В наличии"
+
+
+📝 МЕТОДЫ ОБРАБОТКИ
+━━━━━━━━━━━━━━━━━━
+
+def _clean_price(price_str):
+    # Удаляем пробелы, &nbsp;, символы валюты
+    # INPUT:  "2 537 грн"
+    # OUTPUT: "2537"
+
+def _normalize_availability(availability):
+    # Маппим статусы наличия
+    # "В наявності" → "В наличии" ✅
+    # "Під замовлення" → "Под заказ"
+    # "Немає" → "Нет в наличии"
+
+def _generate_product_code(response):
+    # Генерируем код счетчиком
+    # 200000, 200001, 200002, ...
+
+def _extract_manufacturer_from_url(url):
+    # Извлекаем производителя из URL
+    # "https://viatec.ua/catalog/cameras/proizvoditel:hikvision"
+    # → "hikvision" → "Hikvision"
+
+
+🚀 БЫСТРЫЙ ЗАПУСК
+━━━━━━━━━━━━━━━━
+
+cd C:\FullStack\Scrapy\suppliers
+scrapy crawl viatec_retail
+
+
+📊 ОЖИДАЕМЫЙ РЕЗУЛЬТАТ
+━━━━━━━━━━━━━━━━━━━━━
+
+✅ Записано розницы: 248 товаров
+✅ Записано дилера: 0 товаров
+⏭️  Отфильтровано: 152 товара
+
+Файлы:
+→ C:\Users\stalk\Documents\Prom\prom_import.csv
+
+
+❓ ЧТО ПРОВЕРИТЬ ПЕРВЫМ
+━━━━━━━━━━━━━━━━━━━━━
+
+1. Цена находится?
+   scrapy shell "https://viatec.ua/product/DS-2CD1321G0-I-28"
+   >>> response.css("div.card-header__card-price-new::text").get()
+   'ОК' → '2\xa0537'
+
+2. Наличие находится?
+   >>> response.css("div.card-header__card-status-badge::text").get()
+   'ОК' → 'В наявності'
+
+3. Характеристики находятся?
+   >>> response.css("div.card-tabs__characteristic-content table tbody tr")
+   'ОК' → [<Selector>, <Selector>, ...]
+
+
+🔗 ВСЕ ФАЙЛЫ И СПРАВКИ
+━━━━━━━━━━━━━━━━━━━━━
+
+1. viatec_retail.py
+   └─ Основной spider (все селекторы внутри)
+
+2. pipelines.py
+   └─ Обработка + ФИЛЬТРАЦИЯ
+
+3. FIND_SELECTORS.md
+   └─ Подробная справка
+
+4. SELECTORS_QUICK_REF.md
+   └─ Таблицы селекторов
+
+5. UPDATED_SELECTORS_FINAL.md
+   └─ Итоговая справка
+
+6. SUMMARY_CHANGES.txt
+   └─ Все изменения (этот файл ↓)
+
+7. QUICK_REF.txt
+   └─ Эта справка ← ты здесь
+
+
+════════════════════════════════════════════════════════
+✅ ГОТОВО К ИСПОЛЬЗОВАНИЮ!
+════════════════════════════════════════════════════════

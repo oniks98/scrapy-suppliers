@@ -14,74 +14,173 @@ NEWSPIDER_MODULE = "suppliers.spiders"
 
 ADDONS = {}
 
+# ==============================================================================
+# USER-AGENT (Обязательно для избежания блокировок)
+# ==============================================================================
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = "suppliers (+http://www.yourdomain.com)"
-
-# Obey robots.txt rules
+# ==============================================================================
+# ROBOTS.TXT
+# ==============================================================================
+# Уважаем robots.txt поставщиков (рекомендуется для легального парсинга)
 ROBOTSTXT_OBEY = True
 
-# Concurrency and throttling settings
-#CONCURRENT_REQUESTS = 16
+# ==============================================================================
+# CONCURRENCY & DELAYS (Контроль нагрузки на серверы)
+# ==============================================================================
+# Общее количество одновременных запросов (для нескольких доменов)
+CONCURRENT_REQUESTS = 8
+
+# Максимум 1 запрос одновременно на один домен (безопасно)
 CONCURRENT_REQUESTS_PER_DOMAIN = 1
+
+# Задержка между запросами к одному домену (секунды)
 DOWNLOAD_DELAY = 1
 
-# Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+# Таймаут для каждого запроса (секунды)
+DOWNLOAD_TIMEOUT = 30
 
-# Disable Telnet Console (enabled by default)
-#TELNETCONSOLE_ENABLED = False
+# ==============================================================================
+# AUTOTHROTTLE (Динамическая регулировка скорости)
+# ==============================================================================
+# Включить автоматическую регулировку на основе нагрузки сервера
+AUTOTHROTTLE_ENABLED = True
 
-# Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
-#    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-#    "Accept-Language": "en",
-#}
+# Начальная задержка (секунды)
+AUTOTHROTTLE_START_DELAY = 1
 
-# Enable or disable spider middlewares
-# See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    "suppliers.middlewares.SuppliersSpiderMiddleware": 543,
-#}
+# Максимальная задержка при высоких задержках ответа (секунды)
+AUTOTHROTTLE_MAX_DELAY = 5
 
-# Enable or disable downloader middlewares
-# See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    "suppliers.middlewares.SuppliersDownloaderMiddleware": 543,
-#}
+# Целевое количество параллельных запросов на домен
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 
-# Enable or disable extensions
-# See https://docs.scrapy.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
-#    "scrapy.extensions.telnet.TelnetConsole": None,
-#}
+# Показывать статистику throttling в логах (для отладки)
+AUTOTHROTTLE_DEBUG = False
 
-# Configure item pipelines
-# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "suppliers.pipelines.SuppliersPipeline": 300,
-#}
+# ==============================================================================
+# COOKIES
+# ==============================================================================
+# Включить куки (некоторые сайты требуют для корректной работы)
+COOKIES_ENABLED = True
 
-# Enable and configure the AutoThrottle extension (disabled by default)
-# See https://docs.scrapy.org/en/latest/topics/autothrottle.html
-#AUTOTHROTTLE_ENABLED = True
-# The initial download delay
-#AUTOTHROTTLE_START_DELAY = 5
-# The maximum download delay to be set in case of high latencies
-#AUTOTHROTTLE_MAX_DELAY = 60
-# The average number of requests Scrapy should be sending in parallel to
-# each remote server
-#AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
-# Enable showing throttling stats for every response received:
-#AUTOTHROTTLE_DEBUG = False
+# ==============================================================================
+# HTTP HEADERS (Дополнительная маскировка под браузер)
+# ==============================================================================
+DEFAULT_REQUEST_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+}
 
-# Enable and configure HTTP caching (disabled by default)
-# See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-#HTTPCACHE_ENABLED = True
-#HTTPCACHE_EXPIRATION_SECS = 0
-#HTTPCACHE_DIR = "httpcache"
-#HTTPCACHE_IGNORE_HTTP_CODES = []
-#HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+# ==============================================================================
+# RETRY SETTINGS (Повторные попытки при ошибках)
+# ==============================================================================
+# Количество повторных попыток при неудачных запросах
+RETRY_TIMES = 3
 
-# Set settings whose default value is deprecated to a future-proof value
+# HTTP коды, при которых нужно повторить запрос
+RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408, 429]
+
+# ==============================================================================
+# ITEM PIPELINES (Обработка и сохранение данных)
+# ==============================================================================
+# Порядок выполнения: меньшее число = выше приоритет
+ITEM_PIPELINES = {
+    # "suppliers.pipelines.ValidationPipeline": 200,  # Раскомментируй для строгой валидации
+    "suppliers.pipelines.SuppliersPipeline": 300,
+}
+
+# ==============================================================================
+# LOGGING (Уровень логирования)
+# ==============================================================================
+# Уровни: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = "INFO"
+
+# Сохранять логи в файл (опционально, раскомментируй при необходимости)
+# LOG_FILE = r"C:\FullStack\Scrapy\suppliers\scrapy.log"
+
+# Формат логов
+LOG_FORMAT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
+LOG_DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+
+# ==============================================================================
+# FEEDS (Не используем, т.к. pipeline управляет двумя CSV)
+# ==============================================================================
+# Кодировка для экспорта (обязательно UTF-8 для кириллицы)
 FEED_EXPORT_ENCODING = "utf-8"
+
+# ВАЖНО: Не используем FEEDS, т.к. pipeline управляет двумя CSV файлами
+# Если нужен простой экспорт в один файл, раскомментируй:
+# FEEDS = {
+#     r"C:\Users\stalk\Documents\Prom\prom_import.csv": {
+#         "format": "csv",
+#         "encoding": "utf-8",
+#         "overwrite": True,
+#         "fields": [
+#             "Название_позиции",
+#             "Ключевые_слова",
+#             "Описание",
+#             "Цена",
+#             "Валюта",
+#             # ... остальные поля
+#         ],
+#     }
+# }
+
+# ==============================================================================
+# HTTP CACHE (Кэширование запросов для отладки)
+# ==============================================================================
+# РЕКОМЕНДУЕТСЯ включить при разработке паука!
+# Раскомментируй эти строки для ускорения тестов:
+# HTTPCACHE_ENABLED = True
+# HTTPCACHE_EXPIRATION_SECS = 86400  # 24 часа
+# HTTPCACHE_DIR = "httpcache"
+# HTTPCACHE_IGNORE_HTTP_CODES = [301, 302, 500, 503]
+# HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+
+# ==============================================================================
+# DOWNLOADER MIDDLEWARES (Опционально: прокси, ротация User-Agent)
+# ==============================================================================
+# Раскомментируй для ротации User-Agent (требует scrapy-user-agents):
+# DOWNLOADER_MIDDLEWARES = {
+#     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+#     "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+# }
+
+# ==============================================================================
+# SPIDER MIDDLEWARES
+# ==============================================================================
+# SPIDER_MIDDLEWARES = {
+#     "suppliers.middlewares.SuppliersSpiderMiddleware": 543,
+# }
+
+# ==============================================================================
+# TELNET CONSOLE (Отключить для безопасности в продакшн)
+# ==============================================================================
+TELNETCONSOLE_ENABLED = False
+
+# ==============================================================================
+# DNS SETTINGS (Ускорение DNS-запросов)
+# ==============================================================================
+# Использовать кэширующий DNS resolver
+DNSCACHE_ENABLED = True
+DNSCACHE_SIZE = 10000
+
+# ==============================================================================
+# EXTENSIONS
+# ==============================================================================
+# EXTENSIONS = {
+#     "scrapy.extensions.telnet.TelnetConsole": None,
+# }
+
+# ==============================================================================
+# CUSTOM SETTINGS (Специфичные для проекта)
+# ==============================================================================
+# Путь к файлу с маппингом категорий (опционально)
+# CATEGORY_MAPPING_FILE = r"C:\FullStack\Scrapy\suppliers\categories_mapping.json"
+
+# Максимальное количество items для обработки (для тестов)
+# CLOSESPIDER_ITEMCOUNT = 100
