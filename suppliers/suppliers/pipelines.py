@@ -166,14 +166,16 @@ class SuppliersPipeline:
             raise ValueError("Товар не в наличии")
         
         # ========== ОБРАБОТКА НАЛИЧИЯ ==========
-        quantity = self._extract_quantity(availability_raw)
+        # ВАЖНО: используем количество ИЗ SPIDER, не пересчитываем!
+        quantity = adapter.get("Кількість", "")
+        spider.logger.debug(f"🔢 Quantity из spider: '{quantity}' | Availability raw: '{availability_raw}'")
         
         # Очистка и нормализация данных
         cleaned_item = self._clean_item(adapter, spider)
         
-        # Обновляем поля наличия
+        # Обновляем поля наличия (ВАЖНО: после clean_item!)
         cleaned_item["Наявність"] = "+"
-        cleaned_item["Кількість"] = quantity if quantity else ""
+        cleaned_item["Кількість"] = quantity  # Используем значение из spider
         
         # ========== ГЕНЕРАЦИЯ ПОСЛЕДОВАТЕЛЬНОГО КОДА ==========
         price_type = adapter.get("price_type", "retail")

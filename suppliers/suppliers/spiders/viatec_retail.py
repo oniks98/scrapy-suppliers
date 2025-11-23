@@ -17,9 +17,13 @@ class ViatecRetailSpider(scrapy.Spider):
     allowed_domains = ["viatec.ua"]
     
     custom_settings = {
-        "CONCURRENT_REQUESTS": 1,
-        "CONCURRENT_REQUESTS_PER_DOMAIN": 1,
-        "DOWNLOAD_DELAY": 2,
+        "CONCURRENT_REQUESTS": 8,  # Allow more concurrent requests
+        "CONCURRENT_REQUESTS_PER_DOMAIN": 8, # Allow more concurrent requests per domain
+        "AUTOTHROTTLE_ENABLED": True, # Enable AutoThrottle
+        "AUTOTHROTTLE_START_DELAY": 1, # Initial delay before AutoThrottle kicks in
+        "AUTOTHROTTLE_MAX_DELAY": 60, # Maximum delay AutoThrottle can set
+        "AUTOTHROTTLE_TARGET_CONCURRENCY": 2.0, # Aim for 2 concurrent requests per second
+        # "DOWNLOAD_DELAY": 2, # Removed, as AutoThrottle manages delays
     }
     
     def __init__(self, *args, **kwargs):
@@ -28,6 +32,7 @@ class ViatecRetailSpider(scrapy.Spider):
         self.category_urls = list(self.category_mapping.keys())
         self.current_category_index = 0
         self.products_from_pagination = []  # Накапливаем товары со всех страниц пагинации
+        self.processed_products = set()  # Отслеживаем обработанные товары (по original_url)
     
     def _load_category_mapping(self):
         """Загружает маппинг категорий из CSV"""
@@ -48,6 +53,7 @@ class ViatecRetailSpider(scrapy.Spider):
                         "category_ua": row["Категория на моем сайте_UA"],
                         "group_number": row.get("Номер_групи", ""),
                         "subdivision_id": row.get("Ідентифікатор_підрозділу", ""),
+                        "subdivision_link": row.get("Посилання_підрозділу", ""),
                     }
             self.logger.info(f"✅ Загружено {len(mapping)} категорий")
         except Exception as e:
@@ -88,16 +94,23 @@ class ViatecRetailSpider(scrapy.Spider):
             self.logger.info(f"📦 Найдено товаров на странице: {len(product_links)}")
             for link in product_links:
                 product_url = response.urljoin(link)
-                self.products_from_pagination.append({
-                    "url": product_url,
-                    "meta": {
-                        "category_url": category_url,
-                        "category_ru": category_info.get("category_ru", ""),
-                        "category_ua": category_info.get("category_ua", ""),
-                        "group_number": category_info.get("group_number", ""),
-                        "subdivision_id": category_info.get("subdivision_id", ""),
-                    },
-                })
+                # 🛡️ Нормализуем URL (убираем /ru/ если есть)
+                normalized_url = product_url.replace("/ru/", "/")
+                
+                # Проверяем, не добавляли ли мы уже этот товар
+                if normalized_url not in self.processed_products:
+                    self.products_from_pagination.append({
+                        "url": normalized_url,
+                        "meta": {
+                            "category_url": category_url,
+                            "category_ru": category_info.get("category_ru", ""),
+                            "category_ua": category_info.get("category_ua", ""),
+                            "group_number": category_info.get("group_number", ""),
+                            "subdivision_id": category_info.get("subdivision_id", ""),
+                            "subdivision_link": category_info.get("subdivision_link", ""),
+                        },
+                    })
+                    self.processed_products.add(normalized_url)
 
         next_page_link = response.css("a.paggination__next::attr(href)").get()
         if not next_page_link:
@@ -207,8 +220,9 @@ class ViatecRetailSpider(scrapy.Spider):
         images = response.css("img.card-header__card-images-image::attr(src)").getall()
         image_url = response.urljoin(images[0]) if images else ""
         
-        availability = response.css("div.card-header__card-status-badge::text").get()
-        availability = self._normalize_availability(availability)
+        availability_raw_text = response.css("div.card-header__card-status-badge::text").get()
+        availability_status = self._normalize_availability(availability_raw_text)
+        quantity = self._extract_quantity(availability_raw_text)
         
         manufacturer = self._extract_manufacturer(name_ru)
         
@@ -228,11 +242,13 @@ class ViatecRetailSpider(scrapy.Spider):
             "Валюта": currency,
             "Одиниця_виміру": "шт.",
             "Посилання_зображення": image_url,
-            "Наявність": availability,
+            "Наявність": availability_status,
+            "Кількість": quantity,
             "Назва_групи": response.meta.get("category_ru", ""),
             "Назва_групи_укр": response.meta.get("category_ua", ""),
             "Номер_групи": response.meta.get("group_number", ""),
             "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
+            "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
             "Виробник": manufacturer,
             "Країна_виробник": "",
             "price_type": "retail",
@@ -316,6 +332,19 @@ class ViatecRetailSpider(scrapy.Spider):
             return "Нет в наличии"
         else:
             return "Уточняйте"
+
+    def _extract_quantity(self, text):
+        """Извлекает количество из текста наличия."""
+        if not text:
+            return ""  # Пустое значение остается пустым
+        
+        # Ищем цифры в тексте
+        quantity_match = re.search(r'\d+', text)
+        if quantity_match:
+            return quantity_match.group(0)
+        
+        # Если цифр нет, возвращаем пустую строку
+        return ""
     
     def _generate_search_terms(self, product_name):
         """Генерация поисковых запросов: 'Название продукта, Слово1, Слово2, Слово3, ...'"""
@@ -380,14 +409,8 @@ class ViatecRetailSpider(scrapy.Spider):
         
         product_name_lower = product_name.lower()
         
-        if not hasattr(self, "_manufacturers_cache"):
-            self._manufacturers_cache = self._load_manufacturers_from_csv()
-        
-        for keyword, manufacturer in self._manufacturers_cache.items():
-            if keyword.lower() in product_name_lower:
-                return manufacturer
-        
-        name_patterns = {
+        # ПРИОРИТЕТ 1: Явные упоминания брендов (длинные паттерны)
+        priority_patterns = {
             "hikvision": "Hikvision",
             "dahua": "Dahua Technology",
             "axis": "Axis",
@@ -396,14 +419,52 @@ class ViatecRetailSpider(scrapy.Spider):
             "ezviz": "Ezviz",
             "unv": "UNV",
             "hiwatch": "HiWatch",
+            "ajax": "Ajax",
+            "tp-link": "TP-Link",
+            "mikrotik": "MikroTik",
+            "ubiquiti": "Ubiquiti",
+        }
+        
+        for pattern, name in priority_patterns.items():
+            if pattern in product_name_lower:
+                return name
+        
+        # ПРИОРИТЕТ 2: Коды продуктов с дефисом (для моделей)
+        code_patterns = {
             "ds-": "Hikvision",
             "dh-": "Dahua Technology",
             "dhi-": "Dahua Technology",
+            "vto-": "Dahua Technology",
+            "vtm-": "Dahua Technology",
         }
         
-        for pattern, name in name_patterns.items():
+        for pattern, name in code_patterns.items():
             if pattern in product_name_lower:
                 return name
+        
+        # ПРИОРИТЕТ 3: Маппинг из CSV (короткие коды)
+        if not hasattr(self, "_manufacturers_cache"):
+            self._manufacturers_cache = self._load_manufacturers_from_csv()
+        
+        # Сортируем по длине ключа (сначала длинные, потом короткие)
+        sorted_manufacturers = sorted(
+            self._manufacturers_cache.items(),
+            key=lambda x: len(x[0]),
+            reverse=True
+        )
+        
+        for keyword, manufacturer in sorted_manufacturers:
+            keyword_lower = keyword.lower()
+            # Для коротких кодов (1-2 символа) требуем границы слов
+            if len(keyword) <= 2:
+                # Используем word boundary: пробел, начало/конец строки
+                pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+                if re.search(pattern, product_name_lower):
+                    return manufacturer
+            else:
+                # Для длинных кодов простое вхождение
+                if keyword_lower in product_name_lower:
+                    return manufacturer
         
         return ""
     
@@ -428,33 +489,53 @@ class ViatecRetailSpider(scrapy.Spider):
     
     def _extract_description_with_br(self, response):
         """
-        Извлечение описания с сохранением переносов <br>
-        Возвращает текст с HTML тегами <br> для переносов (для PROM)
+        Извлечение описания с сохранением переносов <br> и обработкой списков <ul>.
+        Возвращает текст с HTML тегами <br> для переносов (для PROM).
         """
-        description_html = response.css("div.card-header__card-info-text").get()
-        
-        if not description_html:
+        description_container = response.css("div.card-header__card-info-text")
+        if not description_container:
+            self.logger.warning(f"Не найден контейнер описания 'div.card-header__card-info-text' на {response.url}")
             return ""
-        
-        desc_selector = Selector(text=description_html)
-        paragraphs = desc_selector.css("p")
-        
-        result_parts = []
-        for p in paragraphs:
-            if p.css("::attr(class)").get() == "card-header__analog-link":
-                continue
+
+        # 1. Проверка на наличие <ul>
+        ul_list = description_container.css("ul")
+        if ul_list:
+            self.logger.info(f"Найден <ul> список в описании на {response.url}")
+            list_items = ul_list.css("li")
             
-            p_html = p.get()
-            p_html = p_html.replace("<br/>", "<br>").replace("<br />", "<br>")
+            description_parts = []
+            for item in list_items:
+                # .get() сохраняет внутренние теги, re.sub убирает <li>
+                inner_content = item.get()
+                inner_content = re.sub(r'</?li[^>]*>', '', inner_content).strip()
+                # Добавляем маркер, если его нет
+                if not inner_content.startswith('●'):
+                    description_parts.append(f"● {inner_content}")
+                else:
+                    description_parts.append(inner_content)
             
-            text_selector = Selector(text=p_html)
-            inner_html = text_selector.css("p").get()
-            
-            if inner_html:
-                inner_html = re.sub(r'^<p[^>]*>|</p>$', '', inner_html)
-                inner_html = inner_html.strip()
+            return "<br>".join(description_parts)
+
+        # 2. Обработка <p> тегов (улучшенная старая логика)
+        p_tags = description_container.css("p")
+        if p_tags:
+            self.logger.info(f"Найдены <p> теги в описании на {response.url}")
+            result_parts = []
+            for p in p_tags:
+                if p.css("::attr(class)").get() == "card-header__analog-link":
+                    continue
+                
+                # .get() вернет HTML параграфа
+                p_html = p.get()
+                # Убираем внешние теги <p>
+                inner_html = re.sub(r'^<p[^>]*>|</p>$', '', p_html).strip()
                 
                 if inner_html:
+                    # Заменяем <br/> на <br> для консистентности
+                    inner_html = inner_html.replace("<br/>", "<br>").replace("<br />", "<br>")
                     result_parts.append(inner_html)
+            
+            return "<br>".join(result_parts)
         
-        return "<br>".join(result_parts)
+        self.logger.warning(f"В контейнере описания не найдены ни <ul>, ни <p> на {response.url}")
+        return ""
