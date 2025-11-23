@@ -17,10 +17,9 @@ class ViatecRetailSpider(scrapy.Spider):
     allowed_domains = ["viatec.ua"]
     
     custom_settings = {
-        "CONCURRENT_REQUESTS": 1,  # Один запрос за раз (последовательно)
+        "CONCURRENT_REQUESTS": 1,
         "CONCURRENT_REQUESTS_PER_DOMAIN": 1,
         "DOWNLOAD_DELAY": 2,
-        "SCHEDULER_PRIORITY_QUEUE": "scrapy.pqueues.ScrapyPriorityQueue",  # Уважать приоритеты
     }
     
     def __init__(self, *args, **kwargs):
@@ -28,6 +27,7 @@ class ViatecRetailSpider(scrapy.Spider):
         self.category_mapping = self._load_category_mapping()
         self.category_urls = list(self.category_mapping.keys())
         self.current_category_index = 0
+        self.products_from_pagination = []  # Накапливаем товары со всех страниц пагинации
     
     def _load_category_mapping(self):
         """Загружает маппинг категорий из CSV"""
@@ -58,98 +58,101 @@ class ViatecRetailSpider(scrapy.Spider):
     def start_requests(self):
         """Стартуем с первой категории"""
         if self.category_urls:
-            first_category = self.category_urls[0]
-            self.logger.info(f"🚀 СТАРТ КАТЕГОРИИ [1/{len(self.category_urls)}]: {first_category}")
+            first_category_url = self.category_urls[0]
+            self.logger.info(f"🚀 СТАРТ ПАРСИНГА. Первая категория [1/{len(self.category_urls)}]: {first_category_url}")
             yield scrapy.Request(
-                url=first_category,
+                url=first_category_url,
                 callback=self.parse_category,
                 meta={
-                    "category_url": first_category,
+                    "category_url": first_category_url,
                     "category_index": 0,
+                    "page_number": 1,
                 },
                 dont_filter=True,
-                priority=1000,
             )
-    
+
     def parse_category(self, response):
-        """Парсим список товаров в категории"""
+        """Парсим список товаров в категории и страницы пагинации"""
         category_url = response.meta["category_url"]
         category_index = response.meta["category_index"]
+        page_number = response.meta.get("page_number", 1)
         category_info = self.category_mapping.get(category_url, {})
-        
-        self.logger.info(f"📂 Обрабатываю категорию [{category_index + 1}/{len(self.category_urls)}]: {category_url}")
-        
+
+        self.logger.info(f"📂 Обрабатываю категорию [{category_index + 1}/{len(self.category_urls)}] страница {page_number}: {category_url}")
+
         product_links = response.css("a[href*='/product/']::attr(href)").getall()
-        
+
         if not product_links:
-            self.logger.warning(f"⚠️ Не найдены товары в категории: {category_url}")
+            self.logger.warning(f"⚠️ Не найдены товары на странице: {response.url}")
         else:
             self.logger.info(f"📦 Найдено товаров на странице: {len(product_links)}")
-        
-        # Парсим товары текущей страницы
-        for link in product_links:
-            product_url = response.urljoin(link)
-            yield scrapy.Request(
-                url=product_url,
-                callback=self.parse_product,
-                meta={
-                    "category_url": category_url,
-                    "category_ru": category_info.get("category_ru", ""),
-                    "category_ua": category_info.get("category_ua", ""),
-                    "group_number": category_info.get("group_number", ""),
-                    "subdivision_id": category_info.get("subdivision_id", ""),
-                },
-                priority=900,
-                dont_filter=True,
-            )
-        
+            for link in product_links:
+                product_url = response.urljoin(link)
+                self.products_from_pagination.append({
+                    "url": product_url,
+                    "meta": {
+                        "category_url": category_url,
+                        "category_ru": category_info.get("category_ru", ""),
+                        "category_ua": category_info.get("category_ua", ""),
+                        "group_number": category_info.get("group_number", ""),
+                        "subdivision_id": category_info.get("subdivision_id", ""),
+                    },
+                })
+
         next_page_link = response.css("a.paggination__next::attr(href)").get()
-        
         if not next_page_link:
             all_pages = response.css("a.paggination__page::attr(href)").getall()
-            active_page = response.css("a.paggination__page--active::text").get()
-            if all_pages and active_page:
+            active_page_nodes = response.css("a.paggination__page--active")
+            if all_pages and active_page_nodes:
                 try:
-                    current_idx = response.css("a.paggination__page").index(
-                        response.css("a.paggination__page--active")[0]
-                    ) if hasattr(response.css("a.paggination__page"), "index") else -1
+                    # Ищем индекс активной страницы
+                    active_page_text = active_page_nodes[0].css("::text").get()
+                    all_page_texts = [a.css("::text").get() for a in response.css("a.paggination__page")]
+                    current_idx = all_page_texts.index(active_page_text)
+                    
                     if current_idx >= 0 and current_idx + 1 < len(all_pages):
                         next_page_link = all_pages[current_idx + 1]
-                except:
-                    pass
-        
+                except (ValueError, IndexError):
+                    pass # Не удалось найти следующую страницу, считаем что это последняя
+
         if next_page_link:
-            self.logger.info(f"📄 Переход на следующую страницу пагинации: {next_page_link}")
+            self.logger.info(f"📄 Переход на следующую страницу пагинации ({page_number + 1}): {next_page_link}")
             yield response.follow(
                 next_page_link,
                 callback=self.parse_category,
                 meta={
                     "category_url": category_url,
                     "category_index": category_index,
+                    "page_number": page_number + 1,
                 },
-                priority=950,
                 dont_filter=True,
             )
         else:
-            self.logger.info(f"✅ КАТЕГОРИЯ ЗАВЕРШЕНА [{category_index + 1}/{len(self.category_urls)}]: {category_url}")
+            self.logger.info(f"✅ ПАГИНАЦИЯ ЗАВЕРШЕНА [{category_index + 1}/{len(self.category_urls)}]: накоплено {len(self.products_from_pagination)} товаров")
             
-            next_category_index = category_index + 1
-            if next_category_index < len(self.category_urls):
-                next_category_url = self.category_urls[next_category_index]
-                self.logger.info(f"🚀 СТАРТ КАТЕГОРИИ [{next_category_index + 1}/{len(self.category_urls)}]: {next_category_url}")
+            if self.products_from_pagination:
+                # Запускаем цепочку обработки продуктов
+                product_data = self.products_from_pagination.pop(0)
+                
+                product_data["meta"]["remaining_products"] = self.products_from_pagination
+                product_data["meta"]["category_index"] = category_index
+                
+                self.logger.info(f"🔗 ЗАПУСК цепочки продуктов. Первый: {product_data['url']}. Осталось: {len(self.products_from_pagination)}")
+                
                 yield scrapy.Request(
-                    url=next_category_url,
-                    callback=self.parse_category,
-                    meta={
-                        "category_url": next_category_url,
-                        "category_index": next_category_index,
-                    },
-                    priority=1000,
+                    url=product_data["url"],
+                    callback=self.parse_product,
+                    meta=product_data["meta"],
                     dont_filter=True,
                 )
             else:
-                self.logger.info(f"🎉 ВСЕ КАТЕГОРИИ ОБРАБОТАНЫ ({len(self.category_urls)} шт.)")
-    
+                # Если в категории нет товаров, переходим к следующей
+                self.logger.warning(f"⚠️ В категории {category_url} не найдено товаров. Перехожу к следующей.")
+                yield self._start_next_category(category_index)
+
+            # Очищаем буфер
+            self.products_from_pagination = []
+
     def parse_product(self, response):
         """Парсим страницу товара (украинская версия) - НАЗВАНИЕ, ОПИСАНИЕ, ХАРАКТЕРИСТИКИ"""
         self.logger.info(f"🔗 Парсим товар (UA): {response.url}")
@@ -176,12 +179,11 @@ class ViatecRetailSpider(scrapy.Spider):
                 "specifications_list": specs_list_ua,  # Передаём украинские характеристики
                 "original_url": response.url,
             },
-            priority=900,
             dont_filter=True,
         )
     
     def parse_product_ru(self, response):
-        """Парсим страницу товара (русская версия) - НАЗВАНИЕ, ОПИСАНИЕ"""
+        """Парсим страницу товара (русская версия) и продолжаем цепочку"""
         self.logger.info(f"🔗 Парсим товар (RU): {response.url}")
         
         name_ru = response.css("h1::text").get()
@@ -191,18 +193,12 @@ class ViatecRetailSpider(scrapy.Spider):
         
         name_ua = response.meta.get("name_ua", "")
         description_ua = response.meta.get("description_ua", "")
-        specs_list = response.meta.get("specifications_list", [])  # Украинские характеристики из meta
+        specs_list = response.meta.get("specifications_list", [])
         
         code = ""
-        
         price_raw = response.css("div.card-header__card-price-new::text").get()
-        if price_raw:
-            price_raw = price_raw.strip().replace("&nbsp;", "").replace(" ", "")
-        else:
-            price_raw = ""
-        
+        price_raw = price_raw.strip().replace("&nbsp;", "").replace(" ", "") if price_raw else ""
         price = self._clean_price(price_raw) if price_raw else ""
-        
         currency = "UAH"
         
         self.logger.info(f"📝 Описание RU: {len(description_ru)} символов")
@@ -241,11 +237,55 @@ class ViatecRetailSpider(scrapy.Spider):
             "Країна_виробник": "",
             "price_type": "retail",
             "Продукт_на_сайті": response.meta.get("original_url", response.url),
-            "specifications_list": specs_list,  # Украинские характеристики
+            "specifications_list": specs_list,
         }
         
         self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} | Характеристик: {len(specs_list)}")
         yield item
+        
+        # --- ЛОГИКА ЦЕПОЧКИ ---
+        remaining_products = response.meta.get("remaining_products", [])
+        category_index = response.meta.get("category_index")
+
+        if remaining_products:
+            # Есть еще продукты в этой категории, обрабатываем следующий
+            next_product_data = remaining_products.pop(0)
+            next_product_data["meta"]["remaining_products"] = remaining_products
+            next_product_data["meta"]["category_index"] = category_index
+
+            self.logger.info(f"🔗 Продолжаем цепочку продуктов. Осталось: {len(remaining_products)}")
+            yield scrapy.Request(
+                url=next_product_data["url"],
+                callback=self.parse_product,
+                meta=next_product_data["meta"],
+                dont_filter=True,
+            )
+        else:
+            # Продукты в текущей категории закончились, переходим к следующей
+            self.logger.info(f"✅ Все продукты категории [{category_index + 1}] обработаны.")
+            next_request = self._start_next_category(category_index)
+            if next_request:
+                yield next_request
+
+    def _start_next_category(self, current_category_index):
+        """Вспомогательный метод для запуска следующей категории"""
+        next_category_index = current_category_index + 1
+        if next_category_index < len(self.category_urls):
+            next_category_url = self.category_urls[next_category_index]
+            self.logger.info(f"🚀 СТАРТ СЛЕДУЮЩЕЙ КАТЕГОРИИ [{next_category_index + 1}/{len(self.category_urls)}]: {next_category_url}")
+            return scrapy.Request(
+                url=next_category_url,
+                callback=self.parse_category,
+                meta={
+                    "category_url": next_category_url,
+                    "category_index": next_category_index,
+                    "page_number": 1,
+                },
+                dont_filter=True,
+            )
+        else:
+            self.logger.info(f"🎉🎉🎉 ВСЕ КАТЕГОРИИ И ПРОДУКТЫ ОБРАБОТАНЫ 🎉🎉🎉")
+            return None
     
     def _clean_price(self, price_str):
         """Очистка цены от лишних символов"""
