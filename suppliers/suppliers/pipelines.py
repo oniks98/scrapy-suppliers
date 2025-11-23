@@ -1,4 +1,5 @@
 import csv
+import re
 from pathlib import Path
 from itemadapter import ItemAdapter
 
@@ -9,7 +10,15 @@ class SuppliersPipeline:
     - prom_import.csv (розничные цены UAH)
     - prom_diler_import.csv (дилерские цены USD)
     
-    ФИЛЬТРАЦИЯ: Выводит только товары с ценой и в наличии
+    ФИЛЬТРАЦИЯ: 
+    - Пропускает товары БЕЗ цены
+    - Пропускает товары НЕ В НАЛИЧИИ
+    - "В наличии" → "+"
+    - "В наличии 5 шт" → Наявність: "+", Кількість: "5"
+    
+    ХАРАКТЕРИСТИКИ:
+    - Формат PROM: повторяющиеся триплеты БЕЗ нумерации
+    - Назва_Характеристики;Одиниця_виміру_Характеристики;Значення_Характеристики (x60 раз)
     """
     
     def __init__(self):
@@ -18,8 +27,8 @@ class SuppliersPipeline:
         self.retail_writer = None
         self.dealer_writer = None
         
-        # Поля CSV согласно формату PROM (порядок важен!)
-        self.fieldnames = [
+        # Поля CSV согласно формату PROM
+        self.fieldnames_base = [
             "Код_товару",
             "Назва_позиції",
             "Назва_позиції_укр",
@@ -71,118 +80,250 @@ class SuppliersPipeline:
             "Де_знаходиться_товар",
         ]
         
-        # Добавляем поля характеристик (30 штук по 3 поля каждая)
-        for i in range(1, 31):
-            self.fieldnames.extend([
-                f"Назва_Характеристики_{i}",
-                f"Одиниця_виміру_Характеристики_{i}",
-                f"Значення_Характеристики_{i}",
-            ])
+        # Путь к директории
+        self.output_dir = Path(r"C:\FullStack\Scrapy\output")
         
-        # Путь к директории для сохранения CSV
-        self.output_dir = Path(r"C:\Users\stalk\Documents\Prom")
+        # Счетчики для последовательной нумерации
+        self.retail_product_counter = 200000
+        self.dealer_product_counter = 200000
         
-        # Счетчики успешных записей
+        # Статистика
         self.retail_count = 0
         self.dealer_count = 0
-        self.filtered_count = 0
+        self.filtered_no_price = 0
+        self.filtered_no_stock = 0
     
     def open_spider(self, spider):
-        """Вызывается при запуске паука - создаём файлы и writers"""
+        """Создаём файлы с РУЧНЫМ УПРАВЛЕНИЕМ записью заголовков"""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         retail_path = self.output_dir / "prom_import.csv"
         dealer_path = self.output_dir / "prom_diler_import.csv"
         
-        # buffering=1 - построчная буферизация для реального времени
         self.retail_file = open(retail_path, "w", encoding="utf-8", newline="", buffering=1)
         self.dealer_file = open(dealer_path, "w", encoding="utf-8", newline="", buffering=1)
         
-        self.retail_writer = csv.DictWriter(
-            self.retail_file,
-            fieldnames=self.fieldnames,
-            delimiter=";",
-            extrasaction="ignore",
-        )
-        self.dealer_writer = csv.DictWriter(
-            self.dealer_file,
-            fieldnames=self.fieldnames,
-            delimiter=";",
-            extrasaction="ignore",
-        )
+        # Создаём заголовки ВРУЧНУЮ (без DictWriter для заголовков)
+        self._write_header(self.retail_file)
+        self._write_header(self.dealer_file)
         
-        self.retail_writer.writeheader()
-        self.dealer_writer.writeheader()
+        spider.logger.info(f"📝 Создан файл розницы: {retail_path}")
+        spider.logger.info(f"📝 Создан файл дилера: {dealer_path}")
+    
+    def _write_header(self, file_obj):
+        """Пишет заголовок с повторяющимися триплетами (БЕЗ нумерации)"""
+        header_parts = self.fieldnames_base.copy()
         
-        spider.logger.info(f"📝 Файл розницы: {retail_path}")
-        spider.logger.info(f"📝 Файл дилера: {dealer_path}")
+        # Добавляем 60 повторяющихся триплетов характеристик
+        for _ in range(60):
+            header_parts.extend([
+                "Назва_Характеристики",
+                "Одиниця_виміру_Характеристики",
+                "Значення_Характеристики",
+            ])
+        
+        file_obj.write(";".join(header_parts) + "\n")
     
     def close_spider(self, spider):
-        """Вызывается при завершении паука - закрываем файлы и логируем статистику"""
+        """Закрываем файлы и выводим статистику"""
         if self.retail_file:
             self.retail_file.close()
+        
         if self.dealer_file:
             self.dealer_file.close()
         
-        spider.logger.info(f"✅ Записано розницы: {self.retail_count} товаров")
-        spider.logger.info(f"✅ Записано дилера: {self.dealer_count} товаров")
-        spider.logger.info(f"⏭️  Отфильтровано: {self.filtered_count} товаров")
+        spider.logger.info("=" * 80)
+        spider.logger.info("📊 СТАТИСТИКА ФИЛЬТРАЦИИ")
+        spider.logger.info("=" * 80)
+        spider.logger.info(f"✅ Розничных товаров записано: {self.retail_count}")
+        spider.logger.info(f"✅ Дилерских товаров записано: {self.dealer_count}")
+        spider.logger.info(f"❌ Отфильтровано без цены: {self.filtered_no_price}")
+        spider.logger.info(f"❌ Отфильтровано без наличия: {self.filtered_no_stock}")
+        spider.logger.info("=" * 80)
     
     def process_item(self, item, spider):
-        """
-        Обрабатываем каждый item и записываем в CSV
-        ФИЛЬТРАЦИЯ ВРЕМЕННО ОТКЛЮЧЕНА ДЛЯ ОТЛАДКИ!
-        """
+        """Обрабатываем каждый item с ФИЛЬТРАЦИЕЙ"""
         adapter = ItemAdapter(item)
         
-        # Обязательные поля
-        name = adapter.get("Назва_позиції")
-        price = adapter.get("Ціна")
-        availability = adapter.get("Наявність")
+        # ========== ФИЛЬТР 1: Проверка цены ==========
+        price = adapter.get("Ціна", "")
+        if not price or not self._is_valid_price(price):
+            self.filtered_no_price += 1
+            spider.logger.debug(
+                f"⚠️ Пропущен товар без цены: {adapter.get('Назва_позиції', 'Unknown')}"
+            )
+            raise ValueError("Товар без цены")
         
-        # Фильтрация #1: проверка названия
-        if not name:
-            spider.logger.warning(f"⏭️  Нет названия товара, пропускаем")
-            self.filtered_count += 1
-            return item
+        # ========== ФИЛЬТР 2: Проверка наличия ==========
+        availability_raw = adapter.get("Наявність", "")
+        availability_status = self._check_availability(availability_raw)
         
-        # ⚠️ ВРЕМЕННО ОТКЛЮЧЕНО - ЗАПИСЫВАЕМ ВСЁ!
-        spider.logger.info(f"💾 Записываем: {name} | Цена: {price} | Наличие: {availability}")
+        if not availability_status:
+            self.filtered_no_stock += 1
+            spider.logger.debug(
+                f"⚠️ Пропущен товар не в наличии: {adapter.get('Назва_позиції', 'Unknown')} [{availability_raw}]"
+            )
+            raise ValueError("Товар не в наличии")
+        
+        # ========== ОБРАБОТКА НАЛИЧИЯ ==========
+        quantity = self._extract_quantity(availability_raw)
         
         # Очистка и нормализация данных
         cleaned_item = self._clean_item(adapter, spider)
         
-        # Определяем тип цены и пишем в соответствующий файл
+        # Обновляем поля наличия
+        cleaned_item["Наявність"] = "+"
+        cleaned_item["Кількість"] = quantity if quantity else ""
+        
+        # ========== ГЕНЕРАЦИЯ ПОСЛЕДОВАТЕЛЬНОГО КОДА ==========
         price_type = adapter.get("price_type", "retail")
         
         if price_type == "dealer":
-            self.dealer_writer.writerow(cleaned_item)
-            self.dealer_file.flush()  # Принудительная запись на диск
-            self.dealer_count += 1
-            spider.logger.debug(f"💰 Дилер: {cleaned_item.get('Назва_позиції')}")
+            cleaned_item["Код_товару"] = str(self.dealer_product_counter)
+            self.dealer_product_counter += 1
+            cleaned_item["Особисті_нотатки"] = "V"
         else:
-            self.retail_writer.writerow(cleaned_item)
-            self.retail_file.flush()  # Принудительная запись на диск
+            cleaned_item["Код_товару"] = str(self.retail_product_counter)
+            self.retail_product_counter += 1
+            cleaned_item["Особисті_нотатки"] = "PROM"
+        
+        # ========== ОБРАБОТКА ОПИСАНИЯ ==========
+        cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))
+        cleaned_item["Опис_укр"] = self._clean_description(cleaned_item.get("Опис_укр", ""))
+        
+        # ========== ОБРАБОТКА ХАРАКТЕРИСТИК ==========
+        specs_list = adapter.get("specifications_list", [])
+        
+        # Создаём ROW с базовыми полями + характеристиками
+        row_parts = []
+        
+        # Базовые поля
+        for field in self.fieldnames_base:
+            value = cleaned_item.get(field, "")
+            # Экранируем точку с запятой и кавычки
+            value_str = str(value).replace(";", ",").replace('"', '""')
+            row_parts.append(value_str)
+        
+        # Характеристики (60 триплетов)
+        for i in range(60):
+            if i < len(specs_list):
+                spec = specs_list[i]
+                row_parts.append(str(spec.get("name", "")).replace(";", ",").replace('"', '""'))
+                row_parts.append(str(spec.get("unit", "")).replace(";", ",").replace('"', '""'))
+                row_parts.append(str(spec.get("value", "")).replace(";", ",").replace('"', '""'))
+            else:
+                # Пустые триплеты
+                row_parts.extend(["", "", ""])
+        
+        # Записываем строку в нужный файл
+        row_line = ";".join(row_parts) + "\n"
+        
+        if price_type == "dealer":
+            self.dealer_file.write(row_line)
+            self.dealer_count += 1
+            spider.logger.debug(
+                f"💰 Дилер: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
+            )
+        else:
+            self.retail_file.write(row_line)
             self.retail_count += 1
-            spider.logger.debug(f"🛒 Розница: {cleaned_item.get('Назва_позиції')}")
+            spider.logger.debug(
+                f"🛒 Розница: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
+            )
         
         return item
+    
+    def _is_valid_price(self, price):
+        """Проверка валидности цены"""
+        if not price:
+            return False
+        
+        try:
+            price_float = float(str(price).replace(",", ".").replace(" ", ""))
+            return price_float > 0
+        except (ValueError, TypeError):
+            return False
+    
+    def _check_availability(self, availability_str):
+        """
+        Проверка наличия товара
+        Возвращает True если товар В НАЛИЧИИ, False если нет
+        """
+        if not availability_str:
+            return False
+        
+        availability_lower = str(availability_str).lower()
+        
+        in_stock_keywords = [
+            "є в наявності",
+            "в наявності",
+            "в наличии",
+            "есть",
+            "доступно",
+            "available",
+            "in stock",
+        ]
+        
+        for keyword in in_stock_keywords:
+            if keyword in availability_lower:
+                return True
+        
+        out_of_stock_keywords = [
+            "немає",
+            "нет в наличии",
+            "відсутній",
+            "закінчився",
+            "out of stock",
+            "unavailable",
+        ]
+        
+        for keyword in out_of_stock_keywords:
+            if keyword in availability_lower:
+                return False
+        
+        return False
+    
+    def _extract_quantity(self, availability_str):
+        """Извлекает количество из строки вида 'В наличии 5 шт'"""
+        if not availability_str:
+            return ""
+        
+        match = re.search(r'\d+', str(availability_str))
+        
+        if match:
+            return match.group()
+        
+        return ""
+    
+    def _clean_description(self, description):
+        """Очищает описание от текста про аналоги и сохраняет переносы"""
+        if not description:
+            return ""
+        
+        patterns_to_remove = [
+            r"Є товари з аналогічними характеристиками\s*→",
+            r"Есть товары с аналогичными характеристиками\s*→",
+        ]
+        
+        for pattern in patterns_to_remove:
+            description = re.sub(pattern, "", description, flags=re.IGNORECASE)
+        
+        description = re.sub(r'\s+', ' ', description)
+        
+        return description.strip()
     
     def _clean_item(self, adapter, spider):
         """Очистка и нормализация данных"""
         cleaned = {}
         
-        for field in self.fieldnames:
+        for field in self.fieldnames_base:
             value = adapter.get(field, "")
             
             if isinstance(value, str):
                 value = value.strip()
             
-            # Обработка специфичных полей
             if field == "Ціна":
                 value = self._clean_price(value)
-            elif field == "Наявність":
-                value = self._normalize_availability(value)
             elif field == "Валюта":
                 value = value.upper() if value else "UAH"
             elif field == "Одиниця_виміру":
@@ -193,47 +334,41 @@ class SuppliersPipeline:
         return cleaned
     
     def _clean_price(self, price):
-        """Очистка цены: удаляем все кроме цифр и точки"""
+        """
+        Очистка цены от лишних символов
+        ЗАМЕНЯЕТ ТОЧКУ НА ЗАПЯТУЮ в цене
+        """
         if not price:
             return ""
         
         price_str = str(price).replace(",", ".").replace(" ", "")
+        price_str = price_str.replace("грн", "").replace("₴", "").replace("$", "").replace("USD", "")
         
         try:
             cleaned = "".join(c for c in price_str if c.isdigit() or c == ".")
-            return str(float(cleaned)) if cleaned else ""
+            if cleaned:
+                price_float = float(cleaned)
+                return str(price_float).replace(".", ",")
+            return ""
         except ValueError:
             return ""
-    
-    def _normalize_availability(self, availability):
-        """Нормализация наличия товара"""
-        if not availability:
-            return "Уточняйте"
-        
-        availability_lower = str(availability).lower()
-        
-        if any(word in availability_lower for word in ["є в наявності", "в наличии", "есть", "доступно", "в наявності"]):
-            return "В наличии"
-        elif any(word in availability_lower for word in ["під замовлення", "під заказ", "под заказ"]):
-            return "Под заказ"
-        elif any(word in availability_lower for word in ["немає", "нет", "відсутній"]):
-            return "Нет в наличии"
-        else:
-            return "Уточняйте"
 
 
 class ValidationPipeline:
-    """
-    Дополнительный pipeline для валидации (опционально)
-    """
+    """Дополнительный pipeline для валидации"""
     
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         
-        required_fields = ["Назва_позиції", "Ціна"]
+        if not adapter.get("Назва_позиції"):
+            raise ValueError("Отсутствует название товара")
         
-        for field in required_fields:
-            if not adapter.get(field):
-                raise ValueError(f"❌ Отсутствует обязательное поле: {field}")
+        if not adapter.get("Ціна"):
+            raise ValueError("Отсутствует цена")
+        
+        try:
+            float(str(adapter.get("Ціна")).replace(",", "."))
+        except (ValueError, TypeError):
+            raise ValueError(f"Некорректная цена: {adapter.get('Ціна')}")
         
         return item

@@ -100,9 +100,13 @@ try:
     specs_rows_alt = response.css("div.card-tabs__characteristic-content table tr")
     print(f"2️⃣б Строки характеристик (table tr): {len(specs_rows_alt)} шт")
     
+    # АЛЬТЕРНАТИВА: через активный таб
+    specs_active_tab = response.css("li.card-tabs__item.active div.card-tabs__characteristic-content table tr")
+    print(f"2️⃣в Строки через активный таб: {len(specs_active_tab)} шт")
+    
     # АЛЬТЕРНАТИВА: просто table tr
     specs_simple = response.css("table tr")
-    print(f"2️⃣в Все строки таблиц (table tr): {len(specs_simple)} шт")
+    print(f"2️⃣г Все строки таблиц (table tr): {len(specs_simple)} шт")
     
     for i, row in enumerate(specs_rows_alt[:3], 1):
         name_spec = row.css("th::text").get()

@@ -1,7 +1,7 @@
 """
 Spider для парсинга дилерских цен с viatec.ua (USD)
 Требует авторизации с использованием .env
-Выгружает данные в: C:\\Users\\stalk\\Documents\\Prom\\prom_diler_import.csv
+Выгружает данные в: C:\FullStack\Scrapy\output\prom_diler_import.csv
 """
 import scrapy
 import csv
@@ -285,7 +285,7 @@ class ViatecDealerSpider(scrapy.Spider):
         # Селекторы для характеристик (адаптировать под viatec.ua)
         spec_rows = response.css("table.specifications tr")
         
-        for i, row in enumerate(spec_rows[:30], 1):  # Максимум 30 характеристик
+        for i, row in enumerate(spec_rows[:50], 1):  # Максимум 50 характеристик
             name = row.css("td:first-child::text").get()
             value = row.css("td:last-child::text").get()
             
