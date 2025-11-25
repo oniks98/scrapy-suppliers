@@ -209,6 +209,7 @@ class ViatecDealerSpider(scrapy.Spider):
                 yield scrapy.Request(
                     url=product_data["url"],
                     callback=self.parse_product,
+                    errback=self.parse_product_error,
                     meta=product_data["meta"],
                     dont_filter=True,
                 )
@@ -234,118 +235,162 @@ class ViatecDealerSpider(scrapy.Spider):
 
     def parse_product(self, response):
         """Парсим страницу товара (украинская версия) - НАЗВАНИЕ, ОПИСАНИЕ, ХАРАКТЕРИСТИКИ"""
-        self.logger.info(f"🔗 Парсим товар (UA): {response.url}")
-        
-        name_ua = response.css("h1::text").get()
-        name_ua = name_ua.strip() if name_ua else ""
-        
-        description_ua = self._extract_description_with_br(response)
-        
-        specs_list_ua = self._extract_specifications(response)
-        
-        self.logger.info(f"📐 Характеристик (UA) найдено: {len(specs_list_ua)} шт.")
-        
-        ru_url = self._convert_to_ru_url(response.url)
-        
-        yield scrapy.Request(
-            url=ru_url,
-            callback=self.parse_product_ru,
-            meta={
-                **response.meta,
-                "name_ua": name_ua,
-                "description_ua": description_ua,
-                "specifications_list": specs_list_ua,
-                "original_url": response.url,
-            },
-            dont_filter=True,
-        )
+        try:
+            self.logger.info(f"🔗 Парсим товар (UA): {response.url}")
+            
+            name_ua = response.css("h1::text").get()
+            name_ua = name_ua.strip() if name_ua else ""
+            
+            description_ua = self._extract_description_with_br(response)
+            
+            specs_list_ua = self._extract_specifications(response)
+            
+            self.logger.info(f"📐 Характеристик (UA) найдено: {len(specs_list_ua)} шт.")
+            
+            ru_url = self._convert_to_ru_url(response.url)
+            
+            yield scrapy.Request(
+                url=ru_url,
+                callback=self.parse_product_ru,
+                errback=self.parse_product_error,
+                meta={
+                    **response.meta,
+                    "name_ua": name_ua,
+                    "description_ua": description_ua,
+                    "specifications_list": specs_list_ua,
+                    "original_url": response.url,
+                },
+                dont_filter=True,
+            )
+        except Exception as e:
+            self.logger.error(f"❌ Ошибка парсинга продукта (UA): {response.url} | {e}")
+            yield from self._skip_product(response.meta)
+            return
     
     def parse_product_ru(self, response):
         """Парсим страницу товара (русская версия) и продолжаем цепочку"""
-        self.logger.info(f"🔗 Парсим товар (RU): {response.url}")
-        
-        name_ru = response.css("h1::text").get()
-        name_ru = name_ru.strip() if name_ru else ""
-        
-        description_ru = self._extract_description_with_br(response)
-        
-        name_ua = response.meta.get("name_ua", "")
-        description_ua = response.meta.get("description_ua", "")
-        specs_list = response.meta.get("specifications_list", [])
-        
-        code = ""
-        
-        # ДИЛЕРСКАЯ ЦЕНА В USD (селектор тот же, но валюта USD)
-        price_raw = response.css("div.card-header__card-price-new::text").get()
-        price_raw = price_raw.strip().replace("&nbsp;", "").replace(" ", "") if price_raw else ""
-        price = self._clean_price(price_raw) if price_raw else ""
-        currency = "USD"
-        
-        self.logger.info(f"📝 Описание RU: {len(description_ru)} символов")
-        self.logger.info(f"📝 Описание UA: {len(description_ua)} символов")
-        
-        images = response.css("img.card-header__card-images-image::attr(src)").getall()
-        image_url = response.urljoin(images[0]) if images else ""
-        
-        availability_raw_text = response.css("div.card-header__card-status-badge::text").get()
-        availability_status = self._normalize_availability(availability_raw_text)
-        quantity = self._extract_quantity(availability_raw_text)
-        
-        manufacturer = self._extract_manufacturer(name_ru)
-        
-        search_terms_ru = self._generate_search_terms(name_ru)
-        search_terms_ua = self._generate_search_terms(name_ua)
-        
-        item = {
-            "Код_товару": code,
-            "Назва_позиції": name_ru,
-            "Назва_позиції_укр": name_ua,
-            "Пошукові_запити": search_terms_ru,
-            "Пошукові_запити_укр": search_terms_ua,
-            "Опис": description_ru,
-            "Опис_укр": description_ua,
-            "Тип_товару": "r",
-            "Ціна": price,
-            "Валюта": currency,
-            "Одиниця_виміру": "шт.",
-            "Посилання_зображення": image_url,
-            "Наявність": availability_status,
-            "Кількість": quantity,
-            "Назва_групи": response.meta.get("category_ru", ""),
-            "Назва_групи_укр": response.meta.get("category_ua", ""),
-            "Номер_групи": response.meta.get("group_number", ""),
-            "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
-            "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
-            "Виробник": manufacturer,
-            "Країна_виробник": "",
-            "price_type": "dealer",
-            "Продукт_на_сайті": response.meta.get("original_url", response.url),
-            "specifications_list": specs_list,
-        }
-        
-        self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} USD | Характеристик: {len(specs_list)}")
-        yield item
-        
-        remaining_products = response.meta.get("remaining_products", [])
-        category_index = response.meta.get("category_index")
+        try:
+            self.logger.info(f"🔗 Парсим товар (RU): {response.url}")
+            
+            name_ru = response.css("h1::text").get()
+            name_ru = name_ru.strip() if name_ru else ""
+            
+            description_ru = self._extract_description_with_br(response)
+            
+            name_ua = response.meta.get("name_ua", "")
+            description_ua = response.meta.get("description_ua", "")
+            specs_list = response.meta.get("specifications_list", [])
+            
+            code = ""
+            
+            # ДИЛЕРСКАЯ ЦЕНА В USD (селектор тот же, но валюта USD)
+            price_raw = response.css("div.card-header__card-price-new::text").get()
+            price_raw = price_raw.strip().replace("&nbsp;", "").replace(" ", "") if price_raw else ""
+            price = self._clean_price(price_raw) if price_raw else ""
+            currency = "USD"
+            
+            self.logger.info(f"📝 Описание RU: {len(description_ru)} символов")
+            self.logger.info(f"📝 Описание UA: {len(description_ua)} символов")
+            
+            images = response.css("img.card-header__card-images-image::attr(src)").getall()
+            image_url = response.urljoin(images[0]) if images else ""
+            
+            availability_raw_text = response.css("div.card-header__card-status-badge::text").get()
+            availability_status = self._normalize_availability(availability_raw_text)
+            quantity = self._extract_quantity(availability_raw_text)
+            
+            manufacturer = self._extract_manufacturer(name_ru)
+            
+            search_terms_ru = self._generate_search_terms(name_ru)
+            search_terms_ua = self._generate_search_terms(name_ua)
+            
+            item = {
+                "Код_товару": code,
+                "Назва_позиції": name_ru,
+                "Назва_позиції_укр": name_ua,
+                "Пошукові_запити": search_terms_ru,
+                "Пошукові_запити_укр": search_terms_ua,
+                "Опис": description_ru,
+                "Опис_укр": description_ua,
+                "Тип_товару": "r",
+                "Ціна": price,
+                "Валюта": currency,
+                "Одиниця_виміру": "шт.",
+                "Посилання_зображення": image_url,
+                "Наявність": availability_status,
+                "Кількість": quantity,
+                "Назва_групи": response.meta.get("category_ru", ""),
+                "Назва_групи_укр": response.meta.get("category_ua", ""),
+                "Номер_групи": response.meta.get("group_number", ""),
+                "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
+                "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
+                "Виробник": manufacturer,
+                "Країна_виробник": "",
+                "price_type": "dealer",
+                "Продукт_на_сайті": response.meta.get("original_url", response.url),
+                "specifications_list": specs_list,
+            }
+            
+            self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} USD | Характеристик: {len(specs_list)}")
+            yield item
+            
+            yield from self._skip_product(response.meta)
 
-        if remaining_products:
-            next_product_data = remaining_products.pop(0)
-            next_product_data["meta"]["remaining_products"] = remaining_products
-            next_product_data["meta"]["category_index"] = category_index
+        except Exception as e:
+            self.logger.error(f"❌ Ошибка парсинга продукта (RU): {response.url} | {e}")
+            yield from self._skip_product(response.meta)
+            return
 
-            self.logger.info(f"🔗 Продолжаем цепочку продуктов. Осталось: {len(remaining_products)}")
+    def parse_product_error(self, failure):
+        url = failure.request.url
+        self.logger.error(f"❌ Ошибка загрузки товара: {url}. Причина: {failure.value}")
+
+        meta = failure.request.meta
+
+        remaining = meta.get("remaining_products", [])
+        category_index = meta.get("category_index")
+
+        if remaining:
+            next_data = remaining.pop(0)
+            next_data["meta"]["remaining_products"] = remaining
+            next_data["meta"]["category_index"] = category_index
+
+            self.logger.info(f"⏭️ Пропускаю товар. Осталось: {len(remaining)}")
             yield scrapy.Request(
-                url=next_product_data["url"],
+                url=next_data["url"],
                 callback=self.parse_product,
-                meta=next_product_data["meta"],
+                errback=self.parse_product_error,
+                meta=next_data["meta"],
                 dont_filter=True,
             )
         else:
-            self.logger.info(f"✅ Все продукты категории [{category_index + 1}] обработаны.")
-            next_request = self._start_next_category(category_index)
-            if next_request:
-                yield next_request
+            self.logger.info(f"⏭️ Все товары категории обработаны (с ошибками).")
+            next_cat = self._start_next_category(category_index)
+            if next_cat:
+                yield next_cat
+
+    def _skip_product(self, meta):
+        remaining = meta.get("remaining_products", [])
+        category_index = meta.get("category_index")
+
+        if remaining:
+            next_data = remaining.pop(0)
+            next_data["meta"]["remaining_products"] = remaining
+            next_data["meta"]["category_index"] = category_index
+
+            self.logger.info(f"⏭️ Переход к следующему товару. Осталось: {len(remaining)}")
+            yield scrapy.Request(
+                url=next_data["url"],
+                callback=self.parse_product,
+                errback=self.parse_product_error,
+                meta=next_data["meta"],
+                dont_filter=True,
+            )
+        else:
+            self.logger.info(f"⏭️ Товары категории закончились.")
+            next_cat = self._start_next_category(category_index)
+            if next_cat:
+                yield next_cat
 
     def _start_next_category(self, current_category_index):
         """Вспомогательный метод для запуска следующей категории"""

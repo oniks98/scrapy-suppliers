@@ -1,100 +1,121 @@
-Ошибка не связана с логином.
-Она означает только одно:
+в 
+C:\FullStack\Scrapy\suppliers\suppliers\spiders\viatec_dealer.py
+C:\FullStack\Scrapy\suppliers\suppliers\spiders\viatec_retail.py
 
-KeyError: 'category_url'
+добавь
+этом пауке — та же проблема, только скрытая глубже.
 
+Если любой продукт падает по timeout / 502 / зависает / парсер кидает исключение → Scrapy НЕ идёт к следующему товару.
+Причина — нет errback и нет защиты от исключений в parse_product и parse_product_ru.
+Из-за этого цепочка оборвается, и паук закрывается как «finished» с недозагруженными товарами.
 
-Твоё новое начало парсинга категории не передаёт meta["category_url"], а внутри parse_category ты всё ещё пытаешься это читать.
+Нужно сделать ту же защиту, что я показал выше, но аккуратно встроенную в твою цепочку.
 
-То есть:
-мы переписали авторизацию, но логика категории осталась старая и сломалась.
+Ниже — полностью корректная интеграция для твоего случая.
 
-✔️ Что именно ломается сейчас
-
-У тебя в parse_category стоит строка:
-
-category_url = response.meta["category_url"]
-
-
-Но в запросе после логина ты вызываешь:
-
+1. Добавь ERRBACK в оба вызова товара
+В parse_category (когда начинается цепочка):
 yield scrapy.Request(
-    first,
-    callback=self.parse_category,
-    dont_filter=True
+    url=product_data["url"],
+    callback=self.parse_product,
+    errback=self.parse_product_error,
+    meta=product_data["meta"],
+    dont_filter=True,
 )
 
+В parse_product (когда переходишь на RU-страницу):
+yield scrapy.Request(
+    url=ru_url,
+    callback=self.parse_product_ru,
+    errback=self.parse_product_error,
+    meta={ ... },
+    dont_filter=True,
+)
 
-Без meta={"category_url": first} → ошибка.
-Именно это ты видишь.
+2. Добавь универсальный обработчик ошибок товаров
+def parse_product_error(self, failure):
+    url = failure.request.url
+    self.logger.error(f"❌ Ошибка загрузки товара: {url}. Причина: {failure.value}")
 
-✔️ Исправленный рабочий старт категорий
+    meta = failure.request.meta
 
-Исправь after_login так:
+    remaining = meta.get("remaining_products", [])
+    category_index = meta.get("category_index")
 
-def after_login(self, response):
-    if b"viatec_session" not in b" ".join(response.headers.getlist("Set-Cookie")):
-        self.logger.error("Авторизация не выполнена!")
+    if remaining:
+        next_data = remaining.pop(0)
+        next_data["meta"]["remaining_products"] = remaining
+        next_data["meta"]["category_index"] = category_index
+
+        self.logger.info(f"⏭️ Пропускаю товар. Осталось: {len(remaining)}")
+        yield scrapy.Request(
+            url=next_data["url"],
+            callback=self.parse_product,
+            errback=self.parse_product_error,
+            meta=next_data["meta"],
+            dont_filter=True,
+        )
+    else:
+        self.logger.info(f"⏭️ Все товары категории обработаны (с ошибками).")
+        next_cat = self._start_next_category(category_index)
+        if next_cat:
+            yield next_cat
+
+3. Добавь try/except в оба парсера
+В parse_product:
+def parse_product(self, response):
+    try:
+        ...
+        # твой код
+        ...
+    except Exception as e:
+        self.logger.error(f"❌ Ошибка парсинга продукта (UA): {response.url} | {e}")
+        yield from self._skip_product(response.meta)
         return
 
-    self.logger.info("УСПЕШНЫЙ ЛОГИН")
-
-    if not self.category_urls:
-        self.logger.error("Нет категорий для парсинга.")
+В parse_product_ru:
+def parse_product_ru(self, response):
+    try:
+        ...
+        # твой код
+        ...
+    except Exception as e:
+        self.logger.error(f"❌ Ошибка парсинга продукта (RU): {response.url} | {e}")
+        yield from self._skip_product(response.meta)
         return
 
-    first = self.category_urls[0]
+    # после успешного yield item ...
 
-    yield scrapy.Request(
-        url=first,
-        callback=self.parse_category,
-        meta={
-            "category_url": first,
-            "category_index": 0,
-            "page_number": 1
-        },
-        dont_filter=True
-    )
+4. Вспомогательная функция _skip_product
+def _skip_product(self, meta):
+    remaining = meta.get("remaining_products", [])
+    category_index = meta.get("category_index")
 
-✔️ И поправь переход по страницам и категориям:
+    if remaining:
+        next_data = remaining.pop(0)
+        next_data["meta"]["remaining_products"] = remaining
+        next_data["meta"]["category_index"] = category_index
 
-В parse_category замени переходы на:
+        self.logger.info(f"⏭️ Переход к следующему товару. Осталось: {len(remaining)}")
+        yield scrapy.Request(
+            url=next_data["url"],
+            callback=self.parse_product,
+            errback=self.parse_product_error,
+            meta=next_data["meta"],
+            dont_filter=True,
+        )
+    else:
+        self.logger.info(f"⏭️ Товары категории закончились.")
+        next_cat = self._start_next_category(category_index)
+        if next_cat:
+            yield next_cat
 
-Пагинация
-if next_page:
-    yield scrapy.Request(
-        url=urljoin(response.url, next_page),
-        callback=self.parse_category,
-        meta={
-            "category_url": response.meta["category_url"],
-            "category_index": response.meta["category_index"],
-            "page_number": response.meta["page_number"] + 1
-        },
-        dont_filter=True
-    )
-    return
+Результат
 
-Следующая категория
-next_idx = response.meta["category_index"] + 1
+Теперь:
 
-if next_idx < len(self.category_urls):
-    next_cat = self.category_urls[next_idx]
-
-    yield scrapy.Request(
-        url=next_cat,
-        callback=self.parse_category,
-        meta={
-            "category_url": next_cat,
-            "category_index": next_idx,
-            "page_number": 1
-        },
-        dont_filter=True
-    )
-
-✔️ Итог
-
-Авторизация работает.
-
-Ошибка была не из-за логина.
-
-Исправления выше — полностью устраняют её.
+✔ паук больше не прекращает работу из-за одного товара
+✔ если один товар недоступен — он пропускается
+✔ цепочка всегда доходит до конца категории
+✔ сайт может виснуть — парсер не рухнет
+✔ все категории будут обработаны гарантированно
