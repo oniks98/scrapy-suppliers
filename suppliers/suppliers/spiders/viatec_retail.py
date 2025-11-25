@@ -1,6 +1,10 @@
 """
 Spider для парсинга розничных цен с viatec.ua (UAH)
 Выгружает данные в: C:\FullStack\Scrapy\output\prom_import.csv
+
+⚠️ ВАЖНО: Паук создаёт ТОЛЬКО файл розницы (prom_import.csv)
+Файл дилера НЕ создаётся при запуске этого паука
+
 ПОСЛЕДОВАТЕЛЬНАЯ ОБРАБОТКА: категория → все страницы пагинации → следующая категория
 ХАРАКТЕРИСТИКИ: парсятся на УКРАИНСКОМ (UA) языке
 """
@@ -10,6 +14,7 @@ import re
 from pathlib import Path
 from urllib.parse import urljoin
 from scrapy import Selector
+import winsound
 
 
 class ViatecRetailSpider(scrapy.Spider):
@@ -37,7 +42,7 @@ class ViatecRetailSpider(scrapy.Spider):
     def _load_category_mapping(self):
         """Загружает маппинг категорий из CSV"""
         mapping = {}
-        csv_path = Path(r"C:\FullStack\Scrapy\data\category_matching_viatec.csv")
+        csv_path = Path(r"C:\FullStack\Scrapy\data\category_matching_retail_viatec.csv")
         
         try:
             with open(csv_path, encoding="utf-8-sig") as f:
@@ -324,7 +329,7 @@ class ViatecRetailSpider(scrapy.Spider):
         
         availability_lower = availability.lower()
         
-        if any(word in availability_lower for word in ["є в наявності", "в наличии", "есть"]):
+        if any(word in availability_lower for word in ["є в наявності", "в наличии", "есть", "заканчивается", "закінчується"]):
             return "В наличии"
         elif any(word in availability_lower for word in ["під замовлення", "под заказ"]):
             return "Под заказ"
@@ -539,3 +544,15 @@ class ViatecRetailSpider(scrapy.Spider):
         
         self.logger.warning(f"В контейнере описания не найдены ни <ul>, ни <p> на {response.url}")
         return ""
+    
+    def closed(self, reason):
+        """Вызывается при завершении паука - издаём звуковой сигнал"""
+        self.logger.info(f"🎉 Паук {self.name} завершён! Причина: {reason}")
+        
+        # Воспроизводим 3 коротких сигнала
+        try:
+            for _ in range(3):
+                winsound.Beep(1000, 300)  # Частота 1000 Hz, длительность 300 мс
+            self.logger.info("🔔 Звуковой сигнал воспроизведён!")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Не удалось воспроизвести звук: {e}")

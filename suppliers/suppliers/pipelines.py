@@ -7,8 +7,8 @@ from itemadapter import ItemAdapter
 class SuppliersPipeline:
     """
     Pipeline для записи данных в два CSV файла:
-    - prom_import.csv (розничные цены UAH)
-    - prom_diler_import.csv (дилерские цены USD)
+    - prom_import.csv (розничные цены UAH) - только для viatec_retail
+    - prom_diler_import.csv (дилерские цены USD) - только для viatec_dealer
     
     ФИЛЬТРАЦИЯ: 
     - Пропускает товары БЕЗ цены
@@ -94,21 +94,24 @@ class SuppliersPipeline:
         self.filtered_no_stock = 0
     
     def open_spider(self, spider):
-        """Создаём файлы с РУЧНЫМ УПРАВЛЕНИЕМ записью заголовков"""
+        """Создаём файлы ТОЛЬКО ДЛЯ КОНКРЕТНОГО ПАУКА"""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        retail_path = self.output_dir / "prom_import.csv"
-        dealer_path = self.output_dir / "prom_diler_import.csv"
+        # Проверяем имя паука и создаём только нужный файл
+        if spider.name == "viatec_retail":
+            retail_path = self.output_dir / "prom_import.csv"
+            self.retail_file = open(retail_path, "w", encoding="utf-8", newline="", buffering=1)
+            self._write_header(self.retail_file)
+            spider.logger.info(f"📝 Создан файл розницы: {retail_path}")
         
-        self.retail_file = open(retail_path, "w", encoding="utf-8", newline="", buffering=1)
-        self.dealer_file = open(dealer_path, "w", encoding="utf-8", newline="", buffering=1)
+        elif spider.name == "viatec_dealer":
+            dealer_path = self.output_dir / "prom_diler_import.csv"
+            self.dealer_file = open(dealer_path, "w", encoding="utf-8", newline="", buffering=1)
+            self._write_header(self.dealer_file)
+            spider.logger.info(f"📝 Создан файл дилера: {dealer_path}")
         
-        # Создаём заголовки ВРУЧНУЮ (без DictWriter для заголовков)
-        self._write_header(self.retail_file)
-        self._write_header(self.dealer_file)
-        
-        spider.logger.info(f"📝 Создан файл розницы: {retail_path}")
-        spider.logger.info(f"📝 Создан файл дилера: {dealer_path}")
+        else:
+            spider.logger.warning(f"⚠️ Неизвестный паук: {spider.name}. Файлы не созданы.")
     
     def _write_header(self, file_obj):
         """Пишет заголовок с повторяющимися триплетами (БЕЗ нумерации)"""
@@ -135,8 +138,12 @@ class SuppliersPipeline:
         spider.logger.info("=" * 80)
         spider.logger.info("📊 СТАТИСТИКА ФИЛЬТРАЦИИ")
         spider.logger.info("=" * 80)
-        spider.logger.info(f"✅ Розничных товаров записано: {self.retail_count}")
-        spider.logger.info(f"✅ Дилерских товаров записано: {self.dealer_count}")
+        
+        if spider.name == "viatec_retail":
+            spider.logger.info(f"✅ Розничных товаров записано: {self.retail_count}")
+        elif spider.name == "viatec_dealer":
+            spider.logger.info(f"✅ Дилерских товаров записано: {self.dealer_count}")
+        
         spider.logger.info(f"❌ Отфильтровано без цены: {self.filtered_no_price}")
         spider.logger.info(f"❌ Отфильтровано без наличия: {self.filtered_no_stock}")
         spider.logger.info("=" * 80)
@@ -221,17 +228,19 @@ class SuppliersPipeline:
         row_line = ";".join(row_parts) + "\n"
         
         if price_type == "dealer":
-            self.dealer_file.write(row_line)
-            self.dealer_count += 1
-            spider.logger.debug(
-                f"💰 Дилер: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
-            )
+            if self.dealer_file:
+                self.dealer_file.write(row_line)
+                self.dealer_count += 1
+                spider.logger.debug(
+                    f"💰 Дилер: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
+                )
         else:
-            self.retail_file.write(row_line)
-            self.retail_count += 1
-            spider.logger.debug(
-                f"🛒 Розница: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
-            )
+            if self.retail_file:
+                self.retail_file.write(row_line)
+                self.retail_count += 1
+                spider.logger.debug(
+                    f"🛒 Розница: {cleaned_item.get('Назва_позиції')} | Цена: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
+                )
         
         return item
     

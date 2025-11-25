@@ -20,7 +20,7 @@
    └─ Визуальная карта селекторов с HTML примерами
 
 4️⃣ Запустить spider:
-   cd C:\FullStack\Scrapy\suppliers
+   cd suppliers
    scrapy crawl viatec_retail
 
 

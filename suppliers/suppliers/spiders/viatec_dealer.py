@@ -1,7 +1,11 @@
-"""
+r"""
 Spider для парсинга дилерских цен с viatec.ua (USD)
 Требует авторизации через форму логина
 Выгружает данные в: C:\FullStack\Scrapy\output\prom_diler_import.csv
+
+⚠️ ВАЖНО: Паук создаёт ТОЛЬКО файл дилера (prom_diler_import.csv)
+Файл розницы НЕ создаётся при запуске этого паука
+
 ПОСЛЕДОВАТЕЛЬНАЯ ОБРАБОТКА: категория → все страницы пагинации → следующая категория
 ХАРАКТЕРИСТИКИ: парсятся на УКРАИНСКОМ (UA) языке
 """
@@ -13,6 +17,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 import os
 from dotenv import load_dotenv
+import winsound
 
 
 class ViatecDealerSpider(scrapy.Spider):
@@ -27,6 +32,7 @@ class ViatecDealerSpider(scrapy.Spider):
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 2.0,
         "COOKIES_ENABLED": True,
+        "HTTPERROR_ALLOWED_CODES": [404, 500, 502, 503],
     }
     
     def __init__(self, *args, **kwargs):
@@ -49,7 +55,7 @@ class ViatecDealerSpider(scrapy.Spider):
     def _load_category_mapping(self):
         """Загружает маппинг категорий из CSV"""
         mapping = {}
-        csv_path = Path(r"C:\FullStack\Scrapy\data\category_matching_viatec.csv")
+        csv_path = Path(r"C:\FullStack\Scrapy\data\category_matching_dealer_viatec.csv")
         
         try:
             with open(csv_path, encoding="utf-8-sig") as f:
@@ -74,55 +80,60 @@ class ViatecDealerSpider(scrapy.Spider):
         return mapping
     
     def start_requests(self):
-        """Начинаем с авторизации"""
-        self.logger.info(f"🔐 Начинаем авторизацию для пользователя: {self.email}")
-        
+        # сначала GET /login → получим cookies и csrf
         yield scrapy.Request(
-            url="https://viatec.ua/ru/login",
-            callback=self.login,
-            dont_filter=True,
+            "https://viatec.ua/login",
+            callback=self.parse_login_page,
+            dont_filter=True
         )
-    
-    def login(self, response):
-        """Отправляем форму авторизации"""
-        self.logger.info("📝 Заполняем форму авторизации...")
-        
-        return FormRequest.from_response(
-            response,
-            formxpath='//form[@action="https://viatec.ua/ru/login"]',
+
+
+    def parse_login_page(self, response):
+        # извлекаем CSRF
+        csrf = response.css("input[name=_token]::attr(value)").get()
+
+        if not csrf:
+            self.logger.error("Не найден CSRF (_token) на странице логина!")
+            return
+
+        self.logger.info(f"Найден CSRF: {csrf}")
+
+        yield scrapy.FormRequest(
+            url="https://viatec.ua/login",
+            method="POST",
             formdata={
-                'authEnterEmail': self.email,
-                'authEnterPassword': self.password,
-                'welcomeRemember': 'on',
+                "_token": csrf,
+                "email": self.email,
+                "password": self.password,
             },
             callback=self.after_login,
-            dont_click=False,
+            dont_filter=True
         )
-    
+
+
     def after_login(self, response):
-        """Проверяем успешность авторизации и начинаем парсинг"""
-        
-        # Проверяем признаки успешной авторизации
-        if response.xpath('//a[contains(@href, "logout") or contains(@class, "user-profile")]'):
-            self.logger.info('✅ Успешная авторизация! Начинаем парсинг...')
-            
-            # Запускаем парсинг первой категории
-            if self.category_urls:
-                first_category_url = self.category_urls[0]
-                self.logger.info(f"🚀 СТАРТ ПАРСИНГА. Первая категория [1/{len(self.category_urls)}]: {first_category_url}")
-                yield scrapy.Request(
-                    url=first_category_url,
-                    callback=self.parse_category,
-                    meta={
-                        "category_url": first_category_url,
-                        "category_index": 0,
-                        "page_number": 1,
-                    },
-                    dont_filter=True,
-                )
-        else:
-            self.logger.error('❌ Ошибка авторизации! Проверьте логин/пароль в .env')
-            self.logger.debug(f"Response URL: {response.url}")
+        if b"viatec_session" not in b" ".join(response.headers.getlist("Set-Cookie")):
+            self.logger.error("Авторизация не выполнена!")
+            return
+
+        self.logger.info("УСПЕШНЫЙ ЛОГИН")
+
+        if not self.category_urls:
+            self.logger.error("Нет категорий для парсинга.")
+            return
+
+        first = self.category_urls[0]
+
+        yield scrapy.Request(
+            url=first,
+            callback=self.parse_category,
+            meta={
+                "category_url": first,
+                "category_index": 0,
+                "page_number": 1
+            },
+            dont_filter=True
+        )
 
     def parse_category(self, response):
         """Парсим список товаров в категории и страницы пагинации"""
@@ -174,15 +185,15 @@ class ViatecDealerSpider(scrapy.Spider):
 
         if next_page_link:
             self.logger.info(f"📄 Переход на следующую страницу пагинации ({page_number + 1}): {next_page_link}")
-            yield response.follow(
-                next_page_link,
+            yield scrapy.Request(
+                url=urljoin(response.url, next_page_link),
                 callback=self.parse_category,
                 meta={
-                    "category_url": category_url,
-                    "category_index": category_index,
-                    "page_number": page_number + 1,
+                    "category_url": response.meta["category_url"],
+                    "category_index": response.meta["category_index"],
+                    "page_number": response.meta["page_number"] + 1
                 },
-                dont_filter=True,
+                dont_filter=True
             )
         else:
             self.logger.info(f"✅ ПАГИНАЦИЯ ЗАВЕРШЕНА [{category_index + 1}/{len(self.category_urls)}]: накоплено {len(self.products_from_pagination)} товаров")
@@ -203,7 +214,21 @@ class ViatecDealerSpider(scrapy.Spider):
                 )
             else:
                 self.logger.warning(f"⚠️ В категории {category_url} не найдено товаров. Перехожу к следующей.")
-                yield self._start_next_category(category_index)
+                next_idx = response.meta["category_index"] + 1
+
+                if next_idx < len(self.category_urls):
+                    next_cat = self.category_urls[next_idx]
+
+                    yield scrapy.Request(
+                        url=next_cat,
+                        callback=self.parse_category,
+                        meta={
+                            "category_url": next_cat,
+                            "category_index": next_idx,
+                            "page_number": 1
+                        },
+                        dont_filter=True
+                    )
 
             self.products_from_pagination = []
 
@@ -363,7 +388,7 @@ class ViatecDealerSpider(scrapy.Spider):
         
         availability_lower = availability.lower()
         
-        if any(word in availability_lower for word in ["є в наявності", "в наличии", "есть"]):
+        if any(word in availability_lower for word in ["є в наявності", "в наличии", "есть", "заканчивается", "закінчується"]):
             return "В наличии"
         elif any(word in availability_lower for word in ["під замовлення", "под заказ"]):
             return "Под заказ"
@@ -559,3 +584,15 @@ class ViatecDealerSpider(scrapy.Spider):
         
         self.logger.warning(f"В контейнере описания не найдены ни <ul>, ни <p> на {response.url}")
         return ""
+    
+    def closed(self, reason):
+        """Вызывается при завершении паука - издаём звуковой сигнал"""
+        self.logger.info(f"🎉 Паук {self.name} завершён! Причина: {reason}")
+        
+        # Воспроизводим 3 коротких сигнала
+        try:
+            for _ in range(3):
+                winsound.Beep(1000, 300)  # Частота 1000 Hz, длительность 300 мс
+            self.logger.info("🔔 Звуковой сигнал воспроизведён!")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Не удалось воспроизвести звук: {e}")

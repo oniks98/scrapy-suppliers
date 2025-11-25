@@ -1,0 +1,100 @@
+Ошибка не связана с логином.
+Она означает только одно:
+
+KeyError: 'category_url'
+
+
+Твоё новое начало парсинга категории не передаёт meta["category_url"], а внутри parse_category ты всё ещё пытаешься это читать.
+
+То есть:
+мы переписали авторизацию, но логика категории осталась старая и сломалась.
+
+✔️ Что именно ломается сейчас
+
+У тебя в parse_category стоит строка:
+
+category_url = response.meta["category_url"]
+
+
+Но в запросе после логина ты вызываешь:
+
+yield scrapy.Request(
+    first,
+    callback=self.parse_category,
+    dont_filter=True
+)
+
+
+Без meta={"category_url": first} → ошибка.
+Именно это ты видишь.
+
+✔️ Исправленный рабочий старт категорий
+
+Исправь after_login так:
+
+def after_login(self, response):
+    if b"viatec_session" not in b" ".join(response.headers.getlist("Set-Cookie")):
+        self.logger.error("Авторизация не выполнена!")
+        return
+
+    self.logger.info("УСПЕШНЫЙ ЛОГИН")
+
+    if not self.category_urls:
+        self.logger.error("Нет категорий для парсинга.")
+        return
+
+    first = self.category_urls[0]
+
+    yield scrapy.Request(
+        url=first,
+        callback=self.parse_category,
+        meta={
+            "category_url": first,
+            "category_index": 0,
+            "page_number": 1
+        },
+        dont_filter=True
+    )
+
+✔️ И поправь переход по страницам и категориям:
+
+В parse_category замени переходы на:
+
+Пагинация
+if next_page:
+    yield scrapy.Request(
+        url=urljoin(response.url, next_page),
+        callback=self.parse_category,
+        meta={
+            "category_url": response.meta["category_url"],
+            "category_index": response.meta["category_index"],
+            "page_number": response.meta["page_number"] + 1
+        },
+        dont_filter=True
+    )
+    return
+
+Следующая категория
+next_idx = response.meta["category_index"] + 1
+
+if next_idx < len(self.category_urls):
+    next_cat = self.category_urls[next_idx]
+
+    yield scrapy.Request(
+        url=next_cat,
+        callback=self.parse_category,
+        meta={
+            "category_url": next_cat,
+            "category_index": next_idx,
+            "page_number": 1
+        },
+        dont_filter=True
+    )
+
+✔️ Итог
+
+Авторизация работает.
+
+Ошибка была не из-за логина.
+
+Исправления выше — полностью устраняют её.
