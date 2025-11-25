@@ -1,8 +1,8 @@
 """
 Spider для парсинга розничных цен с viatec.ua (UAH)
-Выгружает данные в: C:\FullStack\Scrapy\output\prom_import.csv
+Выгружает данные в: C:\FullStack\Scrapy\output\viatec_retail.csv
 
-⚠️ ВАЖНО: Паук создаёт ТОЛЬКО файл розницы (prom_import.csv)
+⚠️ ВАЖНО: Паук создаёт ТОЛЬКО файл розницы (viatec_retail.csv)
 Файл дилера НЕ создаётся при запуске этого паука
 
 ПОСЛЕДОВАТЕЛЬНАЯ ОБРАБОТКА: категория → все страницы пагинации → следующая категория
@@ -38,11 +38,12 @@ class ViatecRetailSpider(scrapy.Spider):
         self.current_category_index = 0
         self.products_from_pagination = []  # Накапливаем товары со всех страниц пагинации
         self.processed_products = set()  # Отслеживаем обработанные товары (по original_url)
+        self.failed_products = []
     
     def _load_category_mapping(self):
         """Загружает маппинг категорий из CSV"""
         mapping = {}
-        csv_path = Path(r"C:\FullStack\Scrapy\data\category_matching_retail_viatec.csv")
+        csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\viatec_category_retail.csv")
         
         try:
             with open(csv_path, encoding="utf-8-sig") as f:
@@ -281,7 +282,11 @@ class ViatecRetailSpider(scrapy.Spider):
 
     def parse_product_error(self, failure):
         url = failure.request.url
-        self.logger.error(f"❌ Ошибка загрузки товара: {url}. Причина: {failure.value}")
+        reason = failure.value
+        product_name = failure.request.meta.get("name_ru", "Название не найдено")
+
+        self.logger.error(f"❌ Ошибка загрузки товара: {product_name} ({url}). Причина: {reason}")
+        self.failed_products.append({"url": url, "reason": str(reason), "product_name": product_name})
 
         meta = failure.request.meta
 
@@ -519,7 +524,7 @@ class ViatecRetailSpider(scrapy.Spider):
         """Загружает маппинг производителей из CSV файла"""
         mapping = {}
         try:
-            csv_path = Path(r"C:\FullStack\Scrapy\data\manufacturers_viatec.csv")
+            csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\viatec_manufacturers.csv")
             if csv_path.exists():
                 with open(csv_path, encoding="utf-8-sig") as f:
                     reader = csv.DictReader(f, delimiter=";")
@@ -588,9 +593,19 @@ class ViatecRetailSpider(scrapy.Spider):
         return ""
     
     def closed(self, reason):
-        """Вызывается при завершении паука - издаём звуковой сигнал"""
+        """Вызывается при завершении паука - издаём звуковой сигнал и выводим статистику по ошибкам"""
         self.logger.info(f"🎉 Паук {self.name} завершён! Причина: {reason}")
-        
+
+        if self.failed_products:
+            self.logger.info("=" * 80)
+            self.logger.info("📦 СПИСОК ТОВАРОВ С ОШИБКАМИ ЗАГРУЗКИ")
+            self.logger.info("=" * 80)
+            for failed in self.failed_products:
+                self.logger.error(f"- Товар: {failed['product_name']} | URL: {failed['url']} | Причина: {failed['reason']}")
+            self.logger.info("=" * 80)
+        else:
+            self.logger.info("✅ Товаров с ошибками загрузки не найдено.")
+
         # Воспроизводим 3 коротких сигнала
         try:
             for _ in range(3):
