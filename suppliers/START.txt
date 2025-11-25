@@ -1,0 +1,3 @@
+cd suppliers
+scrapy crawl viatec_retail
+scrapy crawl viatec_dealer
