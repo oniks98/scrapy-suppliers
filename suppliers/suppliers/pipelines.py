@@ -8,7 +8,7 @@ class SuppliersPipeline:
     """
     Pipeline для записи данных в два CSV файла:
     - viatec_retail.csv (розничные цены UAH) - только для viatec_retail
-    - viatec_diler.csv (дилерские цены USD) - только для viatec_dealer
+    - viatec_dealer.csv (дилерские цены USD) - только для viatec_dealer
     
     ФИЛЬТРАЦИЯ: 
     - Пропускает товары БЕЗ цены
@@ -105,7 +105,7 @@ class SuppliersPipeline:
             spider.logger.info(f"📝 Создан файл розницы: {retail_path}")
         
         elif spider.name == "viatec_dealer":
-            dealer_path = self.output_dir / "viatec_diler.csv"
+            dealer_path = self.output_dir / "viatec_dealer.csv"
             self.dealer_file = open(dealer_path, "w", encoding="utf-8", newline="", buffering=1)
             self._write_header(self.dealer_file)
             spider.logger.info(f"📝 Создан файл дилера: {dealer_path}")
