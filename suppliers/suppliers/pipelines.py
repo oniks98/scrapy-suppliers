@@ -154,7 +154,7 @@ class SuppliersPipeline:
             raise
         
         # Ініціалізуємо лічильник і статистику
-        self.product_counters[output_file] = 200000
+        self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
         self.stats[output_file] = {
             "count": 0,
             "filtered_no_price": 0,
@@ -415,6 +415,47 @@ class SuppliersPipeline:
                 "filtered_no_stock": 0,
             }
         self.stats[output_file][stat_key] += 1
+
+    def _load_initial_product_code(self, spider_name, logger):
+        """
+        Завантажує початковий код товару з CSV файлу.
+        Формат файлу: один рядок, одне число.
+        """
+        # Визначаємо шлях до файлу лічильника на основі імені павука
+        # Приклад: C:\FullStack\Scrapy\data\viatec\viatec_counter_product_code.csv
+        # Приклад: C:\FullStack\Scrapy\data\eserver\eserver_counter_product_code.csv
+        
+        # Розділяємо ім'я павука, щоб отримати назву постачальника (наприклад, 'viatec' з 'viatec_retail' або 'viatec_dealer')
+        supplier_prefix = spider_name.split('_')[0]
+        
+        counter_file_path = Path(r"C:\FullStack\Scrapy\data") / supplier_prefix / f"{supplier_prefix}_counter_product_code.csv"
+        
+        try:
+            with open(counter_file_path, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row:
+                        try:
+                            # Використовуємо регулярний вираз для пошуку першого числа в рядку
+                            match = re.search(r'(\d+)', row[0])
+                            if match:
+                                initial_code = int(match.group(1))
+                                logger.info(f"✅ Початковий код товару для {spider_name} завантажено з {counter_file_path}: {initial_code}")
+                                return initial_code
+                            else:
+                                logger.warning(f"⚠️ Не знайдено числа у файлі лічильника {counter_file_path}. Використовуємо значення за замовчуванням.")
+                                return 200000
+                        except ValueError:
+                            logger.warning(f"⚠️ Некоректний формат числа у файлі лічильника {counter_file_path}. Використовуємо значення за замовчуванням.")
+                            return 200000
+            logger.warning(f"⚠️ Файл лічильника {counter_file_path} порожній. Використовуємо значення за замовчуванням.")
+            return 200000
+        except FileNotFoundError:
+            logger.warning(f"⚠️ Файл лічильника не знайдено для {spider_name} за шляхом: {counter_file_path}. Використовуємо значення за замовчуванням.")
+            return 200000
+        except Exception as e:
+            logger.error(f"❌ Помилка завантаження початкового коду товару для {spider_name} з {counter_file_path}: {e}. Використовуємо значення за замовчуванням.")
+            return 200000
 
 
 class ValidationPipeline:
