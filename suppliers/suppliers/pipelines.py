@@ -25,6 +25,7 @@ class SuppliersPipeline:
         self.files = {}
         self.writers = {}
         self.viatec_dealer_coefficient = None
+        self.personal_notes_mapping = {}
         
         # Базові поля CSV згідно формату PROM
         self.fieldnames_base = [
@@ -94,20 +95,38 @@ class SuppliersPipeline:
         spider.logger.info(f"✅ Pipeline відкрито для {spider.name}")
         spider.logger.info(f"📁 Вихідна директорія: {self.output_dir}")
 
+        # --- Завантаження коефіцієнту (тільки для viatec_dealer) ---
         if spider.name == 'viatec_dealer':
             coefficient_path = r"C:\FullStack\Scrapy\data\viatec\viatec_coefficient_dealer.csv"
             try:
                 with open(coefficient_path, 'r', encoding='utf-8') as f:
                     reader = csv.reader(f, delimiter=';')
-                    # Read the single row
                     row = next(reader)
-                    # The coefficient is the second element, remove quotes if present
                     coefficient_str = row[1].strip('"')
                     self.viatec_dealer_coefficient = float(coefficient_str.replace(',', '.'))
                     spider.logger.info(f"✅ Коефіцієнт для viatec_dealer завантажено: {self.viatec_dealer_coefficient}")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка завантаження коефіцієнту для viatec_dealer: {e}")
+
+        # --- Універсальне завантаження особистих нотаток ---
+        supplier_name = spider.name.split('_')[0]
+        personal_notes_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_personal_notes.csv"
         
+        try:
+            with open(personal_notes_path, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f, delimiter=';')
+                next(reader)  # Skip header
+                for row in reader:
+                    if len(row) >= 2:
+                        price_type_key = row[0].strip()
+                        personal_note_value = row[1].strip()
+                        self.personal_notes_mapping[price_type_key] = personal_note_value
+            spider.logger.info(f"✅ Мапінг особистих нотаток для {spider.name} завантажено: {self.personal_notes_mapping}")
+        except FileNotFoundError:
+            spider.logger.warning(f"⚠️  Файл особистих нотаток не знайдено для {spider.name} за шляхом: {personal_notes_path}")
+        except Exception as e:
+            spider.logger.error(f"❌ Помилка завантаження мапінгу особистих нотаток для {spider.name}: {e}")
+
         # Отримуємо ім'я файлу з атрибутів паука
         output_file = getattr(spider, 'output_filename', f"{spider.name}.csv")
         filepath = self.output_dir / output_file
@@ -199,10 +218,7 @@ class SuppliersPipeline:
         self.product_counters[output_file] += 1
         
         # Встановлюємо Особисті_нотатки
-        if price_type == "dealer":
-            cleaned_item["Особисті_нотатки"] = "V"
-        else:
-            cleaned_item["Особисті_нотатки"] = "PROM"
+        cleaned_item["Особисті_нотатки"] = self.personal_notes_mapping.get(price_type, "PROM")
         
         # ========== ОБРОБКА ОПИСУ ==========
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))

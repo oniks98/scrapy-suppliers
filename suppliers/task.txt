@@ -1,13 +1,12 @@
-в C:\FullStack\Scrapy\output\viatec_dealer.csv
-цена должна записываться уже умноженная на коєфициент- число импротируем из  C:\FullStack\Scrapy\data\viatec\viatec_coefficient_dealer.csv
+     
+     в C:\FullStack\Scrapy\suppliers\suppliers\pipelines.py захорджено
+     
+     # Встановлюємо Особисті_нотатки
+        if price_type == "dealer":
+            cleaned_item["Особисті_нотатки"] = "V"
+        else:
+            cleaned_item["Особисті_нотатки"] = "PROM"
 
-переделай C:\FullStack\Scrapy\suppliers\suppliers\pipelines.py
 
-2025-11-26 17:27:52 [viatec_dealer] INFO: ✅ Pipeline відкрито для viatec_dealer
-2025-11-26 17:27:52 [viatec_dealer] INFO: 📁 Вихідна директорія: C:\FullStack\Scrapy\output
-2025-11-26 17:27:52 [viatec_dealer] ERROR: ❌ Помилка завантаження коефіцієнту для viatec_dealer:
-2025-11-26 17:27:52 [viatec_dealer] INFO: 📝 Створено файл з заголовком: C:\FullStack\Scrapy\output\viatec_dealer.csv       
-2025-11-26 17:27:52 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)   
-2025-11-26 17:27:54 [viatec_dealer] INFO: Знайдено CSRF: 6nwLIHRAHWuOHW4Zs8rToxDJoBiYP3JOf3cjNFch
-2025-11-26 17:27:56 [viatec_dealer] INFO: ✅ УСПІШНИЙ ЛОГІН
-2025-11-26 17:27:59 [viatec_dealer] INFO: 📂 Обробляю категорію [1/67] сторінка 1: https://viatec.ua/catalog/cameras/0:0;proizvoditel:hikvision
+            сделай импорт условия из файла C:\FullStack\Scrapy\data\viatec\viatec_personal_notes.csv
+            чтобы при необходимости можно было менять Особисты нотатки в файле и не лезть в код
