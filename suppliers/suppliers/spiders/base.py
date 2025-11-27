@@ -118,6 +118,71 @@ class BaseDealerSpider(BaseSupplierSpider):
             self.output_filename = f"{self.supplier_id}_dealer.csv"
 
 
+class EserverBaseSpider(BaseSupplierSpider):
+    """Базовий клас для пауків E-Server (загальна логіка для retail і dealer)"""
+    
+    allowed_domains = ["e-server.com.ua"]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.category_urls = []
+        self.products_from_pagination = []
+    
+    def _extract_manufacturer(self, product_name: str) -> str:
+        """Визначає виробника з назви товару"""
+        if not product_name:
+            return ""
+        
+        product_name_lower = product_name.lower()
+        
+        # ПРІОРИТЕТ 1: Явні згадки брендів
+        priority_patterns = {
+            "eserver": "EServer",
+            "e-server": "EServer",
+            "hikvision": "Hikvision",
+            "dahua": "Dahua Technology",
+            "axis": "Axis",
+            "uniview": "UniView",
+            "imou": "Imou",
+            "ezviz": "Ezviz",
+            "unv": "UNV",
+            "hiwatch": "HiWatch",
+            "ajax": "Ajax",
+            "tp-link": "TP-Link",
+            "mikrotik": "MikroTik",
+            "ubiquiti": "Ubiquiti",
+        }
+        
+        for pattern, name in priority_patterns.items():
+            if pattern in product_name_lower:
+                return name
+        
+        return ""
+    
+    def closed(self, reason):
+        """Викликається при завершенні паука"""
+        self.logger.info(f"🎉 Паук {self.name} завершено! Причина: {reason}")
+        
+        if self.failed_products:
+            self.logger.info("=" * 80)
+            self.logger.info("📦 СПИСОК ТОВАРІВ З ПОМИЛКАМИ ЗАВАНТАЖЕННЯ")
+            self.logger.info("=" * 80)
+            for failed in self.failed_products:
+                self.logger.error(f"- Товар: {failed['product_name']} | URL: {failed['url']} | Причина: {failed['reason']}")
+            self.logger.info("=" * 80)
+        else:
+            self.logger.info("✅ Товарів з помилками завантаження не знайдено.")
+        
+        # Звуковий сигнал (опціонально, працює тільки на Windows)
+        try:
+            import winsound
+            for _ in range(3):
+                winsound.Beep(1000, 300)
+            self.logger.info("🔔 Звуковий сигнал відтворено!")
+        except Exception as e:
+            self.logger.debug(f"Не вдалося відтворити звук: {e}")
+
+
 class ViatecBaseSpider(BaseSupplierSpider):
     """Базовий клас для пауків Viatec (загальна логіка для retail і dealer)"""
     

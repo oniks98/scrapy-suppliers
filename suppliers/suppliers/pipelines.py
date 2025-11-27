@@ -113,7 +113,7 @@ class SuppliersPipeline:
         personal_notes_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_personal_notes.csv"
         
         try:
-            with open(personal_notes_path, 'r', encoding='utf-8') as f:
+            with open(personal_notes_path, 'r', encoding='utf-8-sig') as f:  # utf-8-sig видаляє BOM
                 reader = csv.reader(f, delimiter=';')
                 next(reader)  # Skip header
                 for row in reader:
@@ -218,7 +218,9 @@ class SuppliersPipeline:
         self.product_counters[output_file] += 1
         
         # Встановлюємо Особисті_нотатки
-        cleaned_item["Особисті_нотатки"] = self.personal_notes_mapping.get(price_type, "PROM")
+        personal_note = self.personal_notes_mapping.get(price_type, "PROM")
+        spider.logger.debug(f"📝 Особиста нотатка для price_type='{price_type}': '{personal_note}' (мапінг: {self.personal_notes_mapping})")
+        cleaned_item["Особисті_нотатки"] = personal_note
         
         # ========== ОБРОБКА ОПИСУ ==========
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))
@@ -238,17 +240,21 @@ class SuppliersPipeline:
         # Базові поля
         for field in self.fieldnames_base:
             value = cleaned_item.get(field, "")
-            # Екрануємо крапку з комою та лапки
-            value_str = str(value).replace(";", ",").replace('"', '""')
+            # Екрануємо ; на кому, " на подвійні лапки, \n та \r на <br> для збереження форматування
+            value_str = str(value).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
             row_parts.append(value_str)
         
         # Характеристики (60 триплетів)
         for i in range(60):
             if i < len(specs_list):
                 spec = specs_list[i]
-                row_parts.append(str(spec.get("name", "")).replace(";", ",").replace('"', '""'))
-                row_parts.append(str(spec.get("unit", "")).replace(";", ",").replace('"', '""'))
-                row_parts.append(str(spec.get("value", "")).replace(";", ",").replace('"', '""'))
+                # Замінюємо ; на кому, " на подвійні лапки, \n та \r на <br> для збереження форматування
+                name = str(spec.get("name", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
+                unit = str(spec.get("unit", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
+                value = str(spec.get("value", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
+                row_parts.append(name)
+                row_parts.append(unit)
+                row_parts.append(value)
             else:
                 # Порожні триплети
                 row_parts.extend(["", "", ""])
@@ -349,7 +355,7 @@ class SuppliersPipeline:
         return False
     
     def _clean_description(self, description):
-        """Очищає опис від тексту про аналоги та зберігає переноси"""
+        """Очищає опис від тексту про аналоги та замінює \n на <br>"""
         if not description:
             return ""
         
@@ -361,7 +367,10 @@ class SuppliersPipeline:
         for pattern in patterns_to_remove:
             description = re.sub(pattern, "", description, flags=re.IGNORECASE)
         
-        description = re.sub(r'\s+', ' ', description)
+        # Замінюємо \n на <br> для збереження переносів рядків
+        description = description.replace("\n", "<br>")
+        # Видаляємо зайві пробіли, але зберігаємо <br>
+        description = re.sub(r' +', ' ', description)
         
         return description.strip()
     

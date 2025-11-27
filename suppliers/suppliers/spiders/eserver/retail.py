@@ -1,25 +1,28 @@
 """
-Spider для парсингу роздрібних цін з eserver.ua (UAH)
+Spider для парсингу роздрібних цін з e-server.com.ua (UAH)
 Вигружає дані в: output/eserver_retail.csv
 
 ПОСЛІДОВНА ОБРОБКА: категорія → всі сторінки пагінації → наступна категорія
+ХАРАКТЕРИСТИКИ: парсяться УКРАЇНСЬКОЮ (UA) та РОСІЙСЬКОЮ (RU) з окремих URL
+ПАГІНАЦІЯ: Підтримка параметрів ?only-inStock та &page=N
 """
 import scrapy
 import csv
+import re
 from pathlib import Path
-from suppliers.spiders.base import BaseRetailSpider
+from suppliers.spiders.base import EserverBaseSpider, BaseRetailSpider
 
 
-class EserverRetailSpider(BaseRetailSpider):
+class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
     name = "eserver_retail"
     supplier_id = "eserver"
     output_filename = "eserver_retail.csv"
-    allowed_domains = ["eserver.ua"]
     
     custom_settings = {
+        **EserverBaseSpider.custom_settings,
         "ITEM_PIPELINES": {
             "suppliers.pipelines.SuppliersPipeline": 300,
-        }
+        },
     }
     
     def __init__(self, *args, **kwargs):
@@ -27,7 +30,6 @@ class EserverRetailSpider(BaseRetailSpider):
         self.category_mapping = self._load_category_mapping()
         self.category_urls = list(self.category_mapping.keys())
         self.current_category_index = 0
-        self.products_from_pagination = []
     
     def _load_category_mapping(self):
         """Завантажує маппінг категорій з CSV"""
@@ -40,7 +42,7 @@ class EserverRetailSpider(BaseRetailSpider):
                 for row in reader:
                     url = row["Линк категории поставщика"].strip().strip('"')
                     
-                    if not url or not url.startswith("http"):
+                    if not url or url == "" or not url.startswith("http"):
                         continue
                     
                     mapping[url] = {
@@ -61,6 +63,7 @@ class EserverRetailSpider(BaseRetailSpider):
         if self.category_urls:
             first_category_url = self.category_urls[0]
             self.logger.info(f"🚀 СТАРТ ПАРСИНГУ. Перша категорія [1/{len(self.category_urls)}]: {first_category_url}")
+            
             yield scrapy.Request(
                 url=first_category_url,
                 callback=self.parse_category,
@@ -79,11 +82,11 @@ class EserverRetailSpider(BaseRetailSpider):
         page_number = response.meta.get("page_number", 1)
         category_info = self.category_mapping.get(category_url, {})
         
-        self.logger.info(f"📂 Обробляю категорію [{category_index + 1}/{len(self.category_urls)}] сторінка {page_number}: {category_url}")
+        self.logger.info(f"📂 Обробляю категорію [{category_index + 1}/{len(self.category_urls)}] сторінка {page_number}: {response.url}")
         
-        # TODO: Додати селектори для витягування посилань на товари
-        # Приклад: product_links = response.css("a.product-link::attr(href)").getall()
-        product_links = []
+        # Посилання на товари - використовуємо універсальний селектор карточок
+        # Сайт використовує різні URL структури: з -detail та без
+        product_links = response.css("div[class*='card'] a[href*='/uk/']::attr(href)").getall()
         
         if not product_links:
             self.logger.warning(f"⚠️ Не знайдено товарів на сторінці: {response.url}")
@@ -106,14 +109,17 @@ class EserverRetailSpider(BaseRetailSpider):
                     })
                     self.processed_products.add(product_url)
         
-        # TODO: Додати селектор для наступної сторінки пагінації
-        # Приклад: next_page_link = response.css("a.next-page::attr(href)").get()
-        next_page_link = None
+        # ПАГІНАЦІЯ
+        next_page_link = response.css("li.next a::attr(href)").get()
+        
+        if not next_page_link and len(product_links) > 0:
+            next_page_link = self._build_next_page_url(category_url, page_number, len(product_links))
         
         if next_page_link:
             self.logger.info(f"📄 Перехід на наступну сторінку пагінації ({page_number + 1}): {next_page_link}")
+            
             yield response.follow(
-                next_page_link,
+                url=next_page_link,
                 callback=self.parse_category,
                 meta={
                     "category_url": category_url,
@@ -145,56 +151,166 @@ class EserverRetailSpider(BaseRetailSpider):
             
             self.products_from_pagination = []
     
+    def _build_next_page_url(self, category_url, current_page, products_count):
+        """Будує URL наступної сторінки"""
+        if products_count == 0:
+            return None
+        
+        next_page_number = current_page + 1
+        
+        if '/page/' in category_url:
+            return re.sub(r'/page/\d+', f'/page/{next_page_number}', category_url)
+        else:
+            clean_url = category_url.rstrip('/')
+            return f"{clean_url}/page/{next_page_number}"
+    
     def parse_product(self, response):
-        """Парсимо сторінку товару"""
+        """Парсимо сторінку товару - шукаємо посилання на обидві мови через перемикач"""
         try:
-            self.logger.info(f"🔗 Парсимо товар: {response.url}")
+            self.logger.info(f"🔗 Парсимо товар (пошук мов): {response.url}")
             
-            # TODO: Додати селектори для витягування даних товару
-            name = ""  # response.css("h1.product-title::text").get()
-            price_raw = ""  # response.css(".product-price::text").get()
-            description = ""  # response.css(".product-description::text").get()
-            image_url = ""  # response.css("img.product-image::attr(src)").get()
-            availability_raw = ""  # response.css(".availability-status::text").get()
+            # Шукаємо перемикач мови
+            # Селектор: <a href="/uk/..."><div>Укр</div></a>
+            # Селектор: <a href="/servernye-shkafy/..."><div>Рус</div></a>
+            ua_link = response.css("div.langs_langs__QyR6J a[href*='/uk/']::attr(href)").get()
+            ru_link = response.css("div.langs_langs__QyR6J a:not([href*='/uk/'])::attr(href)").get()
             
-            name = name.strip() if name else ""
+            if not ua_link or not ru_link:
+                self.logger.error(f"❌ Не знайдено посилань на мови: UA={ua_link}, RU={ru_link}")
+                yield from self._skip_product(response.meta)
+                return
+            
+            # Нормалізуємо URL
+            ua_url = response.urljoin(ua_link)
+            ru_url = response.urljoin(ru_link)
+            
+            self.logger.info(f"🌐 Знайдено мови: UA={ua_url}, RU={ru_url}")
+            
+            # Переходимо на українську версію
+            yield scrapy.Request(
+                url=ua_url,
+                callback=self.parse_product_ua,
+                errback=self.parse_product_error,
+                meta={
+                    **response.meta,
+                    "ru_url": ru_url,
+                    "original_url": response.url,
+                },
+                dont_filter=True,
+            )
+            
+        except Exception as e:
+            self.logger.error(f"❌ Помилка парсингу перемикача мов: {response.url} | {e}")
+            yield from self._skip_product(response.meta)
+            return
+    
+    def parse_product_ua(self, response):
+        """Парсимо українську версію товару"""
+        try:
+            self.logger.info(f"🔗 Парсимо товар (UA): {response.url}")
+            
+            # Селектор для h1 з класом es-h1
+            name_ua = response.css("h1.es-h1::text").get()
+            if not name_ua:
+                name_ua = response.css("h1::text").get()
+            name_ua = name_ua.strip() if name_ua else ""
+            
+            description_ua = self._extract_description_from_html(response)
+            specs_list_ua = self._extract_specifications_eserver(response)
+            
+            self.logger.info(f"📊 Характеристик (UA) знайдено: {len(specs_list_ua)} шт.")
+            
+            ru_url = response.meta.get("ru_url")
+            
+            # Переходимо на російську версію
+            yield scrapy.Request(
+                url=ru_url,
+                callback=self.parse_product_ru,
+                errback=self.parse_product_error,
+                meta={
+                    **response.meta,
+                    "name_ua": name_ua,
+                    "description_ua": description_ua,
+                    "specifications_list": specs_list_ua,
+                },
+                dont_filter=True,
+            )
+            
+        except Exception as e:
+            self.logger.error(f"❌ Помилка парсингу продукту (UA): {response.url} | {e}")
+            yield from self._skip_product(response.meta)
+            return
+    
+    def parse_product_ru(self, response):
+        """Парсимо російську версію товару та продовжуємо ланцюг"""
+        try:
+            self.logger.info(f"🔗 Парсимо товар (RU): {response.url}")
+            
+            # Селектор для h1 з класом es-h1
+            name_ru = response.css("h1.es-h1::text").get()
+            if not name_ru:
+                name_ru = response.css("h1::text").get()
+            name_ru = name_ru.strip() if name_ru else ""
+            
+            description_ru = self._extract_description_from_html(response)
+            
+            name_ua = response.meta.get("name_ua", "")
+            description_ua = response.meta.get("description_ua", "")
+            specs_list = response.meta.get("specifications_list", [])
+            
+            # Ціна
+            price_raw = response.css("div.flex.items-end.font-bold.text-23px::text").get()
+            if not price_raw:
+                price_raw = response.css("div[class*='price']::text").get()
             price = self._clean_price(price_raw) if price_raw else ""
-            description = description.strip() if description else ""
-            image_url = response.urljoin(image_url) if image_url else ""
-            availability_status = self._normalize_availability(availability_raw)
+            
+            # Наявність
+            availability_element = response.css("div.product_ag-sts__x60QA")
+            availability_text = availability_element.css("::text").getall()
+            availability_raw = " ".join([t.strip() for t in availability_text if t.strip()])
+            
+            # Зображення
+            image_url = self._extract_image_from_srcset(response)
+            
+            # Виробник
+            manufacturer = self._extract_manufacturer(name_ru)
+            
+            # Пошукові запити
+            search_terms_ru = self._generate_search_terms(name_ru)
+            search_terms_ua = self._generate_search_terms(name_ua)
+            
+            # Кількість
             quantity = self._extract_quantity(availability_raw)
             
-            # TODO: Додати логіку витягування характеристик
-            specs_list = []  # self._extract_specifications(response)
-            
-            search_terms = self._generate_search_terms(name)
+            self.logger.info(f"📝 Опис RU: {len(description_ru)} символів")
+            self.logger.info(f"📝 Опис UA: {len(description_ua)} символів")
             
             item = {
                 "Код_товару": "",
-                "Назва_позиції": name,
-                "Назва_позиції_укр": "",
-                "Пошукові_запити": search_terms,
-                "Пошукові_запити_укр": "",
-                "Опис": description,
-                "Опис_укр": "",
+                "Назва_позиції": name_ru,
+                "Назва_позиції_укр": name_ua,
+                "Пошукові_запити": search_terms_ru,
+                "Пошукові_запити_укр": search_terms_ua,
+                "Опис": description_ru,
+                "Опис_укр": description_ua,
                 "Тип_товару": "r",
                 "Ціна": price,
                 "Валюта": self.currency,
                 "Одиниця_виміру": "шт.",
                 "Посилання_зображення": image_url,
-                "Наявність": availability_status,
+                "Наявність": availability_raw,
                 "Кількість": quantity,
                 "Назва_групи": response.meta.get("category_ru", ""),
                 "Назва_групи_укр": response.meta.get("category_ua", ""),
                 "Номер_групи": response.meta.get("group_number", ""),
                 "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
                 "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
-                "Виробник": "",
+                "Виробник": manufacturer,
                 "Країна_виробник": "",
                 "price_type": self.price_type,
                 "supplier_id": self.supplier_id,
                 "output_file": self.output_filename,
-                "Продукт_на_сайті": response.url,
+                "Продукт_на_сайті": response.meta.get("original_url", response.url),
                 "specifications_list": specs_list,
             }
             
@@ -204,14 +320,15 @@ class EserverRetailSpider(BaseRetailSpider):
             yield from self._skip_product(response.meta)
         
         except Exception as e:
-            self.logger.error(f"❌ Помилка парсингу продукту: {response.url} | {e}")
+            self.logger.error(f"❌ Помилка парсингу продукту (RU): {response.url} | {e}")
             yield from self._skip_product(response.meta)
             return
     
     def parse_product_error(self, failure):
+        """Обробка помилок завантаження товару"""
         url = failure.request.url
         reason = failure.value
-        product_name = failure.request.meta.get("name_ru", "Назва не знайдена")
+        product_name = failure.request.meta.get("name_ua", "Назва не знайдена")
         
         self.logger.error(f"❌ Помилка завантаження товару: {product_name} ({url}). Причина: {reason}")
         self.failed_products.append({"url": url, "reason": str(reason), "product_name": product_name})
@@ -240,6 +357,7 @@ class EserverRetailSpider(BaseRetailSpider):
                 yield next_cat
     
     def _skip_product(self, meta):
+        """Перехід до наступного товару в ланцюгу"""
         remaining = meta.get("remaining_products", [])
         category_index = meta.get("category_index")
         
@@ -281,3 +399,69 @@ class EserverRetailSpider(BaseRetailSpider):
         else:
             self.logger.info(f"🎉🎉🎉 ВСІ КАТЕГОРІЇ ТА ПРОДУКТИ ОБРОБЛЕНІ 🎉🎉🎉")
             return None
+    
+    def _extract_image_from_srcset(self, response):
+        """Витягує найбільше зображення з srcset"""
+        srcset = response.css("img[alt*='фото']::attr(srcset)").get()
+        
+        if srcset:
+            urls = re.findall(r'(https?://[^\s]+)\s+\d+w', srcset)
+            if urls:
+                return urls[-1]
+        
+        # Fallback на src
+        image_url = response.css("img[alt*='фото']::attr(src)").get()
+        if not image_url:
+            image_url = response.css("img[src*='storage']::attr(src)").get()
+        
+        if image_url and not image_url.startswith('http'):
+            image_url = response.urljoin(image_url)
+        
+        return image_url or ""
+    
+    def _extract_specifications_eserver(self, response):
+        """Екстракт характеристик з таблиці e-server"""
+        specs = []
+        
+        spec_container = response.css("div.bg-white")
+        if not spec_container:
+            self.logger.warning(f"⚠️ Не знайдено контейнер характеристик: {response.url}")
+            return specs
+        
+        spec_rows = spec_container.css("div.flex.justify-between.mx-3")
+        
+        for row in spec_rows:
+            name_element = row.css("div.font-semibold::text").get()
+            name = name_element.strip() if name_element else ""
+            
+            # Витягуємо ВСІ текстові вузли зі значення (включаючи багаторядкові)
+            value_elements = row.css("div.text-right::text, div.whitespace-pre-line::text").getall()
+            if not value_elements:
+                value_elements = row.css("div.font-medium::text").getall()
+            
+            # Об'єднуємо всі текстові вузли, замінюючи переноси на <br> для збереження форматування
+            value = "<br>".join([v.strip() for v in value_elements if v.strip()])
+            
+            if name and value:
+                specs.append({
+                    "name": name,
+                    "unit": "",
+                    "value": value,
+                })
+        
+        return specs
+    
+    def _extract_description_from_html(self, response):
+        """Екстракт тексту опису з HTML"""
+        description_container = response.css("div.product_pg-dsc__h3fai")
+        
+        if not description_container:
+            return ""
+        
+        paragraphs = description_container.css("p::text").getall()
+        
+        if paragraphs:
+            return "\n".join([p.strip() for p in paragraphs if p.strip()])
+        
+        all_text = description_container.css("::text").getall()
+        return " ".join([t.strip() for t in all_text if t.strip()])
