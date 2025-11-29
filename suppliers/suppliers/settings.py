@@ -142,13 +142,19 @@ FEED_EXPORT_ENCODING = "utf-8"
 # HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # ==============================================================================
-# DOWNLOADER MIDDLEWARES (Опционально: прокси, ротация User-Agent)
+# DOWNLOADER_MIDDLEWARES (Опционально: прокси, ротация User-Agent)
 # ==============================================================================
-# Раскомментируй для ротации User-Agent (требует scrapy-user-agents):
 # DOWNLOADER_MIDDLEWARES = {
-#     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
-#     "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+#     "scrapy_playwright.middleware.PlaywrightMiddleware": 800,
 # }
+
+# Playwright settings for Vue.js rendering
+# PLAYWRIGHT_BROWSER_TYPE = "chromium"
+# PLAYWRIGHT_LAUNCH_OPTIONS = {
+#     "headless": True,
+#     "timeout": 60000,
+# }
+# PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 60000
 
 # ==============================================================================
 # SPIDER MIDDLEWARES

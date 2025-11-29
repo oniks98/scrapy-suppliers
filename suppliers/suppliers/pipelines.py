@@ -180,7 +180,9 @@ class SuppliersPipeline:
         
         # ========== ФІЛЬТР 2: Перевірка наявності ==========
         availability_raw = adapter.get("Наявність", "")
+        spider.logger.info(f"🔍 ПРОВЕРКА НАЯВНОСТІ RAW: '{availability_raw}'")
         availability_status = self._check_availability(availability_raw)
+        spider.logger.info(f"🔍 РЕЗУЛЬТАТ ПРОВЕРКИ: {availability_status}")
         
         if not availability_status:
             self._increment_stat(output_file, "filtered_no_stock")
@@ -333,6 +335,8 @@ class SuppliersPipeline:
             "доступно",
             "available",
             "in stock",
+            "наявності",  # Добавлено
+            "наявност",   # Добавлено
         ]
         
         for keyword in in_stock_keywords:
