@@ -246,8 +246,8 @@ class SuppliersPipeline:
             value_str = str(value).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
             row_parts.append(value_str)
         
-        # Характеристики (60 триплетів)
-        for i in range(60):
+        # Характеристики (160 триплетів)
+        for i in range(160):
             if i < len(specs_list):
                 spec = specs_list[i]
                 # Замінюємо ; на кому, " на подвійні лапки, \n та \r на <br> для збереження форматування
@@ -296,8 +296,8 @@ class SuppliersPipeline:
         """Пише заголовок з повторюваними триплетами (БЕЗ нумерації)"""
         header_parts = self.fieldnames_base.copy()
         
-        # Додаємо 60 повторюваних триплетів характеристик
-        for _ in range(60):
+        # Додаємо 160 повторюваних триплетів характеристик
+        for _ in range(160):
             header_parts.extend([
                 "Назва_Характеристики",
                 "Одиниця_виміру_Характеристики",
@@ -321,12 +321,32 @@ class SuppliersPipeline:
         """
         Перевірка наявності товару
         Повертає True якщо товар В НАЯВНОСТІ, False якщо немає
+        
+        ВАЖЛИВО: За замовчуванням вважаємо товар В НАЯВНОСТІ,
+        якщо явно не вказано що його немає
         """
         if not availability_str:
-            return False
+            return True  # Змінено з False на True - за замовчуванням В НАЯВНОСТІ
         
-        availability_lower = str(availability_str).lower()
+        availability_lower = str(availability_str).lower().strip()
         
+        # Спочатку перевіряємо на відсутність (явні негативні маркери)
+        out_of_stock_keywords = [
+            "немає",
+            "нет в наличии",
+            "відсутній",
+            "закінчився",
+            "out of stock",
+            "unavailable",
+            "немає в наявності",
+            "нет на складе",
+        ]
+        
+        for keyword in out_of_stock_keywords:
+            if keyword in availability_lower:
+                return False
+        
+        # Позитивні маркери наявності
         in_stock_keywords = [
             "є в наявності",
             "в наявності",
@@ -335,28 +355,17 @@ class SuppliersPipeline:
             "доступно",
             "available",
             "in stock",
-            "наявності",  # Добавлено
-            "наявност",   # Добавлено
+            "наявності",
+            "наявност",
+            "є",
         ]
         
         for keyword in in_stock_keywords:
             if keyword in availability_lower:
                 return True
         
-        out_of_stock_keywords = [
-            "немає",
-            "нет в наличии",
-            "відсутній",
-            "закінчився",
-            "out of stock",
-            "unavailable",
-        ]
-        
-        for keyword in out_of_stock_keywords:
-            if keyword in availability_lower:
-                return False
-        
-        return False
+        # За замовчуванням вважаємо товар В НАЯВНОСТІ
+        return True
     
     def _clean_description(self, description):
         """Очищає опис від тексту про аналоги та замінює \n на <br>"""

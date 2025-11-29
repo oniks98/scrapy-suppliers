@@ -1,4 +1,8 @@
-сделай в
+сделай в C:\FullStack\Scrapy\suppliers\suppliers\spiders\secur\retail.py
+
+такое же логирование в терминал как в C:\FullStack\Scrapy\suppliers\suppliers\spiders\viatec\retail.py
+
+вот ниже пример
 
 2025-11-29 20:34:13 [viatec_retail] INFO: ✅ Pipeline відкрито для viatec_retail
 2025-11-29 20:34:13 [viatec_retail] INFO: 📁 Вихідна директорія: C:\FullStack\Scrapy\output
@@ -138,3 +142,12 @@
 'start_time': datetime.datetime(2025, 11, 29, 18, 34, 13, 161196, tzinfo=datetime.timezone.utc)}
 2025-11-29 20:35:28 [scrapy.core.engine] INFO: Spider closed (shutdown)
 (venv)
+
+и ВОТ ЄТО НЕ НАДО - СПИСОК ХАРАКТЕРИСТИК В ТЕРМИНАЛ
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Бренд: Ajax
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Модель: Starterkit 2
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Комплектація: Централь Hub 2 , Датчик руху MotionProtect , Датчи
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Макс. кількість пристроїв: 100
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Підтримка датчиків MotionCam: Немає
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Канали зв'язку: Ethernet , 2G , 3G
+2025-11-29 20:41:00 [secur_retail] INFO: ✅ Макс. кількість груп охорони: 25

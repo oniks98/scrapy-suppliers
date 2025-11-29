@@ -154,14 +154,14 @@ class SecurRetailSpider(BaseRetailSpider):
                 errback=self.errback_httpbin,
             )
         else:
-            self.logger.info(f"✅ ПАГІНАЦІЯ ЗАВЕРШЕНА: {len(self.products_from_pagination)} товарів")
+            self.logger.info(f"✅ ПАГІНАЦІЯ ЗАВЕРШЕНА [{category_index + 1}/{len(self.category_urls)}]: накопичено {len(self.products_from_pagination)} товарів")
             
             if self.products_from_pagination:
                 product_data = self.products_from_pagination.pop(0)
                 product_data["meta"]["remaining_products"] = list(self.products_from_pagination)
                 product_data["meta"]["category_index"] = category_index
                 
-                self.logger.info(f"🎯 СТАРТ ПЕРШОГО ТОВАРУ")
+                self.logger.info(f"🔗 ЗАПУСК ланцюга продуктів. Перший: {product_data['url']}. Залишилось: {len(self.products_from_pagination)}")
                 
                 # Просто чекаємо 3 секунди - без wait_for_selector
                 yield scrapy.Request(
@@ -171,13 +171,14 @@ class SecurRetailSpider(BaseRetailSpider):
                         **product_data["meta"],
                         "playwright": True,
                         "playwright_page_methods": [
-                            PageMethod("wait_for_timeout", 3000),  # Чекаємо 3 секунди для Vue.js
+                            PageMethod("wait_for_timeout", 2000),  # Чекаємо 2 секунди для Vue.js
                         ],
                     },
                     dont_filter=True,
                     errback=self.errback_httpbin,
                 )
             else:
+                self.logger.warning(f"⚠️ У категорії {category_url} не знайдено товарів. Переходжу до наступної.")
                 next_cat = self._start_next_category(category_index)
                 if next_cat:
                     yield next_cat
@@ -227,7 +228,7 @@ class SecurRetailSpider(BaseRetailSpider):
                 **meta,
                 "playwright": True,
                 "playwright_page_methods": [
-                    PageMethod("wait_for_timeout", 3000),
+                    PageMethod("wait_for_timeout", 2000),
                 ],
             },
             dont_filter=True,
@@ -259,9 +260,13 @@ class SecurRetailSpider(BaseRetailSpider):
         price = self._clean_price(price_raw) if price_raw else ""
         image_url = response.urljoin(image_url) if image_url else ""
         brand = brand.strip() if brand else ""
+        quantity = self._extract_quantity(availability_raw)
         
         search_terms_ru = self._generate_search_terms(name_ru)
         search_terms_ua = self._generate_search_terms(name_ua)
+        
+        self.logger.info(f"📝 Опис RU: {len(description_ru)} символів")
+        self.logger.info(f"📝 Опис UA: {len(description_ua)} символів")
         
         item = {
             "Код_товару": product_code,
@@ -277,7 +282,7 @@ class SecurRetailSpider(BaseRetailSpider):
             "Одиниця_виміру": "шт.",
             "Посилання_зображення": image_url,
             "Наявність": availability_raw,
-            "Кількість": "1000",
+            "Кількість": quantity,
             "Назва_групи": response.meta.get("category_ru", ""),
             "Назва_групи_укр": response.meta.get("category_ua", ""),
             "Номер_групи": response.meta.get("group_number", ""),
@@ -292,7 +297,7 @@ class SecurRetailSpider(BaseRetailSpider):
             "specifications_list": specs_list,
         }
         
-        self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Характеристик: {len(specs_list)}")
+        self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} | Характеристик: {len(specs_list)}")
         yield item
         
         # Обробляємо наступний товар
@@ -319,7 +324,7 @@ class SecurRetailSpider(BaseRetailSpider):
                     **next_data["meta"],
                     "playwright": True,
                     "playwright_page_methods": [
-                        PageMethod("wait_for_timeout", 3000),
+                        PageMethod("wait_for_timeout", 2000),
                     ],
                 },
                 dont_filter=True,
@@ -363,7 +368,6 @@ class SecurRetailSpider(BaseRetailSpider):
                     "unit": "",
                     "value": value,
                 })
-                self.logger.info(f"   ✅ {characteristic}: {value[:50]}")
         
         return specs_list
     
@@ -389,6 +393,29 @@ class SecurRetailSpider(BaseRetailSpider):
             description_html = description_html[:10000] + '...</p>'
         
         return description_html.strip()
+    
+    def closed(self, reason):
+        """Викликається при завершенні паука"""
+        self.logger.info(f"🎉 Паук {self.name} завершено! Причина: {reason}")
+        
+        if self.failed_products:
+            self.logger.info("=" * 80)
+            self.logger.info("📦 СПИСОК ТОВАРІВ З ПОМИЛКАМИ ЗАВАНТАЖЕННЯ")
+            self.logger.info("=" * 80)
+            for failed in self.failed_products:
+                self.logger.error(f"- Товар: {failed['product_name']} | URL: {failed['url']} | Причина: {failed['reason']}")
+            self.logger.info("=" * 80)
+        else:
+            self.logger.info("✅ Товарів з помилками завантаження не знайдено.")
+        
+        # Звуковий сигнал (опціонально, працює тільки на Windows)
+        try:
+            import winsound
+            for _ in range(3):
+                winsound.Beep(1000, 300)
+            self.logger.info("🔔 Звуковий сигнал відтворено!")
+        except Exception as e:
+            self.logger.debug(f"Не вдалося відтворити звук: {e}")
     
     def _start_next_category(self, current_category_index):
         """Запуск следующей категории"""
