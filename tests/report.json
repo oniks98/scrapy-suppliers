@@ -1,0 +1,89 @@
+{
+    "catalog": {
+        "url": "https://viatec.ua/catalog/cameras",
+        "manual_selectors": {
+            "product_item": ".product-item",
+            "title": ".product-title",
+            "price": ".price",
+            "availability": ".availability",
+            "language_switch": ".lang-switch",
+            "pagination_next": ".pagination-next",
+            "image": ".product-image img"
+        },
+        "auto_selectors": {
+            "title": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > h1:nth-child(1)",
+            "price": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > ul:nth-child(5) > li:nth-child(1) > div:nth-child(7)",
+            "availability": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > ul:nth-child(5) > li:nth-child(1) > div:nth-child(4) > div:nth-child(1)",
+            "image": "body:nth-child(2) > header:nth-child(61) > div:nth-child(1) > a:nth-child(1) > picture:nth-child(1) > img:nth-child(2)",
+            "product_item": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+            "language_switch": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)"
+        },
+        "static_data_sample": {
+            "product_item": null,
+            "title": null,
+            "price": null,
+            "availability": null,
+            "language_switch": null,
+            "pagination_next": null,
+            "image": null
+        },
+        "dynamic_data_sample": {
+            "product_item": null,
+            "title": null,
+            "price": null,
+            "availability": null,
+            "language_switch": null,
+            "pagination_next": null,
+            "image": null
+        },
+        "summary": {
+            "requires_playwright": false,
+            "recommended_spider": "Scrapy",
+            "note": "Серверный HTML → Playwright не нужен"
+        }
+    },
+    "product": {
+        "url": "https://viatec.ua/product/DS-2CD1321G0-I-28",
+        "manual_selectors": {
+            "title": "h1.product-title",
+            "price": ".price",
+            "availability": ".availability",
+            "description": ".product-description",
+            "characteristics": ".product-characteristics, .specs-table",
+            "images": ".product-gallery img",
+            "language_switch": ".lang-switch"
+        },
+        "auto_selectors": {
+            "title": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(1) > h1:nth-child(1)",
+            "price": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1)",
+            "availability": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div:nth-child(1)",
+            "image": "body:nth-child(2) > header:nth-child(61) > div:nth-child(1) > a:nth-child(1) > picture:nth-child(1) > img:nth-child(2)",
+            "characteristics": "body:nth-child(2) > main:nth-child(63) > section:nth-child(4) > div:nth-child(1) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(1)",
+            "product_item": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+            "language_switch": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)"
+        },
+        "static_data_sample": {
+            "title": null,
+            "price": null,
+            "availability": null,
+            "description": null,
+            "characteristics": null,
+            "images": null,
+            "language_switch": null
+        },
+        "dynamic_data_sample": {
+            "title": null,
+            "price": null,
+            "availability": null,
+            "description": null,
+            "characteristics": null,
+            "images": null,
+            "language_switch": null
+        },
+        "summary": {
+            "requires_playwright": false,
+            "recommended_spider": "Scrapy",
+            "note": "Серверный HTML → Playwright не нужен"
+        }
+    }
+}

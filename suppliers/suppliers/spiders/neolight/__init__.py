@@ -1,3 +1,0 @@
-"""
-Neolight spiders package
-"""

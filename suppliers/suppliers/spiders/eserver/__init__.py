@@ -1,3 +1,0 @@
-"""
-Eserver spiders package
-"""
