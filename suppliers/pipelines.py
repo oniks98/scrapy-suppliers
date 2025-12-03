@@ -207,7 +207,8 @@ class SuppliersPipeline:
         # Оновлюємо поля наявності
         cleaned_item["Наявність"] = "+"
         quantity = adapter.get("Кількість", "")
-        cleaned_item["Кількість"] = quantity
+        # Якщо кількість не вказана постачальником, ставимо 100 за замовчуванням
+        cleaned_item["Кількість"] = quantity if quantity else "100"
         
         # ========== ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ==========
         price_type = adapter.get("price_type", "retail")

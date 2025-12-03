@@ -1,6 +1,6 @@
 {
     "catalog": {
-        "url": "https://viatec.ua/catalog/cameras",
+        "url": "https://secur.ua/ajax/startovye-komplekty",
         "manual_selectors": {
             "product_item": ".product-item",
             "title": ".product-title",
@@ -11,17 +11,27 @@
             "image": ".product-image img"
         },
         "auto_selectors": {
-            "title": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > h1:nth-child(1)",
-            "price": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > ul:nth-child(5) > li:nth-child(1) > div:nth-child(7)",
-            "availability": "body:nth-child(2) > main:nth-child(63) > div:nth-child(2) > section:nth-child(3) > ul:nth-child(5) > li:nth-child(1) > div:nth-child(4) > div:nth-child(1)",
-            "image": "body:nth-child(2) > header:nth-child(61) > div:nth-child(1) > a:nth-child(1) > picture:nth-child(1) > img:nth-child(2)",
-            "product_item": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
-            "language_switch": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)"
+            "title": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > h1:nth-child(2)",
+            "price": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > section:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1)",
+            "image": "div#secur > div:nth-child(1) > header:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(2) > img:nth-child(1)",
+            "product_item": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)",
+            "language_switch": "div#secur > div:nth-child(1) > header:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > ul:nth-child(2) > a:nth-child(1)"
         },
         "static_data_sample": {
             "product_item": null,
             "title": null,
-            "price": null,
+            "price": [
+                "9699₴",
+                "12099₴",
+                "14699₴",
+                "9699₴",
+                "12099₴",
+                "19499₴",
+                "14699₴",
+                "19499₴",
+                "15099₴-32%10299₴",
+                "15099₴-25%11329₴"
+            ],
             "availability": null,
             "language_switch": null,
             "pagination_next": null,
@@ -30,7 +40,18 @@
         "dynamic_data_sample": {
             "product_item": null,
             "title": null,
-            "price": null,
+            "price": [
+                "9699₴",
+                "12099₴",
+                "14699₴",
+                "9699₴",
+                "12099₴",
+                "19499₴",
+                "14699₴",
+                "19499₴",
+                "15099₴-32%10299₴",
+                "15099₴-25%11329₴"
+            ],
             "availability": null,
             "language_switch": null,
             "pagination_next": null,
@@ -43,7 +64,7 @@
         }
     },
     "product": {
-        "url": "https://viatec.ua/product/DS-2CD1321G0-I-28",
+        "url": "https://secur.ua/signalizatsii/gsm-signalizatsii/bezprovodnye-gsm-sygnalizatsii/komplekt-signalizaciyi-ajax-starterkit-bilii-ajax-1629",
         "manual_selectors": {
             "title": "h1.product-title",
             "price": ".price",
@@ -54,17 +75,19 @@
             "language_switch": ".lang-switch"
         },
         "auto_selectors": {
-            "title": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(1) > h1:nth-child(1)",
-            "price": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1)",
-            "availability": "body:nth-child(2) > main:nth-child(63) > section:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > div:nth-child(1)",
-            "image": "body:nth-child(2) > header:nth-child(61) > div:nth-child(1) > a:nth-child(1) > picture:nth-child(1) > img:nth-child(2)",
-            "characteristics": "body:nth-child(2) > main:nth-child(63) > section:nth-child(4) > div:nth-child(1) > div:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > div:nth-child(1)",
-            "product_item": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
-            "language_switch": "body:nth-child(2) > header:nth-child(61) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2)"
+            "title": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > h1:nth-child(1)",
+            "price": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(4) > div:nth-child(1) > div:nth-child(1)",
+            "image": "div#secur > div:nth-child(1) > header:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(2) > img:nth-child(1)",
+            "description": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)",
+            "product_item": "div#secur > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)",
+            "language_switch": "div#secur > div:nth-child(1) > header:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > ul:nth-child(2) > a:nth-child(1)"
         },
         "static_data_sample": {
             "title": null,
-            "price": null,
+            "price": [
+                "9699₴",
+                "9699₴"
+            ],
             "availability": null,
             "description": null,
             "characteristics": null,
@@ -73,7 +96,10 @@
         },
         "dynamic_data_sample": {
             "title": null,
-            "price": null,
+            "price": [
+                "9699₴",
+                "9699₴"
+            ],
             "availability": null,
             "description": null,
             "characteristics": null,

@@ -68,22 +68,112 @@ class BaseSupplierSpider(scrapy.Spider):
         
         return ""
     
-    def _generate_search_terms(self, product_name: str) -> str:
-        """Генерація пошукових запитів"""
+    def _load_keywords_mapping(self) -> Dict[str, Dict[str, List[str]]]:
+        """Завантажує маппінг ключових слів з CSV за Номер_групи"""
+        import csv
+        mapping = {}
+        csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\keywords.csv")
+        if not csv_path.exists():
+            self.logger.warning("keywords.csv not found")
+            return mapping
+        try:
+            with open(csv_path, encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f, delimiter=";")
+                for row in reader:
+                    group_number = row["Номер_групи"].strip()
+                    mapping[group_number] = {
+                        "ru": [w.strip() for w in row["keywords_ru"].strip('"').split(",") if w.strip()],
+                        "ua": [w.strip() for w in row["keywords_ua"].strip('"').split(",") if w.strip()],
+                    }
+            self.logger.info(f"✅ Завантажено {len(mapping)} груп з ключовими словами")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Помилка завантаження keywords.csv: {e}")
+        return mapping
+    
+    def _generate_keywords_from_title(self, title: str, lang: str = "ua") -> List[str]:
+        """Генерує ключові слова з назви товару (біграми та триграми)"""
+        # Стоп-слова для фільтрації
+        stop_words_ua = {"до", "з", "на", "в", "у", "і", "та", "для", "від", "по", "та"}
+        stop_words_ru = {"до", "с", "на", "в", "у", "и", "для", "от", "по", "к"}
+        stop_words = stop_words_ua if lang == "ua" else stop_words_ru
+        
+        if not title:
+            return []
+        
+        words = title.split()
+        keywords = [title]  # Повна назва завжди перша
+        
+        # Фільтруємо значущі слова
+        meaningful_words = []
+        for word in words:
+            cleaned = re.sub(r'[^\wа-яіїєґА-ЯІЇЄҐ0-9]', '', word.lower())
+            if len(cleaned) >= 2 and cleaned not in stop_words:
+                meaningful_words.append(word)
+        
+        # Біграми (2 слова)
+        for i in range(len(meaningful_words) - 1):
+            bigram = f"{meaningful_words[i]} {meaningful_words[i + 1]}"
+            keywords.append(bigram)
+        
+        # Триграми (3 слова) - обмежуємо до 5 штук
+        for i in range(min(len(meaningful_words) - 2, 5)):
+            trigram = f"{meaningful_words[i]} {meaningful_words[i + 1]} {meaningful_words[i + 2]}"
+            keywords.append(trigram)
+        
+        # Видаляємо дублікати зберігаючи порядок
+        seen = set()
+        unique_keywords = []
+        for kw in keywords:
+            kw_lower = kw.lower()
+            if kw_lower not in seen:
+                unique_keywords.append(kw)
+                seen.add(kw_lower)
+        
+        return unique_keywords
+    
+    def _generate_search_terms(self, product_name: str, group_number: str = "", lang: str = "ua") -> str:
+        """Генерує пошукові запити з назви товару та ключів за Номер_групи"""
         if not product_name:
             return ""
         
-        words = product_name.replace(",", " ").split()
+        # Завантажуємо ключі за Номер_групи один раз
+        if not hasattr(self, "_keywords_cache"):
+            self._keywords_cache = self._load_keywords_mapping()
         
-        unique_words = []
-        seen = set()
-        for word in words:
-            word_clean = word.strip().lower()
-            if len(word_clean) > 2 and word_clean not in seen:
-                unique_words.append(word)
-                seen.add(word_clean)
+        # 1. Генеруємо ключі з назви товару
+        keywords_from_title = self._generate_keywords_from_title(product_name, lang)
         
-        return f"{product_name}, {', '.join(unique_words)}"
+        # 2. Додаємо ключі за Номер_групи
+        result = list(keywords_from_title)
+        seen = {kw.lower() for kw in result}
+        
+        if group_number and group_number in self._keywords_cache:
+            lang_key = "ua" if lang == "ua" else "ru"
+            category_keywords = self._keywords_cache[group_number].get(lang_key, [])
+            
+            for kw in category_keywords:
+                kw_lower = kw.lower()
+                if kw_lower not in seen:
+                    result.append(kw)
+                    seen.add(kw_lower)
+        
+        # 3. Гарантуємо мінімум 8 ключів (вимога PROM)
+        if len(result) < 8:
+            filler_ua = ["товар", "обладнання", "продукція", "техніка", "пристрій"]
+            filler_ru = ["товар", "оборудование", "продукция", "техника", "устройство"]
+            filler = filler_ua if lang == "ua" else filler_ru
+            
+            for f in filler:
+                if len(result) >= 8:
+                    break
+                if f not in seen:
+                    result.append(f)
+                    seen.add(f)
+        
+        # 4. Обмежуємо до 20 ключів (вимога)
+        result = result[:20]
+        
+        return ", ".join(result)
 
 
 class BaseRetailSpider(BaseSupplierSpider):

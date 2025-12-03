@@ -11,8 +11,8 @@ from playwright.sync_api import sync_playwright
 # ---------------------------
 
 URLS = {
-    "catalog": "https://viatec.ua/catalog/cameras",
-    "product": "https://viatec.ua/product/DS-2CD1321G0-I-28"
+    "catalog": "https://secur.ua/ajax/startovye-komplekty",
+    "product": "https://secur.ua/signalizatsii/gsm-signalizatsii/bezprovodnye-gsm-sygnalizatsii/komplekt-signalizaciyi-ajax-starterkit-bilii-ajax-1629"
 }
 
 # ---------------------------
