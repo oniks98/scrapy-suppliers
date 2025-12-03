@@ -69,7 +69,7 @@ class BaseSupplierSpider(scrapy.Spider):
         return ""
     
     def _load_keywords_mapping(self) -> Dict[str, Dict[str, List[str]]]:
-        """Завантажує маппінг ключових слів з CSV за Номер_групи"""
+        """Завантажує маппінг ключових слів з CSV за Ідентифікатор_підрозділу"""
         import csv
         mapping = {}
         csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\keywords.csv")
@@ -80,12 +80,12 @@ class BaseSupplierSpider(scrapy.Spider):
             with open(csv_path, encoding="utf-8-sig") as f:
                 reader = csv.DictReader(f, delimiter=";")
                 for row in reader:
-                    group_number = row["Номер_групи"].strip()
-                    mapping[group_number] = {
+                    subdivision_id = row["Ідентифікатор_підрозділу"].strip()
+                    mapping[subdivision_id] = {
                         "ru": [w.strip() for w in row["keywords_ru"].strip('"').split(",") if w.strip()],
                         "ua": [w.strip() for w in row["keywords_ua"].strip('"').split(",") if w.strip()],
                     }
-            self.logger.info(f"✅ Завантажено {len(mapping)} груп з ключовими словами")
+            self.logger.info(f"✅ Завантажено {len(mapping)} підрозділів з ключовими словами")
         except Exception as e:
             self.logger.warning(f"⚠️ Помилка завантаження keywords.csv: {e}")
         return mapping
@@ -131,25 +131,25 @@ class BaseSupplierSpider(scrapy.Spider):
         
         return unique_keywords
     
-    def _generate_search_terms(self, product_name: str, group_number: str = "", lang: str = "ua") -> str:
-        """Генерує пошукові запити з назви товару та ключів за Номер_групи"""
+    def _generate_search_terms(self, product_name: str, subdivision_id: str = "", lang: str = "ua") -> str:
+        """Генерує пошукові запити з назви товару та ключів за Ідентифікатор_підрозділу"""
         if not product_name:
             return ""
         
-        # Завантажуємо ключі за Номер_групи один раз
+        # Завантажуємо ключі за Ідентифікатор_підрозділу один раз
         if not hasattr(self, "_keywords_cache"):
             self._keywords_cache = self._load_keywords_mapping()
         
         # 1. Генеруємо ключі з назви товару
         keywords_from_title = self._generate_keywords_from_title(product_name, lang)
         
-        # 2. Додаємо ключі за Номер_групи
+        # 2. Додаємо ключі за Ідентифікатор_підрозділу
         result = list(keywords_from_title)
         seen = {kw.lower() for kw in result}
         
-        if group_number and group_number in self._keywords_cache:
+        if subdivision_id and subdivision_id in self._keywords_cache:
             lang_key = "ua" if lang == "ua" else "ru"
-            category_keywords = self._keywords_cache[group_number].get(lang_key, [])
+            category_keywords = self._keywords_cache[subdivision_id].get(lang_key, [])
             
             for kw in category_keywords:
                 kw_lower = kw.lower()

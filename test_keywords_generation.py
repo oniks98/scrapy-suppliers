@@ -1,6 +1,6 @@
 """
 Тестовий скрипт для перевірки генерації ключових слів
-З використанням Номер_групи замість category_url
+З використанням Ідентифікатор_підрозділу замість Номер_групи
 """
 import re
 from typing import List, Dict
@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def load_keywords_mapping() -> Dict[str, Dict[str, List[str]]]:
-    """Завантажує маппінг ключових слів з CSV за Номер_групи"""
+    """Завантажує маппінг ключових слів з CSV за Ідентифікатор_підрозділу"""
     mapping = {}
     csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\keywords.csv")
     
@@ -21,12 +21,12 @@ def load_keywords_mapping() -> Dict[str, Dict[str, List[str]]]:
         with open(csv_path, encoding="utf-8-sig") as f:
             reader = csv.DictReader(f, delimiter=";")
             for row in reader:
-                group_number = row["Номер_групи"].strip()
-                mapping[group_number] = {
+                subdivision_id = row["Ідентифікатор_підрозділу"].strip()
+                mapping[subdivision_id] = {
                     "ru": [w.strip() for w in row["keywords_ru"].strip('"').split(",") if w.strip()],
                     "ua": [w.strip() for w in row["keywords_ua"].strip('"').split(",") if w.strip()],
                 }
-        print(f"✅ Завантажено {len(mapping)} груп з ключовими словами\n")
+        print(f"✅ Завантажено {len(mapping)} підрозділів з ключовими словами\n")
     except Exception as e:
         print(f"⚠️ Помилка завантаження keywords.csv: {e}")
     
@@ -75,21 +75,21 @@ def generate_keywords_from_title(title: str, lang: str = "ua") -> List[str]:
     return unique_keywords
 
 
-def generate_search_terms(product_name: str, group_number: str, keywords_cache: Dict, lang: str = "ua") -> str:
-    """Генерує пошукові запити з назви товару та ключів за Номер_групи"""
+def generate_search_terms(product_name: str, subdivision_id: str, keywords_cache: Dict, lang: str = "ua") -> str:
+    """Генерує пошукові запити з назви товару та ключів за Ідентифікатор_підрозділу"""
     if not product_name:
         return ""
     
     # 1. Генеруємо ключі з назви товару
     keywords_from_title = generate_keywords_from_title(product_name, lang)
     
-    # 2. Додаємо ключі за Номер_групи
+    # 2. Додаємо ключі за Ідентифікатор_підрозділу
     result = list(keywords_from_title)
     seen = {kw.lower() for kw in result}
     
-    if group_number and group_number in keywords_cache:
+    if subdivision_id and subdivision_id in keywords_cache:
         lang_key = "ua" if lang == "ua" else "ru"
-        category_keywords = keywords_cache[group_number].get(lang_key, [])
+        category_keywords = keywords_cache[subdivision_id].get(lang_key, [])
         
         for kw in category_keywords:
             kw_lower = kw.lower()
@@ -122,82 +122,80 @@ if __name__ == "__main__":
     keywords_cache = load_keywords_mapping()
     
     print("=" * 80)
-    print("ТЕСТ 1: Dealer - Відеокамера (Номер_групи: 8950011)")
+    print("ТЕСТ 1: Відеокамера (Ідентифікатор_підрозділу: 301105)")
     print("=" * 80)
     
     title_ua = "Відеокамера Hikvision DS-2CD2143G2-IU 4MP"
-    group_number = "8950011"  # Камери відеоспостереження (dealer)
+    subdivision_id = "301105"  # Камери відеоспостереження
     
-    result = generate_search_terms(title_ua, group_number, keywords_cache, lang="ua")
+    result = generate_search_terms(title_ua, subdivision_id, keywords_cache, lang="ua")
     print(f"\nНазва товару: {title_ua}")
-    print(f"Номер_групи: {group_number}")
-    if group_number in keywords_cache:
-        print(f"Ключові слова групи: {', '.join(keywords_cache[group_number]['ua'][:3])}...")
+    print(f"Ідентифікатор_підрозділу: {subdivision_id}")
+    if subdivision_id in keywords_cache:
+        print(f"Ключові слова підрозділу: {', '.join(keywords_cache[subdivision_id]['ua'][:3])}...")
     print(f"\nРезультат ({len(result.split(', '))} ключів):")
     for i, keyword in enumerate(result.split(", "), 1):
         print(f"{i}. {keyword}")
     
     print("\n" + "=" * 80)
-    print("ТЕСТ 2: Dealer - Відеореєстратор (Номер_групи: 8950007)")
+    print("ТЕСТ 2: Відеореєстратор (Ідентифікатор_підрозділу: 301101)")
     print("=" * 80)
     
     title_ua2 = "Відеореєстратор Hikvision DS-7608NI-K2"
-    group_number2 = "8950007"  # Відеореєстратори (dealer)
+    subdivision_id2 = "301101"  # Відеореєстратори
     
-    result2 = generate_search_terms(title_ua2, group_number2, keywords_cache, lang="ua")
+    result2 = generate_search_terms(title_ua2, subdivision_id2, keywords_cache, lang="ua")
     print(f"\nНазва товару: {title_ua2}")
-    print(f"Номер_групи: {group_number2}")
-    if group_number2 in keywords_cache:
-        print(f"Ключові слова групи: {', '.join(keywords_cache[group_number2]['ua'][:3])}...")
+    print(f"Ідентифікатор_підрозділу: {subdivision_id2}")
+    if subdivision_id2 in keywords_cache:
+        print(f"Ключові слова підрозділу: {', '.join(keywords_cache[subdivision_id2]['ua'][:3])}...")
     print(f"\nРезультат ({len(result2.split(', '))} ключів):")
     for i, keyword in enumerate(result2.split(", "), 1):
         print(f"{i}. {keyword}")
     
     print("\n" + "=" * 80)
-    print("ТЕСТ 3: Retail - Універсальна група (Номер_групи: 140905382)")
+    print("ТЕСТ 3: Жорсткий диск (Ідентифікатор_підрозділу: 70704)")
     print("=" * 80)
     
-    title_ua3 = "Камера Wi-Fi Imou"
-    group_number3 = "140905382"  # Універсальна група для retail
+    title_ua3 = "Жорсткий диск WD Purple 2TB"
+    subdivision_id3 = "70704"  # HDD для відеоспостереження
     
-    result3 = generate_search_terms(title_ua3, group_number3, keywords_cache, lang="ua")
+    result3 = generate_search_terms(title_ua3, subdivision_id3, keywords_cache, lang="ua")
     print(f"\nНазва товару: {title_ua3}")
-    print(f"Номер_групи: {group_number3}")
-    if group_number3 in keywords_cache:
-        print(f"⚠️ Група {group_number3} не знайдена в keywords.csv (для retail може використовуватись інша група)")
-    else:
-        print(f"ℹ️ Для цієї групи немає специфічних ключів, використовуються тільки ключі з назви")
+    print(f"Ідентифікатор_підрозділу: {subdivision_id3}")
+    if subdivision_id3 in keywords_cache:
+        print(f"Ключові слова підрозділу: {', '.join(keywords_cache[subdivision_id3]['ua'][:3])}...")
     print(f"\nРезультат ({len(result3.split(', '))} ключів):")
     for i, keyword in enumerate(result3.split(", "), 1):
         print(f"{i}. {keyword}")
     
     print("\n" + "=" * 80)
-    print("ТЕСТ 4: Російська мова (Номер_групи: 8950011)")
+    print("ТЕСТ 4: Російська мова (Ідентифікатор_підрозділу: 301105)")
     print("=" * 80)
     
     title_ru = "Видеокамера Hikvision DS-2CD2143G2-IU 4MP"
     
-    result_ru = generate_search_terms(title_ru, group_number, keywords_cache, lang="ru")
+    result_ru = generate_search_terms(title_ru, subdivision_id, keywords_cache, lang="ru")
     print(f"\nНазва товару: {title_ru}")
-    print(f"Номер_групи: {group_number}")
-    if group_number in keywords_cache:
-        print(f"Ключові слова групи: {', '.join(keywords_cache[group_number]['ru'][:3])}...")
+    print(f"Ідентифікатор_підрозділу: {subdivision_id}")
+    if subdivision_id in keywords_cache:
+        print(f"Ключові слова підрозділу: {', '.join(keywords_cache[subdivision_id]['ru'][:3])}...")
     print(f"\nРезультат ({len(result_ru.split(', '))} ключів):")
     for i, keyword in enumerate(result_ru.split(", "), 1):
         print(f"{i}. {keyword}")
     
     print("\n" + "=" * 80)
-    print("ТЕСТ 5: Довга назва товару")
+    print("ТЕСТ 5: Домофон (Ідентифікатор_підрозділу: 3029)")
     print("=" * 80)
     
-    title_long = "Підсилювач т2 Eurosky 99999 сигналу до 100км з блоком живлення регульованим"
-    group_number_long = "4321341"  # Комплектуючі для відеоспостереження
+    title_long = "Відеодомофон Dahua VTH5221D"
+    subdivision_id_long = "3029"  # Відеодомофони
     
-    result_long = generate_search_terms(title_long, group_number_long, keywords_cache, lang="ua")
+    result_long = generate_search_terms(title_long, subdivision_id_long, keywords_cache, lang="ua")
     print(f"\nНазва товару: {title_long}")
-    print(f"Номер_групи: {group_number_long}")
-    if group_number_long in keywords_cache:
-        print(f"Ключові слова групи: {', '.join(keywords_cache[group_number_long]['ua'][:3])}...")
+    print(f"Ідентифікатор_підрозділу: {subdivision_id_long}")
+    if subdivision_id_long in keywords_cache:
+        print(f"Ключові слова підрозділу: {', '.join(keywords_cache[subdivision_id_long]['ua'][:3])}...")
     print(f"\nРезультат ({len(result_long.split(', '))} ключів - обмежено до 20):")
     for i, keyword in enumerate(result_long.split(", "), 1):
         print(f"{i}. {keyword}")
@@ -208,5 +206,5 @@ if __name__ == "__main__":
     print("1. Перша фраза завжди - повна назва товару")
     print("2. Мінімум 8 ключів (доповнюється filler-словами якщо потрібно)")
     print("3. Максимум 20 ключів")
-    print("4. Ключі з keywords.csv додаються за Номер_групи")
+    print("4. Ключі з keywords.csv додаються за Ідентифікатор_підрозділу")
     print("5. Немає дублікатів")

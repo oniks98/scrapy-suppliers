@@ -289,9 +289,9 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
             
             manufacturer = self._extract_manufacturer(name_ru)
             
-            group_number = response.meta.get("group_number", "")
-            search_terms_ru = self._generate_search_terms(name_ru, group_number, lang="ru")
-            search_terms_ua = self._generate_search_terms(name_ua, group_number, lang="ua")
+            subdivision_id = response.meta.get("subdivision_id", "")
+            search_terms_ru = self._generate_search_terms(name_ru, subdivision_id, lang="ru")
+            search_terms_ua = self._generate_search_terms(name_ua, subdivision_id, lang="ua")
             
             item = {
                 "Код_товару": code,
