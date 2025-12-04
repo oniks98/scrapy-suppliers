@@ -16,6 +16,7 @@ import re
 import csv
 from pathlib import Path
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
 
 class SuppliersPipeline:
@@ -173,10 +174,10 @@ class SuppliersPipeline:
         price = adapter.get("Ціна", "")
         if not price or not self._is_valid_price(price):
             self._increment_stat(output_file, "filtered_no_price")
-            spider.logger.debug(
-                f"⚠️ Пропущено товар без ціни: {adapter.get('Назва_позиції', 'Unknown')}"
-            )
-            raise ValueError("Товар без ціни")
+            product_name = adapter.get('Назва_позиції', 'Невідомий')[:60]
+            product_url = adapter.get('Продукт_на_сайті', 'N/A')
+            spider.logger.warning(f"❌ Товар без ціни: {product_name}... | {product_url}")
+            raise DropItem(f"Товар без ціни")
         
         # ========== ФІЛЬТР 2: Перевірка наявності ==========
         availability_raw = adapter.get("Наявність", "")
@@ -186,10 +187,10 @@ class SuppliersPipeline:
         
         if not availability_status:
             self._increment_stat(output_file, "filtered_no_stock")
-            spider.logger.debug(
-                f"⚠️ Пропущено товар не в наявності: {adapter.get('Назва_позиції', 'Unknown')} [{availability_raw}]"
-            )
-            raise ValueError("Товар не в наявності")
+            product_name = adapter.get('Назва_позиції', 'Невідомий')[:60]
+            product_url = adapter.get('Продукт_на_сайті', 'N/A')
+            spider.logger.warning(f"❌ Товар не в наявності: {product_name}... | {product_url}")
+            raise DropItem(f"Товар не в наявності")
         
         # Очищення та нормалізація даних
         cleaned_item = self._clean_item(adapter, spider)
@@ -488,14 +489,14 @@ class ValidationPipeline:
         adapter = ItemAdapter(item)
         
         if not adapter.get("Назва_позиції"):
-            raise ValueError("Відсутня назва товару")
+            raise DropItem("Відсутня назва товару")
         
         if not adapter.get("Ціна"):
-            raise ValueError("Відсутня ціна")
+            raise DropItem("Відсутня ціна")
         
         try:
             float(str(adapter.get("Ціна")).replace(",", "."))
         except (ValueError, TypeError):
-            raise ValueError(f"Некоректна ціна: {adapter.get('Ціна')}")
+            raise DropItem(f"Некоректна ціна: {adapter.get('Ціна')}")
         
         return item

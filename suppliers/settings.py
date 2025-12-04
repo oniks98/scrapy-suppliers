@@ -29,13 +29,15 @@ ROBOTSTXT_OBEY = True
 # CONCURRENCY & DELAYS (Контроль нагрузки на серверы)
 # ==============================================================================
 # Общее количество одновременных запросов (для нескольких доменов)
-CONCURRENT_REQUESTS = 8
+CONCURRENT_REQUESTS = 16
 
-# Максимум 1 запрос одновременно на один домен (безопасно)
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
+# Максимум 4 запроса одновременно на один домен (ШВИДШЕ! ⚡)
+# viatec.ua витримує це без проблем
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
 
 # Задержка между запросами к одному домену (секунды)
-DOWNLOAD_DELAY = 1
+# Зменшено до 0.5 сек для швидкості
+DOWNLOAD_DELAY = 0.5
 
 # Таймаут для каждого запроса (секунды)
 DOWNLOAD_TIMEOUT = 30
@@ -46,8 +48,8 @@ DOWNLOAD_TIMEOUT = 30
 # Включить автоматическую регулировку на основе нагрузки сервера
 AUTOTHROTTLE_ENABLED = True
 
-# Начальная задержка (секунды)
-AUTOTHROTTLE_START_DELAY = 1
+# Начальная задержка (секунды) - зменшено для швидкості
+AUTOTHROTTLE_START_DELAY = 0.5
 
 # Максимальная задержка при высоких задержках ответа (секунды)
 AUTOTHROTTLE_MAX_DELAY = 5
@@ -94,41 +96,31 @@ ITEM_PIPELINES = {
 }
 
 # ==============================================================================
-# LOGGING (Уровень логирования)
+# LOGGING (Уровень логирования) - ЧИСТЫЙ ВЫВОД
 # ==============================================================================
-# Уровни: DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Отключаем ВСЕ стандартные логи Scrapy
+LOG_ENABLED = True
 LOG_LEVEL = "INFO"
 
-# Сохранять логи в файл (опционально, раскомментируй при необходимости)
-# LOG_FILE = r"C:\FullStack\Scrapy\suppliers\scrapy.log"
-
-# Формат логов
+# Формат логов (только время, имя паука и сообщение)
 LOG_FORMAT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
 LOG_DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+
+# КРИТИЧНО: Отключаем встроенные extensions которые пишут в лог
+EXTENSIONS = {
+    'scrapy.extensions.corestats.CoreStats': None,
+    'scrapy.extensions.telnet.TelnetConsole': None,
+    'scrapy.extensions.logstats.LogStats': None,
+}
+
+# Отключаем вывод статистики при закрытии
+STATS_CLASS = 'scrapy.statscollectors.DummyStatsCollector'
 
 # ==============================================================================
 # FEEDS (Не используем, т.к. pipeline управляет двумя CSV)
 # ==============================================================================
 # Кодировка для экспорта (обязательно UTF-8 для кириллицы)
 FEED_EXPORT_ENCODING = "utf-8"
-
-# ВАЖНО: Не используем FEEDS, т.к. pipeline управляет двумя CSV файлами
-# Если нужен простой экспорт в один файл, раскомментируй:
-# FEEDS = {
-#     r"C:\Users\stalk\Documents\Prom\prom_import.csv": {
-#         "format": "csv",
-#         "encoding": "utf-8",
-#         "overwrite": True,
-#         "fields": [
-#             "Название_позиции",
-#             "Ключевые_слова",
-#             "Описание",
-#             "Цена",
-#             "Валюта",
-#             # ... остальные поля
-#         ],
-#     }
-# }
 
 # ==============================================================================
 # HTTP CACHE (Кэширование запросов для отладки)
@@ -140,28 +132,6 @@ FEED_EXPORT_ENCODING = "utf-8"
 # HTTPCACHE_DIR = "httpcache"
 # HTTPCACHE_IGNORE_HTTP_CODES = [301, 302, 500, 503]
 # HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
-
-# ==============================================================================
-# DOWNLOADER_MIDDLEWARES (Опционально: прокси, ротация User-Agent)
-# ==============================================================================
-# DOWNLOADER_MIDDLEWARES = {
-#     "scrapy_playwright.middleware.PlaywrightMiddleware": 800,
-# }
-
-# Playwright settings for Vue.js rendering
-# PLAYWRIGHT_BROWSER_TYPE = "chromium"
-# PLAYWRIGHT_LAUNCH_OPTIONS = {
-#     "headless": True,
-#     "timeout": 60000,
-# }
-# PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 60000
-
-# ==============================================================================
-# SPIDER MIDDLEWARES
-# ==============================================================================
-# SPIDER_MIDDLEWARES = {
-#     "suppliers.middlewares.SuppliersSpiderMiddleware": 543,
-# }
 
 # ==============================================================================
 # TELNET CONSOLE (Отключить для безопасности в продакшн)
@@ -176,17 +146,7 @@ DNSCACHE_ENABLED = True
 DNSCACHE_SIZE = 10000
 
 # ==============================================================================
-# EXTENSIONS
-# ==============================================================================
-# EXTENSIONS = {
-#     "scrapy.extensions.telnet.TelnetConsole": None,
-# }
-
-# ==============================================================================
 # CUSTOM SETTINGS (Специфичные для проекта)
 # ==============================================================================
-# Путь к файлу с маппингом категорий (опционально)
-# CATEGORY_MAPPING_FILE = r"C:\FullStack\Scrapy\suppliers\categories_mapping.json"
-
 # Максимальное количество items для обработки (для тестов)
 # CLOSESPIDER_ITEMCOUNT = 100
