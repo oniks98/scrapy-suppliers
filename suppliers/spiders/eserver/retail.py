@@ -30,6 +30,7 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
         self.category_mapping = self._load_category_mapping()
         self.category_urls = list(self.category_mapping.keys())
         self.current_category_index = 0
+        self.keywords_mapping = self._load_keywords_mapping_eserver()
     
     def _load_category_mapping(self):
         """Завантажує маппінг категорій з CSV"""
@@ -275,9 +276,10 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
             # Виробник
             manufacturer = self._extract_manufacturer(name_ru)
             
-            # Пошукові запити
-            search_terms_ru = self._generate_search_terms(name_ru)
-            search_terms_ua = self._generate_search_terms(name_ua)
+            # Пошукові запити з урахуванням ключових слів
+            subdivision_id = response.meta.get("subdivision_id", "")
+            search_terms_ru = self._generate_search_terms(name_ru, subdivision_id, lang="ru")
+            search_terms_ua = self._generate_search_terms(name_ua, subdivision_id, lang="ua")
             
             # Кількість
             quantity = self._extract_quantity(availability_raw)
@@ -465,3 +467,62 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
         
         all_text = description_container.css("::text").getall()
         return " ".join([t.strip() for t in all_text if t.strip()])
+    
+    def _load_keywords_mapping_eserver(self):
+        """Завантажує маппінг ключових слів для eserver з CSV"""
+        import csv
+        mapping = {}
+        csv_path = Path(r"C:\FullStack\Scrapy\data\eserver\eserver_keywords.csv")
+        
+        if not csv_path.exists():
+            self.logger.warning("eserver_keywords.csv not found")
+            return mapping
+        
+        try:
+            with open(csv_path, encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f, delimiter=";")
+                for row in reader:
+                    subdivision_id = row["Ідентифікатор_підрозділу"].strip()
+                    mapping[subdivision_id] = {
+                        "keywords_ru": [w.strip() for w in row["keywords_ru"].strip('"').split(",") if w.strip()],
+                        "keywords_ua": [w.strip() for w in row["keywords_ua"].strip('"').split(",") if w.strip()],
+                        "characteristics_ru": [w.strip() for w in row["characteristics_ru"].strip('"').split(",") if w.strip()],
+                        "characteristics_ua": [w.strip() for w in row["characteristics_ua"].strip('"').split(",") if w.strip()],
+                    }
+            self.logger.info(f"✅ Завантажено {len(mapping)} підрозділів з ключовими словами для eserver")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Помилка завантаження eserver_keywords.csv: {e}")
+        
+        return mapping
+    
+    def _generate_search_terms(self, title: str, subdivision_id: str = "", lang: str = "ua") -> str:
+        """Генерує пошукові терміни з назви товару та ключових слів"""
+        if not title:
+            return ""
+        
+        components = self._extract_model_components(title, lang)
+        
+        # Додаємо ключові слова з CSV (БЛОК 2)
+        if subdivision_id and subdivision_id in self.keywords_mapping:
+            keywords_key = f"keywords_{lang}"
+            characteristics_key = f"characteristics_{lang}"
+            
+            category_keywords = self.keywords_mapping[subdivision_id].get(keywords_key, [])
+            characteristics = self.keywords_mapping[subdivision_id].get(characteristics_key, [])
+            
+            # Об'єднуємо ключові слова та характеристики
+            all_keywords = category_keywords + characteristics
+            
+            # Обираємо максимум 12 ключових слів
+            components.extend(all_keywords[:12])
+        
+        # Видаляємо дублікати
+        seen = set()
+        unique_terms = []
+        for term in components:
+            term_lower = term.lower()
+            if term_lower not in seen:
+                unique_terms.append(term)
+                seen.add(term_lower)
+        
+        return ", ".join(unique_terms[:20])  # Обмежуємо до 20 термінів
