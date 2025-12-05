@@ -241,8 +241,6 @@ class SuppliersPipeline:
         cleaned_item["Кількість"] = quantity if quantity else "100"
         
         # ========== ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ==========
-        price_type = adapter.get("price_type", "retail")
-        
         # Ініціалізуємо лічільник для цього файлу якщо немає
         if output_file not in self.product_counters:
             self.product_counters[output_file] = 200000
@@ -250,9 +248,10 @@ class SuppliersPipeline:
         cleaned_item["Код_товару"] = str(self.product_counters[output_file])
         self.product_counters[output_file] += 1
         
-        # Встановлюємо Особисті_нотатки
-        personal_note = self.personal_notes_mapping.get(price_type, "PROM")
-        spider.logger.debug(f"📝 Особиста нотатка для price_type='{price_type}': '{personal_note}' (мапінг: {self.personal_notes_mapping})")
+        # Встановлюємо Особисті_нотатки за Номер_групи
+        group_number = adapter.get("Номер_групи", "")
+        personal_note = self.personal_notes_mapping.get(group_number, "PROM")
+        spider.logger.debug(f"📝 Особиста нотатка для Номер_групи='{group_number}': '{personal_note}'")
         cleaned_item["Особисті_нотатки"] = personal_note
         
         # ========== ОБРОБКА ОПИСУ ==========
