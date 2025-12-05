@@ -83,9 +83,9 @@ class BaseSupplierSpider(scrapy.Spider):
         """
         import csv
         mapping = {}
-        csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\keywords.csv")
+        csv_path = Path(r"C:\FullStack\Scrapy\data\viatec\viatec_keywords.csv")
         if not csv_path.exists():
-            self.logger.warning("keywords.csv not found")
+            self.logger.warning("viatec_keywords.csv not found")
             return mapping
         try:
             with open(csv_path, encoding="utf-8-sig") as f:
@@ -100,7 +100,7 @@ class BaseSupplierSpider(scrapy.Spider):
                     }
             self.logger.info(f"✅ Завантажено {len(mapping)} підрозділів з ключовими словами")
         except Exception as e:
-            self.logger.warning(f"⚠️ Помилка завантаження keywords.csv: {e}")
+            self.logger.warning(f"⚠️ Помилка завантаження viatec_keywords.csv: {e}")
         return mapping
     
     def _extract_model_components(self, title: str, lang: str = "ua") -> List[str]:

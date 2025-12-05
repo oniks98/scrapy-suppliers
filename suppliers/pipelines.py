@@ -100,14 +100,43 @@ class SuppliersPipeline:
         if spider.name == 'viatec_dealer':
             coefficient_path = r"C:\FullStack\Scrapy\data\viatec\viatec_coefficient_dealer.csv"
             try:
-                with open(coefficient_path, 'r', encoding='utf-8') as f:
-                    reader = csv.reader(f, delimiter=';')
-                    row = next(reader)
-                    coefficient_str = row[1].strip('"')
-                    self.viatec_dealer_coefficient = float(coefficient_str.replace(',', '.'))
-                    spider.logger.info(f"✅ Коефіцієнт для viatec_dealer завантажено: {self.viatec_dealer_coefficient}")
+                with open(coefficient_path, 'r', encoding='utf-8-sig') as f:
+                    content = f.read().strip()
+                    spider.logger.debug(f"Вміст файлу коефіцієнту: '{content}'")
+                    
+                    # Спробуємо різні формати
+                    coefficient_str = None
+                    
+                    # Варіант 1: Файл містить тільки число (наприклад: "1,2" або "1.2")
+                    if ';' not in content and '\n' not in content:
+                        coefficient_str = content.strip('"').strip()
+                        spider.logger.debug(f"Формат 1: просте число '{coefficient_str}'")
+                    else:
+                        # Варіант 2: CSV з роздільником ; (наприклад: "coefficient;1,2")
+                        f.seek(0)
+                        reader = csv.reader(f, delimiter=';')
+                        row = next(reader)
+                        spider.logger.debug(f"Формат 2: CSV рядок {row}")
+                        
+                        if len(row) >= 2:
+                            coefficient_str = row[1].strip('"').strip()
+                        elif len(row) == 1:
+                            coefficient_str = row[0].strip('"').strip()
+                        else:
+                            raise ValueError(f"Некоректний формат CSV: {row}")
+                    
+                    if coefficient_str:
+                        # Конвертуємо кому на крапку для float
+                        self.viatec_dealer_coefficient = float(coefficient_str.replace(',', '.'))
+                        spider.logger.info(f"✅ Коефіцієнт для viatec_dealer завантажено: {self.viatec_dealer_coefficient}")
+                    else:
+                        raise ValueError("Не вдалося визначити коефіцієнт")
+                        
+            except FileNotFoundError:
+                spider.logger.error(f"❌ Файл коефіцієнту не знайдено: {coefficient_path}")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка завантаження коефіцієнту для viatec_dealer: {e}")
+                spider.logger.error(f"   Перевірте формат файлу {coefficient_path}")
 
         # --- Універсальне завантаження особистих нотаток ---
         supplier_name = spider.name.split('_')[0]
