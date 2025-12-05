@@ -1,17 +1,104 @@
-scrapy crawl viatec_retail
+# 🚀 Швидкий старт Scrapy проєкту
+
+## 📋 Доступні Spider'и
+
+### 🏪 VIATEC
+```bash
+# Retail (роздрібні ціни)
 python ultra_clean_run.py viatec_retail
 
-scrapy crawl viatec_dealer
+# Dealer (дилерські ціни)
 python ultra_clean_run.py viatec_dealer
+```
 
-scrapy crawl eserver_retail
+### 🖥️ E-SERVER
+```bash
+# Retail (роздрібні ціни) + автоматична трансформація в PROM
 python ultra_clean_run.py eserver_retail
 
-scrapy crawl secur_retail
-python ultra_clean_run.py secur_retail
+# Тільки парсинг, без трансформації
+python ultra_clean_run.py eserver_retail --no-transform
+```
 
-Запуск теста:
+**Нова функція!** 🎉  
+Після парсингу `eserver_retail` автоматично створюється файл `eserver_prom.csv` з:
+- Помноженими цінами (коефіцієнт з `data/eserver/eserver_coefficient_prom.csv`)
+- Зміненими категоріями (з `data/eserver/eserver_category_prom.csv`)
+- Оновленими особистими нотатками (з `data/eserver/eserver_personal_notes.csv`)
+
+Детальніше: [TRANSFORM_README.md](TRANSFORM_README.md)
+
+### 🔒 SECUR
+```bash
+# Retail (роздрібні ціни)
+python ultra_clean_run.py secur_retail
+```
+
+---
+
+## 🔧 Додаткові команди
+
+### Тестування
+```bash
+# Тест сайту (перевірка доступності)
 cd tests
 python test_site.py
 
-python ultra_clean_run.py viatec_retail
+# Тест трансформації RETAIL → PROM
+test_transform.bat
+# або
+python tests\test_transformation.py
+```
+
+### Ручна трансформація (без парсингу)
+```bash
+# Якщо потрібно перезапустити тільки трансформацію
+transform_prom.bat
+# або
+python scripts\transform_retail_to_prom.py
+```
+
+---
+
+## 📂 Структура вихідних файлів
+
+### output/
+```
+viatec_retail.csv       - Роздрібні ціни VIATEC
+viatec_dealer.csv       - Дилерські ціни VIATEC
+eserver_retail.csv      - Роздрібні ціни E-SERVER
+eserver_prom.csv        - 🆕 Автоматично створена PROM версія
+secur_retail.csv        - Роздрібні ціни SECUR
+```
+
+---
+
+## ⚙️ Налаштування коефіцієнта PROM
+
+Редагуйте `data/eserver/eserver_coefficient_prom.csv`:
+```csv
+coefficient
+1.05
+```
+
+Змініть `1.05` на потрібне значення для множення ціни.
+
+---
+
+## 🆘 Проблеми?
+
+### "Вхідний файл не знайдено" при трансформації
+- Спочатку запустіть парсинг: `python ultra_clean_run.py eserver_retail`
+
+### Трансформація не запускається
+- Перевірте наявність файлів у `data/eserver/`
+- Запустіть тест: `test_transform.bat`
+
+### Невірні ціни в PROM файлі
+- Перевірте коефіцієнт у `data/eserver/eserver_coefficient_prom.csv`
+- Переконайтеся, що ціни у `eserver_retail.csv` - числа
+
+---
+
+**Версія:** 2.0 (з автоматичною трансформацією)  
+**Оновлено:** 2025-12-05
