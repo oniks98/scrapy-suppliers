@@ -59,10 +59,6 @@ from scrapy.cmdline import execute
 
 def run_transformation():
     """Запускає трансформацію retail → prom"""
-    print("\n" + "="*80)
-    print("🔄 ЗАПУСК АВТОМАТИЧНОЇ ТРАНСФОРМАЦІЇ: RETAIL → PROM")
-    print("="*80 + "\n")
-    
     # Шлях до скрипта трансформації
     base_dir = Path(__file__).parent
     transform_script = base_dir / "scripts" / "transform_retail_to_prom.py"
@@ -79,21 +75,13 @@ def run_transformation():
             text=True,
             check=True
         )
-        
-        print("\n" + "="*80)
-        print("✅ ТРАНСФОРМАЦІЯ ЗАВЕРШЕНА УСПІШНО")
-        print("="*80 + "\n")
         return True
         
     except subprocess.CalledProcessError as e:
-        print("\n" + "="*80)
-        print(f"❌ ПОМИЛКА ПРИ ТРАНСФОРМАЦІЇ: {e}")
-        print("="*80 + "\n")
+        print(f"\n❌ ПОМИЛКА ПРИ ТРАНСФОРМАЦІЇ: {e}\n")
         return False
     except Exception as e:
-        print("\n" + "="*80)
-        print(f"❌ НЕОЧІКУВАНА ПОМИЛКА: {e}")
-        print("="*80 + "\n")
+        print(f"\n❌ НЕОЧІКУВАНА ПОМИЛКА: {e}\n")
         return False
 
 
@@ -137,14 +125,12 @@ if __name__ == '__main__':
         transform_success = run_transformation()
         
         if transform_success:
-            print("\n" + "🎉"*40)
-            print("✅ ПОВНИЙ ЦИКЛ ЗАВЕРШЕНО УСПІШНО:")
-            print("   1. ✅ Парсинг eserver_retail.csv")
-            print("   2. ✅ Трансформація в eserver_prom.csv")
-            print("🎉"*40 + "\n")
+            print("\n" + "="*80)
+            print("✅ ПОВНИЙ ЦИКЛ ЗАВЕРШЕНО: Парсинг + Трансформація")
+            print("="*80 + "\n")
             sys.exit(0)
         else:
-            print("\n⚠️ Spider виконано успішно, але трансформація не вдалася")
+            print("\n❌ Spider успішний, але трансформація не вдалася\n")
             sys.exit(1)
     elif spider_success:
         print("\n✅ Spider виконано успішно")
