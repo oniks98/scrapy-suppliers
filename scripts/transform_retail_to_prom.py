@@ -34,11 +34,13 @@ def load_mappings(data_dir: Path):
             next(f)  # Skip header
             for line in f:
                 parts = line.strip().split(";")
-                if len(parts) >= 2:
-                    link = parts[0].strip().strip('"')
-                    group_number = parts[1].strip()
+                if len(parts) >= 5:
+                    # ИСПРАВЛЕНО: Линк в колонке 1, Номер_групи в колонке 4
+                    link = parts[1].strip().strip('"')
+                    group_number = parts[4].strip()
                     retail_categories[group_number] = link
         print(f"📂 Retail категорій: {len(retail_categories)}")
+        print(f"   Приклад: {list(retail_categories.items())[:2]}")
     except Exception as e:
         print(f"❌ Помилка завантаження retail категорій: {e}")
     
@@ -49,15 +51,17 @@ def load_mappings(data_dir: Path):
             next(f)  # Skip header
             for line in f:
                 parts = line.strip().split(";")
-                if len(parts) >= 3:
-                    link = parts[0].strip().strip('"')
-                    group_number = parts[1].strip()
-                    category_name = parts[2].strip()
+                if len(parts) >= 5:
+                    # ИСПРАВЛЕНО: Линк в колонке 1, Номер_групи в колонке 4, Назва в колонке 3
+                    link = parts[1].strip().strip('"')
+                    group_number = parts[4].strip()
+                    category_name = parts[3].strip()  # Категория на моем сайте_UA
                     prom_categories[link] = {
                         "Номер_групи": group_number,
                         "Назва_групи": category_name,
                     }
         print(f"📂 PROM категорій: {len(prom_categories)}")
+        print(f"   Приклад: {list(prom_categories.items())[:2]}")
     except Exception as e:
         print(f"❌ Помилка завантаження PROM категорій: {e}")
     
@@ -73,13 +77,14 @@ def load_mappings(data_dir: Path):
                     note = parts[1].strip()
                     personal_notes[group_number] = note
         print(f"📝 Особистих нотаток: {len(personal_notes)}")
+        print(f"   Приклад: {list(personal_notes.items())[:2]}")
     except Exception as e:
         print(f"❌ Помилка завантаження особистих нотаток: {e}")
     
     return coefficient, retail_categories, prom_categories, personal_notes
 
 
-def transform_line(line: str, header: list, coefficient, retail_categories, prom_categories, personal_notes):
+def transform_line(line: str, header: list, coefficient, retail_categories, prom_categories, personal_notes, line_num: int):
     """Трансформує один рядок даних"""
     parts = line.split(";")
     
@@ -109,10 +114,23 @@ def transform_line(line: str, header: list, coefficient, retail_categories, prom
         old_group_number = parts[group_number_idx].strip()
         category_link = retail_categories.get(old_group_number)
         
+        # ДОБАВЛЕНА ОТЛАДКА
+        if line_num <= 3:
+            print(f"   [Рядок {line_num}] old_group_number={old_group_number}, link={category_link}")
+        
         if category_link and category_link in prom_categories:
             prom_data = prom_categories[category_link]
+            old_name = parts[group_name_idx]
             parts[group_number_idx] = prom_data["Номер_групи"]
             parts[group_name_idx] = prom_data["Назва_групи"]
+            
+            # ДОБАВЛЕНА ОТЛАДКА
+            if line_num <= 3:
+                print(f"   [Рядок {line_num}] ✅ ЗАМІНЕНО: {old_group_number} → {prom_data['Номер_групи']}")
+                print(f"                  {old_name} → {prom_data['Назва_групи']}")
+        else:
+            if line_num <= 3:
+                print(f"   [Рядок {line_num}] ⚠️ НЕ ЗНАЙДЕНО в маппінгу")
         
         # 4. Особисті нотатки
         new_group_number = parts[group_number_idx].strip()
@@ -122,7 +140,7 @@ def transform_line(line: str, header: list, coefficient, retail_categories, prom
             parts[notes_idx] = ""
         
     except ValueError as e:
-        print(f"⚠️ Помилка обробки рядка: {e}")
+        print(f"⚠️ Помилка обробки рядка {line_num}: {e}")
     
     return ";".join(parts)
 
@@ -150,6 +168,7 @@ def main():
     
     rows_processed = 0
     rows_written = 0
+    rows_transformed = 0
     header = []
     
     try:
@@ -161,20 +180,27 @@ def main():
             header = header_line.strip().split(";")
             outfile.write(header_line)
             
+            print(f"\n🔍 ПЕРШІ 3 РЯДКИ (DEBUG):")
+            
             # Обробляємо кожен рядок
             for line in infile:
                 rows_processed += 1
                 
                 if line.strip():  # Пропускаємо порожні рядки
-                    transformed_line = transform_line(line.strip(), header, coefficient, retail_categories, prom_categories, personal_notes)
+                    old_line = line.strip()
+                    transformed_line = transform_line(old_line, header, coefficient, retail_categories, prom_categories, personal_notes, rows_processed)
+                    
+                    if old_line != transformed_line:
+                        rows_transformed += 1
+                    
                     outfile.write(transformed_line + "\n")
                     rows_written += 1
         
         print(f"\n✅ ТРАНСФОРМАЦІЯ ЗАВЕРШЕНА:")
         print(f"   📥 Оброблено рядків: {rows_processed}")
+        print(f"   🔄 Трансформовано рядків: {rows_transformed}")
         print(f"   📤 Записано рядків: {rows_written}")
         print(f"   💾 Результат: {output_file}")
-        print(f"   ✅ ВСІ ХАРАКТЕРИСТИКИ ЗБЕРЕЖЕНО!")
         return True
         
     except Exception as e:
