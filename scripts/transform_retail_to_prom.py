@@ -1,228 +1,186 @@
 """
 Трансформує eserver_retail.csv в eserver_prom.csv
-Застосовує коефіцієнт до ціни, змінює категорії та особисті нотатки
-ЗБЕРІГАЄ ВСІ ХАРАКТЕРИСТИКИ
+ПОСТРОКОВЕ КОПІЮВАННЯ: Копіює файл рядок за рядком і змінює тільки потрібні колонки
 """
-import csv
 import sys
 from pathlib import Path
 from decimal import Decimal, InvalidOperation
 
 
-def load_coefficient(csv_path: Path) -> Decimal:
-    """Завантажує коефіцієнт з CSV"""
-    try:
-        with open(csv_path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            row = next(reader)
-            return Decimal(row["coefficient"].strip())
-    except Exception as e:
-        print(f"❌ Помилка завантаження коефіцієнта: {e}")
-        return Decimal("1.05")
-
-
-def load_prom_categories(csv_path: Path) -> dict:
-    """Завантажує маппінг категорій для PROM"""
-    mapping = {}
-    try:
-        with open(csv_path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                link = row["Линк категории поставщика"].strip().strip('"')
-                mapping[link] = {
-                    "Номер_групи": row["Номер_групи"].strip(),
-                    "Назва_групи": row["Категория на моем сайте_RU"].strip(),
-                }
-    except Exception as e:
-        print(f"❌ Помилка завантаження категорій PROM: {e}")
-    return mapping
-
-
-def load_personal_notes(csv_path: Path) -> dict:
-    """Завантажує особисті нотатки"""
-    mapping = {}
-    try:
-        with open(csv_path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                group_number = row["Номер_групи"].strip()
-                personal_note = row["Особисті_нотатки"].strip()
-                mapping[group_number] = personal_note
-    except Exception as e:
-        print(f"❌ Помилка завантаження особистих нотаток: {e}")
-    return mapping
-
-
-def load_retail_categories(csv_path: Path) -> dict:
-    """Завантажує маппінг retail категорій (для зворотного пошуку)"""
-    mapping = {}
-    try:
-        with open(csv_path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f, delimiter=";")
-            for row in reader:
-                link = row["Линк категории поставщика"].strip().strip('"')
-                group_number = row["Номер_групи"].strip()
-                mapping[group_number] = link
-    except Exception as e:
-        print(f"❌ Помилка завантаження retail категорій: {e}")
-    return mapping
-
-
 def normalize_price(price_str: str) -> str:
-    """
-    Нормалізує ціну: замінює кому на крапку та видаляє зайві пробіли
-    """
+    """Нормалізує ціну: замінює кому на крапку"""
     return price_str.replace(",", ".").replace(" ", "").strip()
 
 
-def transform_retail_to_prom(
-    input_csv: Path,
-    output_csv: Path,
-    coefficient_csv: Path,
-    prom_category_csv: Path,
-    retail_category_csv: Path,
-    personal_notes_csv: Path,
-):
-    """Трансформує retail CSV в prom версію зі збереженням характеристик"""
+def load_mappings(data_dir: Path):
+    """Завантажує всі маппінги з CSV файлів"""
     
-    print(f"🔄 СТАРТ ТРАНСФОРМАЦІЇ: {input_csv.name} → {output_csv.name}")
+    # 1. Коефіцієнт
+    coefficient = Decimal("1.05")
+    try:
+        with open(data_dir / "eserver_coefficient_prom.csv", encoding="utf-8-sig") as f:
+            for line in f:
+                if line.strip() and "coefficient" not in line.lower():
+                    coefficient = Decimal(line.strip())
+                    break
+        print(f"📊 Коефіцієнт: {coefficient}")
+    except Exception as e:
+        print(f"❌ Помилка завантаження коефіцієнта: {e}")
     
-    # Завантажуємо дані
-    coefficient = load_coefficient(coefficient_csv)
-    prom_categories = load_prom_categories(prom_category_csv)
-    retail_categories = load_retail_categories(retail_category_csv)
-    personal_notes = load_personal_notes(personal_notes_csv)
+    # 2. Retail категорії (Номер_групи -> Линк)
+    retail_categories = {}
+    try:
+        with open(data_dir / "eserver_category_retail.csv", encoding="utf-8-sig") as f:
+            next(f)  # Skip header
+            for line in f:
+                parts = line.strip().split(";")
+                if len(parts) >= 2:
+                    link = parts[0].strip().strip('"')
+                    group_number = parts[1].strip()
+                    retail_categories[group_number] = link
+        print(f"📂 Retail категорій: {len(retail_categories)}")
+    except Exception as e:
+        print(f"❌ Помилка завантаження retail категорій: {e}")
     
-    print(f"📊 Коефіцієнт: {coefficient}")
-    print(f"📂 Категорій PROM: {len(prom_categories)}")
-    print(f"📝 Особистих нотаток: {len(personal_notes)}")
+    # 3. PROM категорії (Линк -> Номер_групи, Назва)
+    prom_categories = {}
+    try:
+        with open(data_dir / "eserver_category_prom.csv", encoding="utf-8-sig") as f:
+            next(f)  # Skip header
+            for line in f:
+                parts = line.strip().split(";")
+                if len(parts) >= 3:
+                    link = parts[0].strip().strip('"')
+                    group_number = parts[1].strip()
+                    category_name = parts[2].strip()
+                    prom_categories[link] = {
+                        "Номер_групи": group_number,
+                        "Назва_групи": category_name,
+                    }
+        print(f"📂 PROM категорій: {len(prom_categories)}")
+    except Exception as e:
+        print(f"❌ Помилка завантаження PROM категорій: {e}")
     
-    if not input_csv.exists():
-        print(f"❌ Вхідний файл не знайдено: {input_csv}")
-        return False
+    # 4. Особисті нотатки (Номер_групи -> Нотатка)
+    personal_notes = {}
+    try:
+        with open(data_dir / "eserver_personal_notes.csv", encoding="utf-8-sig") as f:
+            next(f)  # Skip header
+            for line in f:
+                parts = line.strip().split(";")
+                if len(parts) >= 2:
+                    group_number = parts[0].strip()
+                    note = parts[1].strip()
+                    personal_notes[group_number] = note
+        print(f"📝 Особистих нотаток: {len(personal_notes)}")
+    except Exception as e:
+        print(f"❌ Помилка завантаження особистих нотаток: {e}")
     
-    # Читаємо вхідний CSV
-    rows_processed = 0
-    rows_written = 0
-    price_errors = 0
+    return coefficient, retail_categories, prom_categories, personal_notes
+
+
+def transform_line(line: str, header: list, coefficient, retail_categories, prom_categories, personal_notes):
+    """Трансформує один рядок даних"""
+    parts = line.split(";")
+    
+    if len(parts) < len(header):
+        # Якщо рядок коротший за заголовок, додаємо порожні поля
+        parts.extend([""] * (len(header) - len(parts)))
     
     try:
-        with open(input_csv, encoding="utf-8-sig") as infile, \
-             open(output_csv, "w", encoding="utf-8-sig", newline="") as outfile:
+        # Індекси колонок
+        price_idx = header.index("Ціна")
+        group_number_idx = header.index("Номер_групи")
+        group_name_idx = header.index("Назва_групи")
+        notes_idx = header.index("Особисті_нотатки")
+        
+        # 1. Ціна: множимо і округлюємо
+        price_str = parts[price_idx].strip()
+        if price_str:
+            try:
+                normalized_price = normalize_price(price_str)
+                price = Decimal(normalized_price)
+                new_price = price * coefficient
+                parts[price_idx] = str(int(new_price.quantize(Decimal("1"))))
+            except:
+                pass
+        
+        # 2-3. Категорія: змінюємо Номер_групи та Назва_групи
+        old_group_number = parts[group_number_idx].strip()
+        category_link = retail_categories.get(old_group_number)
+        
+        if category_link and category_link in prom_categories:
+            prom_data = prom_categories[category_link]
+            parts[group_number_idx] = prom_data["Номер_групи"]
+            parts[group_name_idx] = prom_data["Назва_групи"]
+        
+        # 4. Особисті нотатки
+        new_group_number = parts[group_number_idx].strip()
+        if new_group_number in personal_notes:
+            parts[notes_idx] = personal_notes[new_group_number]
+        else:
+            parts[notes_idx] = ""
+        
+    except ValueError as e:
+        print(f"⚠️ Помилка обробки рядка: {e}")
+    
+    return ";".join(parts)
+
+
+def main():
+    """Головна функція"""
+    print("ЗАПУСК ПОСТРОКОВОЇ ТРАНСФОРМАЦІЇ: RETAIL → PROM")
+    print("=" * 80)
+    
+    base_dir = Path(r"C:\FullStack\Scrapy")
+    data_dir = base_dir / "data" / "eserver"
+    output_dir = base_dir / "output"
+    
+    input_file = output_dir / "eserver_retail.csv"
+    output_file = output_dir / "eserver_prom.csv"
+    
+    if not input_file.exists():
+        print(f"❌ Вхідний файл не знайдено: {input_file}")
+        return False
+    
+    # Завантажуємо маппінги
+    coefficient, retail_categories, prom_categories, personal_notes = load_mappings(data_dir)
+    
+    print(f"\n🔄 КОПІЮВАННЯ: {input_file.name} → {output_file.name}")
+    
+    rows_processed = 0
+    rows_written = 0
+    header = []
+    
+    try:
+        with open(input_file, "r", encoding="utf-8-sig") as infile, \
+             open(output_file, "w", encoding="utf-8-sig", newline="") as outfile:
             
-            reader = csv.DictReader(infile, delimiter=";")
+            # Читаємо і записуємо заголовок
+            header_line = infile.readline()
+            header = header_line.strip().split(";")
+            outfile.write(header_line)
             
-            # Зберігаємо оригінальні заголовки (включаючи всі характеристики)
-            fieldnames = reader.fieldnames
-            writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter=";")
-            writer.writeheader()
-            
-            for row in reader:
+            # Обробляємо кожен рядок
+            for line in infile:
                 rows_processed += 1
                 
-                # 1. Множимо ціну на коефіцієнт
-                price_str = row.get("Ціна", "").strip()
-                if price_str:
-                    try:
-                        # Нормалізуємо ціну: замінюємо кому на крапку
-                        normalized_price = normalize_price(price_str)
-                        price = Decimal(normalized_price)
-                        new_price = price * coefficient
-                        row["Ціна"] = str(new_price.quantize(Decimal("0.01")))
-                    except (InvalidOperation, ValueError) as e:
-                        price_errors += 1
-                        print(f"⚠️ Помилка перетворення ціни '{price_str}' (рядок {rows_processed}): {e}")
-                        # Залишаємо оригінальну ціну
-                
-                # 2. Змінюємо Номер_групи та Назва_групи
-                retail_group_number = row.get("Номер_групи", "").strip()
-                
-                # Шукаємо відповідний лінк категорії в retail
-                category_link = retail_categories.get(retail_group_number)
-                
-                if category_link and category_link in prom_categories:
-                    prom_data = prom_categories[category_link]
-                    row["Номер_групи"] = prom_data["Номер_групи"]
-                    row["Назва_групи"] = prom_data["Назва_групи"]
-                else:
-                    if rows_processed <= 5:  # Показуємо тільки перші 5 попереджень
-                        print(f"⚠️ Не знайдено PROM категорію для групи {retail_group_number}")
-                
-                # 3. Змінюємо Особисті_нотатки
-                new_group_number = row.get("Номер_групи", "").strip()
-                if new_group_number in personal_notes:
-                    row["Особисті_нотатки"] = personal_notes[new_group_number]
-                else:
-                    # Якщо немає маппінгу, залишаємо порожнім
-                    row["Особисті_нотатки"] = ""
-                
-                # ВАЖЛИВО: Записуємо весь row зі ВСІМА полями, включаючи характеристики
-                writer.writerow(row)
-                rows_written += 1
+                if line.strip():  # Пропускаємо порожні рядки
+                    transformed_line = transform_line(line.strip(), header, coefficient, retail_categories, prom_categories, personal_notes)
+                    outfile.write(transformed_line + "\n")
+                    rows_written += 1
         
         print(f"\n✅ ТРАНСФОРМАЦІЯ ЗАВЕРШЕНА:")
         print(f"   📥 Оброблено рядків: {rows_processed}")
         print(f"   📤 Записано рядків: {rows_written}")
-        if price_errors > 0:
-            print(f"   ⚠️ Помилок конвертації ціни: {price_errors}")
-        print(f"   💾 Результат: {output_csv}")
+        print(f"   💾 Результат: {output_file}")
+        print(f"   ✅ ВСІ ХАРАКТЕРИСТИКИ ЗБЕРЕЖЕНО!")
         return True
         
     except Exception as e:
         print(f"❌ КРИТИЧНА ПОМИЛКА: {e}")
         import traceback
         traceback.print_exc()
-        return False
-
-
-def main():
-    """Головна функція"""
-    print("ЗАПУСК АВТОМАТИЧНОЇ ТРАНСФОРМАЦІЇ: RETAIL → PROM")
-    print("=" * 80)
-    
-    # Шляхи до файлів
-    base_dir = Path(r"C:\FullStack\Scrapy")
-    data_dir = base_dir / "data" / "eserver"
-    output_dir = base_dir / "output"
-    
-    input_csv = output_dir / "eserver_retail.csv"
-    output_csv = output_dir / "eserver_prom.csv"
-    
-    coefficient_csv = data_dir / "eserver_coefficient_prom.csv"
-    prom_category_csv = data_dir / "eserver_category_prom.csv"
-    retail_category_csv = data_dir / "eserver_category_retail.csv"
-    personal_notes_csv = data_dir / "eserver_personal_notes.csv"
-    
-    # Перевірка наявності всіх файлів
-    required_files = [
-        coefficient_csv,
-        prom_category_csv,
-        retail_category_csv,
-        personal_notes_csv,
-    ]
-    
-    missing_files = [f for f in required_files if not f.exists()]
-    if missing_files:
-        print("❌ Відсутні необхідні файли:")
-        for f in missing_files:
-            print(f"   - {f}")
-        return False
-    
-    # Запуск трансформації
-    success = transform_retail_to_prom(
-        input_csv=input_csv,
-        output_csv=output_csv,
-        coefficient_csv=coefficient_csv,
-        prom_category_csv=prom_category_csv,
-        retail_category_csv=retail_category_csv,
-        personal_notes_csv=personal_notes_csv,
-    )
-    
-    if success:
-        print("\n🎉 УСПІХ! Файл eserver_prom.csv створено з усіма характеристиками.")
-        return True
-    else:
-        print("\n❌ ПОМИЛКА! Трансформація не виконана.")
         return False
 
 

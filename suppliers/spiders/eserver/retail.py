@@ -265,10 +265,45 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
                 price_raw = response.css("div[class*='price']::text").get()
             price = self._clean_price(price_raw) if price_raw else ""
             
-            # Наявність
+            # Наявність - РОЗШИРЕНЕ ВИТЯГУВАННЯ З ЛОГУВАННЯМ
+            availability_raw = ""
+            
+            # Спробуємо різні селектори
             availability_element = response.css("div.product_ag-sts__x60QA")
-            availability_text = availability_element.css("::text").getall()
-            availability_raw = " ".join([t.strip() for t in availability_text if t.strip()])
+            if availability_element:
+                availability_text = availability_element.css("::text").getall()
+                availability_raw = " ".join([t.strip() for t in availability_text if t.strip()])
+                self.logger.info(f"📦 Наявність (селектор 1): '{availability_raw}'")
+            
+            # Альтернативний селектор 1: загальний пошук тексту з "наявності" або "наличии"
+            if not availability_raw:
+                all_text = response.css("*::text").getall()
+                for text in all_text:
+                    text_lower = text.lower().strip()
+                    if "наявност" in text_lower or "налич" in text_lower:
+                        availability_raw = text.strip()
+                        self.logger.info(f"📦 Наявність (селектор 2 - пошук): '{availability_raw}'")
+                        break
+            
+            # Альтернативний селектор 2: шукаємо в div з класами що містять "status", "stock", "available"
+            if not availability_raw:
+                status_divs = response.css("div[class*='status'], div[class*='stock'], div[class*='available']")
+                for div in status_divs:
+                    text = " ".join(div.css("::text").getall()).strip()
+                    if text:
+                        availability_raw = text
+                        self.logger.info(f"📦 Наявність (селектор 3 - div): '{availability_raw}'")
+                        break
+            
+            # Якщо нічого не знайдено - логуємо попередження з HTML
+            if not availability_raw:
+                self.logger.warning(f"⚠️ НЕ ЗНАЙДЕНО наявності для: {response.url}")
+                # Логуємо фрагмент HTML для дебагу
+                product_section = response.css("div[class*='product']").get()
+                if product_section:
+                    self.logger.warning(f"HTML фрагмент: {product_section[:500]}...")
+                # За замовчуванням вважаємо В НАЯВНОСТІ (бо в категорії фільтр only-inStock)
+                availability_raw = "В наявності"
             
             # Зображення
             image_url = self._extract_image_from_srcset(response)

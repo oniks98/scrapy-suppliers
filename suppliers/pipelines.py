@@ -210,15 +210,16 @@ class SuppliersPipeline:
         
         # ========== ФІЛЬТР 2: Перевірка наявності ==========
         availability_raw = adapter.get("Наявність", "")
-        spider.logger.info(f"🔍 ПРОВЕРКА НАЯВНОСТІ RAW: '{availability_raw}'")
+        product_name_short = adapter.get('Назва_позиції', 'Невідомий')[:50]
+        spider.logger.info(f"🔍 ПРОВЕРКА НАЯВНОСТІ: {product_name_short}... | RAW: '{availability_raw}'")
         availability_status = self._check_availability(availability_raw)
-        spider.logger.info(f"🔍 РЕЗУЛЬТАТ ПРОВЕРКИ: {availability_status}")
+        spider.logger.info(f"🔍 РЕЗУЛЬТАТ: {availability_status}")
         
         if not availability_status:
             self._increment_stat(output_file, "filtered_no_stock")
             product_name = adapter.get('Назва_позиції', 'Невідомий')[:60]
             product_url = adapter.get('Продукт_на_сайті', 'N/A')
-            spider.logger.warning(f"❌ Товар не в наявності: {product_name}... | {product_url}")
+            spider.logger.warning(f"❌ ВІДФІЛЬТРОВАНО (немає): {product_name}... | Наявність: '{availability_raw}' | {product_url}")
             raise DropItem(f"Товар не в наявності")
         
         # Очищення та нормалізація даних
@@ -363,13 +364,18 @@ class SuppliersPipeline:
         # Спочатку перевіряємо на відсутність (явні негативні маркери)
         out_of_stock_keywords = [
             "немає",
+            "немає в наявності",
             "нет в наличии",
+            "нет на складе",
+            "нет наявності",
             "відсутній",
+            "відсутня",
             "закінчився",
+            "закінчилась",
             "out of stock",
             "unavailable",
-            "немає в наявності",
-            "нет на складе",
+            "под заказ",
+            "під замовлення",
         ]
         
         for keyword in out_of_stock_keywords:
