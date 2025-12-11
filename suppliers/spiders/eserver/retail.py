@@ -307,9 +307,16 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
             
             # Зображення
             image_url = self._extract_image_from_srcset(response)
+            image_url = self._sanitize_image_url(image_url)
             
-            # Виробник
-            manufacturer = self._extract_manufacturer(name_ru)
+            # Виробник - парсимо з сайту
+            manufacturer = self._extract_manufacturer_from_page(response)
+            if not manufacturer:
+                # Fallback на старий метод (з назви або CSV)
+                manufacturer = self._extract_manufacturer(name_ru)
+                self.logger.info(f"📌 Виробник (fallback): {manufacturer}")
+            else:
+                self.logger.info(f"📌 Виробник (з сайту): {manufacturer}")
             
             # Пошукові запити з урахуванням ключових слів
             subdivision_id = response.meta.get("subdivision_id", "")
@@ -436,6 +443,41 @@ class EserverRetailSpider(EserverBaseSpider, BaseRetailSpider):
         else:
             self.logger.info(f"🎉🎉🎉 ВСІ КАТЕГОРІЇ ТА ПРОДУКТИ ОБРОБЛЕНІ 🎉🎉🎉")
             return None
+    
+    def _extract_manufacturer_from_page(self, response):
+        """Витягує виробника з сайту E-Server
+        
+        HTML структура:
+        <div class="mb-13px xl:mb-5px xl:last:mb-0 xl:pl-1 3xl:pl-0">
+            Виробник: 
+            <a class="text-midBlue..." href="...">
+                EServer™
+            </a>
+        </div>
+        """
+        try:
+            # Спочатку шукаємо div що містить текст "Виробник"
+            manufacturer_divs = response.xpath("//div[contains(text(), 'Виробник')]")
+            
+            if not manufacturer_divs:
+                # Російська версія
+                manufacturer_divs = response.xpath("//div[contains(text(), 'Производитель')]")
+            
+            if manufacturer_divs:
+                # Витягуємо текст з <a> всередині div
+                manufacturer_link = manufacturer_divs[0].css("a::text").get()
+                
+                if manufacturer_link:
+                    manufacturer = manufacturer_link.strip()
+                    # Очищаємо від символу ™
+                    manufacturer = manufacturer.replace("™", "").strip()
+                    return manufacturer
+            
+            return ""
+            
+        except Exception as e:
+            self.logger.warning(f"⚠️ Помилка парсингу виробника з сайту: {e}")
+            return ""
     
     def _extract_image_from_srcset(self, response):
         """Витягує найбільше зображення з srcset"""

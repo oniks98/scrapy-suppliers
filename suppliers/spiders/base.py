@@ -68,6 +68,19 @@ class BaseSupplierSpider(scrapy.Spider):
         
         return ""
     
+    def _sanitize_image_url(self, url: str) -> str:
+        """Екранує спеціальні символи в URL зображень для PROM
+        
+        PROM не приймає URL із запятими - потрібно замінити на %2C
+        """
+        if not url:
+            return ""
+        
+        # Замінюємо запятую на %2C
+        url = url.replace(",", "%2C")
+        
+        return url
+    
     def _load_keywords_mapping(self) -> Dict[str, Dict[str, List[str]]]:
         """Завантажує маппінг ключових слів з CSV за Ідентифікатор_підрозділу
         
@@ -200,13 +213,14 @@ class BaseSupplierSpider(scrapy.Spider):
         return unique_components[:8]  # Обмежуємо до 8 компонентів
     
     def _generate_search_terms(self, product_name: str, subdivision_id: str = "", lang: str = "ua") -> str:
-        """Генерує пошукові запити за новою логікою:
+        """Генерує пошукові запити за логікою:
         
         БЛОК 1: Модельні ключі (5-8 шт.) - з назви товару
-        БЛОК 2: Характеристичні ключі (6-10 шт.) - з characteristics, яких НЕМАЄ в назві
-        БЛОК 3: Категорійні ключі (8 шт.) - з keywords
+        БЛОК 2: Характеристичні ключі - з characteristics, яких НЕМАЄ в назві (до 18 разом з БЛОК 1)
+        БЛОК 3: Категорійні ключі - всі доступні з keywords
         
-        Всього: 20-28 ключів
+        Мінімум: 8 ключів (з попередженням якщо менше)
+        Максимум: без обмежень
         """
         if not product_name:
             return ""
@@ -258,32 +272,21 @@ class BaseSupplierSpider(scrapy.Spider):
                     if len(result) >= 18:  # Обмежуємо БЛОК 1 + БЛОК 2 до 18 ключів
                         break
         
-        # БЛОК 3: Категорійні ключі (8 шт.) - завжди додаємо
+        # БЛОК 3: Категорійні ключі (всі доступні) - завжди додаємо
         if subdivision_id and subdivision_id in self._keywords_cache:
             lang_key = f"keywords_{lang}" if lang in ["ua", "ru"] else "keywords_ua"
             category_keywords = self._keywords_cache[subdivision_id].get(lang_key, [])
             
-            for kw in category_keywords[:8]:  # Беремо перші 8
+            for kw in category_keywords:  # Додаємо всі категорійні ключі
                 kw_lower = kw.lower()
                 if kw_lower not in seen:
                     result.append(kw)
                     seen.add(kw_lower)
         
-        # Гарантуємо мінімум 20 ключів (нова вимога)
-        if len(result) < 20:
-            filler_ua = ["товар", "обладнання", "продукція", "техніка", "пристрій", "обладнання професійне", "техніка сучасна"]
-            filler_ru = ["товар", "оборудование", "продукция", "техника", "устройство", "оборудование профессиональное", "техника современная"]
-            filler = filler_ua if lang == "ua" else filler_ru
-            
-            for f in filler:
-                if len(result) >= 20:
-                    break
-                if f not in seen:
-                    result.append(f)
-                    seen.add(f)
-        
-        # Обмежуємо до 28 ключів (новий максимум)
-        result = result[:28]
+        # Гарантуємо мінімум 8 ключів
+        if len(result) < 8:
+            # Якщо менше 8 ключів, логуємо попередження
+            self.logger.warning(f"Недостатньо ключових слів для товару. Знайдено: {len(result)} (мінімум: 8)")
         
         return ", ".join(result)
 

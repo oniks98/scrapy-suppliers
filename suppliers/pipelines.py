@@ -259,6 +259,12 @@ class SuppliersPipeline:
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))
         cleaned_item["Опис_укр"] = self._clean_description(cleaned_item.get("Опис_укр", ""))
         
+        # ========== САНІТИЗАЦІЯ URL ЗОБРАЖЕНЬ ==========
+        # Гарантуємо, що запятая в URL замінена на %2C
+        image_url = cleaned_item.get("Посилання_зображення", "")
+        if image_url:
+            cleaned_item["Посилання_зображення"] = image_url.replace(",", "%2C")
+        
         # ========== ОБРОБКА ХАРАКТЕРИСТИК ==========
         specs_list = adapter.get("specifications_list", [])
         

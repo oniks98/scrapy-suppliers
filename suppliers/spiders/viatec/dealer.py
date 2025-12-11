@@ -282,6 +282,7 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
             
             images = response.css("img.card-header__card-images-image::attr(src)").getall()
             image_url = response.urljoin(images[0]) if images else ""
+            image_url = self._sanitize_image_url(image_url)
             
             availability_raw_text = response.css("div.card-header__card-status-badge::text").get()
             availability_status = self._normalize_availability(availability_raw_text)
