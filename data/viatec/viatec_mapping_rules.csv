@@ -1,0 +1,60 @@
+﻿supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_value_template;priority;is_active;category_id;notes
+Тип;(?:UTP|U/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;10;TRUE;7190605;CAT5e variants
+Тип;(?:UTP|U/UTP).*[Cc]at\.\s*5[Ee];regex;Категорія витої пари;САТ5е;11;TRUE;7190605;Cat.5e variants
+Тип;(?:FTP|F/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;12;TRUE;7190605;FTP CAT5e
+Тип;(?:Cat|CAT)\s*6\s*[Aa];regex;Категорія витої пари;CAT6a;20;TRUE;7190605;CAT6a
+Тип;(?:Cat|CAT)\s*6(?![Aa]);regex;Категорія витої пари;CAT6;21;TRUE;7190605;CAT6 not 6a
+Тип;(?:UTP|U/UTP);regex;Тип витої пари;UTP;30;TRUE;7190605;UTP type
+Тип;(?:FTP|F/UTP);regex;Тип витої пари;F/UTP;31;TRUE;7190605;FTP type
+Тип;коаксіальн;contains;Тип кабеля;Коаксіальний;40;TRUE;7190605;Coaxial cable
+Тип;комбінований;contains;Тип кабеля;Комбінований;41;TRUE;7190605;Combined cable
+Тип;сигнальний;contains;Тип кабеля;Сигнальний;42;TRUE;7190605;Signal cable
+Оболонка;(?:PVC|ПВХ|полівінілхлорид);regex;Материал оболочки;ПВХ;50;TRUE;7190605;PVC sheath
+Оболонка;(?:PE|поліетилен);regex;Материал оболочки;Поліетилен;51;TRUE;7190605;PE sheath
+Оболонка;LSZH|LSOH|безгалоген;regex;Материал оболочки;LSZH;52;TRUE;7190605;LSZH sheath
+Довжина кабеля;(\d+)\s*м(?!м);regex;Длина в упаковке (м);$1 ;60;TRUE;7190605;Cable length in meters
+Матеріал жили;мідь|медь|Cu|Мідь;regex;Матеріал жили;Мідь;70;TRUE;7190605;Copper core
+Матеріал жили;CCA|Алюміній-Мідь;regex;Матеріал жили;CCA;71;TRUE;7190605;CCA core
+Матеріал жили;біметал;contains;Матеріал жили;Біметал;72;TRUE;7190605;Bimetal
+Центральний провідник;мідь|медь|Cu|Мідь|Мідний;regex;Матеріал центральної жили;Мідь;80;TRUE;7190605;Copper central conductor
+Центральний провідник;CCA|Алюміній-Мідь;regex;Матеріал центральної жили;CCA;81;TRUE;7190605;CCA central
+Центральний провідник;біметал;contains;Матеріал центральної жили;Біметал;82;TRUE;7190605;Bimetal central
+Монтаж;зовні приміщення|поза приміщенням;regex;Тип монтажу;Зовнішній;90;TRUE;7190605;External mounting
+Монтаж;приміщенн|всередині приміщення|в приміщенні;regex;Тип монтажу;Внутрішній;91;TRUE;7190605;Internal mounting
+Кількість жил;(\d+);regex;Кількість жил;$1 ;100;TRUE;7190605;Number of cores
+Переріз;(\d+\.?\d*)\s*мм;regex;Діаметр жили (мм);$1 ;110;TRUE;7190605;Cross-section in mm
+Переріз;(\d+\.?\d*)\s*мм2;regex;Площа перетину (кв. мм);$1 ;111;TRUE;7190605;Cross-section in mm2
+Екранування;відсутн;contains;Наявність екрану;Ні;120;TRUE;7190605;No shielding
+Екранування;алюмополімерна стрічка|фольг;regex;Виконання 1 екрана;Фольга;121;TRUE;7190605;Foil shielding
+Екранування;Підтримує|є;regex;Наявність екрану;Так;122;TRUE;7190605;Has shielding
+Ізоляція;(?:PVC|ПВХ|полівінілхлорид);regex;Матеріал ізоляції;ПВХ;130;TRUE;7190605;PVC insulation
+Ізоляція;поліетилен|PE;regex;Матеріал ізоляції;Поліетилен;131;TRUE;7190605;PE insulation
+Частотна характеристика;(\d+)\s*м[ГГ]ц;regex;Смуга частот (МГц);$1 ;140;TRUE;7190605;Frequency band
+Опір;(\d+)\s*Ом;regex;Хвильовий опір (Ом);$1 ;150;TRUE;7190605;Impedance
+Вага брутто;(\d+\.?\d*)\s*кг;regex;Маса (кг/м);$1 ;160;TRUE;7190605;Gross weight
+Робоча температура;(-?\d+)\s*(?:°\s*C|℃)\s*(?:-|\.\.\.)\s*\+?(-?\d+)\s*(?:°\s*C|℃);regex;Мінімальна робоча температура (град.);$1 ;170;TRUE;7190605;Temperature range min
+Робоча температура;(-?\d+)\s*(?:°\s*C|℃)\s*(?:-|\.\.\.)\s*\+?(-?\d+)\s*(?:°\s*C|℃);regex;Максимальна робоча температура (град.);$2 ;171;TRUE;7190605;Temperature range max
+Стандарти;;exact;;Пропустити;1000;TRUE;7190605;Skip standards field
+Розмір;;exact;;Пропустити;1001;TRUE;7190605;Skip size details
+Основний провідник;;exact;;Пропустити;1002;TRUE;7190605;Skip detailed conductor
+Ізоляція дроту;;exact;;Пропустити;1003;TRUE;7190605;Skip wire insulation
+Маркування кабелю;;exact;;Пропустити;1004;TRUE;7190605;Skip cable marking
+Зовнішній вигляд;;exact;;Пропустити;1005;TRUE;7190605;Skip appearance
+Колір проводу;;exact;;Пропустити;1006;TRUE;7190605;Skip wire colors
+Налагодження;;exact;;Пропустити;1007;TRUE;7190605;Skip tuning
+Опір постійного струму;;exact;;Пропустити;1008;TRUE;7190605;Skip DC resistance
+Незбалансований опір постійного струму;;exact;;Пропустити;1009;TRUE;7190605;Skip unbalanced DC
+Фізичні властивості оболонки.*;;regex;;Пропустити;1010;TRUE;7190605;Skip physical properties
+Знос;;exact;;Пропустити;1011;TRUE;7190605;Skip wear
+Холодний вигин;;exact;;Пропустити;1012;TRUE;7190605;Skip cold bending
+Ріпкорд;;exact;;Пропустити;1013;TRUE;7190605;Skip ripcord
+Вага;;exact;;Пропустити;1014;TRUE;7190605;Skip weight (not gross)
+Кількість в ящику;;exact;;Пропустити;1015;TRUE;7190605;Skip box quantity
+Розмір упаковки.*;;regex;;Пропустити;1016;TRUE;7190605;Skip package dimensions
+Діелектрик;;exact;;Пропустити;1017;TRUE;7190605;Skip dielectric
+Зворотні втрати;;exact;;Пропустити;1018;TRUE;7190605;Skip return loss
+Додатково;;exact;;Пропустити;1019;TRUE;7190605;Skip additional
+Радіус вигину;;exact;;Пропустити;1020;TRUE;7190605;Skip bending radius
+Вхідна напруга;;exact;;Пропустити;1021;TRUE;7190605;Skip input voltage
+Матеріал корпусу;;exact;;Пропустити;1022;TRUE;7190605;Skip housing material
+Діаметр;;exact;;Пропустити;1023;TRUE;7190605;Skip diameter details

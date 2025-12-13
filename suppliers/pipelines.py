@@ -17,6 +17,7 @@ import csv
 from pathlib import Path
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+from suppliers.attribute_mapper import AttributeMapper
 
 
 class SuppliersPipeline:
@@ -27,6 +28,7 @@ class SuppliersPipeline:
         self.writers = {}
         self.viatec_dealer_coefficient = None
         self.personal_notes_mapping = {}
+        self.attribute_mapper = None  # Буде ініціалізовано в open_spider
         
         # Базові поля CSV згідно формату PROM
         self.fieldnames_base = [
@@ -157,6 +159,20 @@ class SuppliersPipeline:
         except Exception as e:
             spider.logger.error(f"❌ Помилка завантаження мапінгу особистих нотаток для {spider.name}: {e}")
 
+        # --- Ініціалізація маппера характеристик ---
+        rules_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_mapping_rules.csv"
+        if rules_path.exists():
+            try:
+                self.attribute_mapper = AttributeMapper(str(rules_path), spider.logger)
+                spider.logger.info(f"✅ AttributeMapper ініціалізовано для {spider.name}")
+            except Exception as e:
+                spider.logger.error(f"❌ Помилка ініціалізації AttributeMapper: {e}")
+                self.attribute_mapper = None
+        else:
+            spider.logger.warning(f"⚠️  Файл правил маппінгу не знайдено: {rules_path}")
+            spider.logger.warning(f"⚠️  Маппінг характеристик відключено")
+            self.attribute_mapper = None
+
         # Отримуємо ім'я файлу з атрибутів паука
         output_file = getattr(spider, 'output_filename', f"{spider.name}.csv")
         filepath = self.output_dir / output_file
@@ -266,7 +282,42 @@ class SuppliersPipeline:
             cleaned_item["Посилання_зображення"] = image_url.replace(",", "%2C")
         
         # ========== ОБРОБКА ХАРАКТЕРИСТИК ==========
-        specs_list = adapter.get("specifications_list", [])
+        specs_list_original = adapter.get("specifications_list", [])
+        
+        # Мапимо характеристики якщо маппер доступний
+        if self.attribute_mapper and specs_list_original:
+            # Отримуємо category_id з item
+            category_id = adapter.get("Ідентифікатор_підрозділу", "")
+            
+            spider.logger.info(f"🎯 category_id для маппінгу: '{category_id}' | Товар: {cleaned_item.get('Назва_позиції', '')[:40]}...")
+            
+            mapping_result = self.attribute_mapper.map_attributes(specs_list_original, category_id)
+            
+            # ОБІ типи характеристик: користувацькі + портальні
+            specs_list = mapping_result['supplier'] + mapping_result['mapped']
+            
+            spider.logger.info(
+                f"📊 Маппінг характеристик: "
+                f"{len(mapping_result['supplier'])} користувацьких + "
+                f"{len(mapping_result['mapped'])} портальних = "
+                f"{len(specs_list)} загалом"
+            )
+            
+            if mapping_result['unmapped']:
+                spider.logger.debug(
+                    f"❌ Не змапилось ({len(mapping_result['unmapped'])}): " +
+                    ", ".join([f"{s['name']}={s['value']}" for s in mapping_result['unmapped'][:3]])
+                )
+            
+            # Логуємо які саме портальні характеристики створено
+            if mapping_result['mapped']:
+                spider.logger.info(
+                    f"✅ Портальні ({len(mapping_result['mapped'])}): " +
+                    ", ".join([f"{s['name']}={s['value']}" for s in mapping_result['mapped'][:10]])
+                )
+        else:
+            # Маппер недоступний - використовуємо тільки оригінальні
+            specs_list = specs_list_original
         
         # Файл вже створений в open_spider(), просто використовуємо
         if output_file not in self.files:
