@@ -293,3 +293,79 @@ ESATA;.*;regex;Пропустити;skip;2005;TRUE;301101;Skip eSATA
 Кількість в ящику;;exact;;Пропустити;2002;TRUE;301112;Skip box quantity
 Розмір упаковки.*;;regex;;Пропустити;2003;TRUE;301112;Skip package dimensions
 Вага брутто;;exact;;Пропустити;2004;TRUE;301112;Skip gross weight
+Напрямок;всеспрямован|омни;regex;Спрямованість;Всеспрямований;10;TRUE;6371204;Omnidirectional
+Напрямок;кардіо[ії]д;regex;Спрямованість;Кардіоїдна;11;TRUE;6371204;Cardioid pattern
+Напрямок;суперкардіо[ії]д;regex;Спрямованість;Суперкардіоїдна;12;TRUE;6371204;Supercardioid
+Напрямок;гіперкардіо[ії]д;regex;Спрямованість;Гіперкардіоїдна;13;TRUE;6371204;Hypercardioid
+Напрямок;двонапр|біди|bi-direct;regex;Спрямованість;Двонаправлений;14;TRUE;6371204;Bidirectional
+Напрямок;односпрям|уні;regex;Спрямованість;Односпрямований;15;TRUE;6371204;Unidirectional
+Чутливість мікрофона;(-?\d+\.?\d*)\s*d[Bb];regex;Чутливість (дБ);$1 ;20;TRUE;6371204;Sensitivity in dB
+Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[KkКк]?[HГ][zц];regex;Частота (Гц);$2000;30;TRUE;6371204;Frequency range max in kHz
+Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[HГ][zц];regex;Частота (Гц);$2 ;31;TRUE;6371204;Frequency range max in Hz
+Вихідний опір;(\d+)\s*[Оо]м;regex;Опір (Ом);$1 ;40;TRUE;6371204;Output impedance
+SNR;(\d+)\s*д[Бб];regex;Пропустити;skip;50;TRUE;6371204;Skip SNR
+Динамічний діапазон;(\d+)\s*[Дд][бБ];regex;Пропустити;skip;51;TRUE;6371204;Skip dynamic range
+Живлення;(?:DC\s*)?12\s*[ВV];regex;Пропустити;skip;60;TRUE;6371204;Skip 12V power
+Живлення;(?:DC\s*)?5\s*[ВV];regex;Пропустити;skip;61;TRUE;6371204;Skip 5V power
+Живлення;(?:DC\s*)?(\d+)\s*[ВV];regex;Пропустити;skip;62;TRUE;6371204;Skip other voltages
+Потужність споживання;(\d+)\s*м[АA];regex;Споживаний струм (А);{$1/1000};70;TRUE;6371204;Current consumption mA to A
+Потужність споживання;(\d+\.?\d*)\s*[АA];regex;Споживаний струм (А);$1 ;71;TRUE;6371204;Current consumption in A
+Матеріал;алюміній|алюмін;regex;Колір;Сріблястий;80;TRUE;6371204;Aluminum typically silver
+Матеріал;пластик;regex;Пропустити;skip;81;TRUE;6371204;Skip plastic material
+Матеріал;метал|сталь;regex;Пропустити;skip;82;TRUE;6371204;Skip metal material
+Розміри;[ФΦ]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Діаметр (мм);$1 ;90;TRUE;6371204;Diameter from cylindrical dimensions
+Розміри;[ФΦ]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$2 ;91;TRUE;6371204;Length from cylindrical dimensions
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;92;TRUE;6371204;Length from 3D dimensions
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Ширина (мм);$2 ;93;TRUE;6371204;Width from 3D dimensions
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм$;regex;Довжина (мм);$1 ;94;TRUE;6371204;Length from 2D dimensions
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм$;regex;Ширина (мм);$2 ;95;TRUE;6371204;Width from 2D dimensions
+Вага;(\d+\.?\d*)\s*[Кк][гГ];regex;Вага (г);{$1*1000};100;TRUE;6371204;Weight kg to grams
+Вага;(\d+)\s*[Гг];regex;Вага (г);$1 ;101;TRUE;6371204;Weight in grams
+Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;110;TRUE;6371204;Warranty in months
+Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};111;TRUE;6371204;Warranty years to months
+Площа;;exact;;Пропустити;2000;TRUE;6371204;Skip coverage area
+Кількість в ящику;;exact;;Пропустити;2001;TRUE;6371204;Skip box quantity
+Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;6371204;Skip package dimensions
+Вага брутто;;exact;;Пропустити;2003;TRUE;6371204;Skip gross weight
+Дисплей;LCD|РК;regex;Монітор;LCD;10;TRUE;301110;LCD display
+Дисплей;LED;contains;Монітор;LED;11;TRUE;301110;LED display
+Дисплей;TFT;contains;Монітор;TFT;12;TRUE;301110;TFT display
+Роздільна здатність дисплея;(\d+)\s*[×хxX]\s*(\d+);regex;Пропустити;skip;20;TRUE;301110;Skip display resolution
+Джойстик;2[- ]?осьов;regex;Джойстик;2D;30;TRUE;301110;2D joystick
+Джойстик;3[- ]?осьов;regex;Джойстик;3D;31;TRUE;301110;3D joystick
+Джойстик;4[- ]?осьов;regex;Джойстик;4D;32;TRUE;301110;4D joystick
+Джойстик;кнопк;regex;Джойстик;Кнопковий;33;TRUE;301110;Button joystick
+Джойстик;відсутн|немає;regex;Джойстик;Немає;34;TRUE;301110;No joystick
+Інтерфейси керування;USB;contains;Протокол зв'язку;USB 2.0;40;TRUE;301110;USB interface
+Інтерфейси керування;RS-?232;regex;Протокол зв'язку;RS-232;41;TRUE;301110;RS-232 interface
+Інтерфейси керування;RS-?422;regex;Протокол зв'язку;RS-422;42;TRUE;301110;RS-422 interface
+Інтерфейси керування;RS-?485;regex;Протокол зв'язку;RS-485;43;TRUE;301110;RS-485 interface
+Інтерфейси керування;ІЧ|ІК|infrared|IR;regex;Протокол зв'язку;ІК-порт;44;TRUE;301110;IR interface
+Мережеві інтерфейси;RJ-?45|Ethernet;regex;Інтерфейс;Провідний;50;TRUE;301110;Wired interface
+Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Інтерфейс;Бездротовий;51;TRUE;301110;Wireless interface
+Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Протокол зв'язку;Wi-Fi;52;TRUE;301110;WiFi protocol
+USB;USB\s*3;regex;Протокол зв'язку;USB 3.0;60;TRUE;301110;USB 3.0 protocol
+USB;USB\s*2|USB(?!\s*3);regex;Протокол зв'язку;USB 2.0;61;TRUE;301110;USB 2.0 protocol
+Живлення;батарей.*?[Аа][Аа][Аа]|AAA;regex;Живлення;Батарейки одноразові;70;TRUE;301110;AAA batteries
+Живлення;батарей.*?AA(?!A)|AA(?!A);regex;Живлення;Батарейки одноразові;71;TRUE;301110;AA batteries
+Живлення;акумулятор;regex;Живлення;Батарейки акумуляторного типу;72;TRUE;301110;Rechargeable batteries
+Живлення;(?:DC\s*)?12\s*[ВV](?:DC)?;regex;Живлення;Мережа 12В;73;TRUE;301110;12V DC power
+Живлення;(?:AC\s*)?220\s*[ВV]|100\s*[~-]\s*240\s*[ВV];regex;Живлення;Мережа 220В;74;TRUE;301110;220V AC power
+Живлення;(?:DC\s*)?5\s*[ВV](?:DC)?;regex;Додаткове джерело живлення;Мережа 12В;75;TRUE;301110;5V DC secondary
+Потужність споживання;(\d+\.?\d*)\s*[ВWватВт]+;regex;Пропустити;skip;80;TRUE;301110;Skip power consumption
+Робоча температура;(-?\d+)\s*[°℃]?\s*[CС]\s*[~–-]\s*\+?(-?\d+)\s*[°℃]?\s*[CС];regex;Мінімальна робоча температура (град.);$1 ;90;TRUE;301110;Operating temp min
+Робоча температура;(-?\d+)\s*[°℃]?\s*[CС]\s*[~–-]\s*\+?(-?\d+)\s*[°℃]?\s*[CС];regex;Максимальна робоча температура (град.);$2 ;91;TRUE;301110;Operating temp max
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;100;TRUE;301110;Dimensions length
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Ширина (мм);$2 ;101;TRUE;301110;Dimensions width
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Висота (мм);$3 ;102;TRUE;301110;Dimensions height
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм\s*\|;regex;Довжина (мм);$1 ;103;TRUE;301110;Length from multi-part dimensions
+Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм\s*\|;regex;Ширина (мм);$2 ;104;TRUE;301110;Width from multi-part dimensions
+Вага;(\d+\.?\d*)\s*[Кк][гГ];regex;Вага (г);{$1*1000};110;TRUE;301110;Weight kg to grams
+Вага;(\d+)\s*[Гг];regex;Вага (г);$1 ;111;TRUE;301110;Weight in grams
+Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;120;TRUE;301110;Warranty in months
+Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};121;TRUE;301110;Warranty years to months
+Оперційна система;;exact;;Пропустити;2000;TRUE;301110;Skip OS
+Кількість в ящику;;exact;;Пропустити;2001;TRUE;301110;Skip box quantity
+Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;301110;Skip package dimensions
+Вага брутто;;exact;;Пропустити;2003;TRUE;301110;Skip gross weight
+Особливості;;exact;;Пропустити;2004;TRUE;301110;Skip features
