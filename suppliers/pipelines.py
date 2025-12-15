@@ -285,22 +285,71 @@ class SuppliersPipeline:
         specs_list_original = adapter.get("specifications_list", [])
         
         # Мапимо характеристики якщо маппер доступний
-        if self.attribute_mapper and specs_list_original:
+        if self.attribute_mapper:
             # Отримуємо category_id з item
             category_id = adapter.get("Ідентифікатор_підрозділу", "")
+            product_name = cleaned_item.get('Назва_позиції', '')
             
-            spider.logger.info(f"🎯 category_id для маппінгу: '{category_id}' | Товар: {cleaned_item.get('Назва_позиції', '')[:40]}...")
+            spider.logger.info(f"🎯 category_id для маппінгу: '{category_id}' | Товар: {product_name[:40]}...")
             
-            mapping_result = self.attribute_mapper.map_attributes(specs_list_original, category_id)
+            # 1. Мапимо з назви товару (вищий пріоритет: 1-9)
+            name_mapped = []
+            if product_name:
+                name_mapped = self.attribute_mapper.map_product_name(product_name, category_id)
+                if name_mapped:
+                    spider.logger.info(
+                        f"🎯 З назви товару ({len(name_mapped)}): " +
+                        ", ".join([f"{s['name']}={s['value']}" for s in name_mapped[:5]])
+                    )
             
-            # ОБІ типи характеристик: користувацькі + портальні
-            specs_list = mapping_result['supplier'] + mapping_result['mapped']
+            # 2. Мапимо з характеристик (нижчий пріоритет: 10+)
+            mapping_result = {'supplier': [], 'mapped': [], 'unmapped': []}
+            if specs_list_original:
+                mapping_result = self.attribute_mapper.map_attributes(specs_list_original, category_id)
+            
+            # 3. ОБ'ЄДНУЄМО З ДЕДУПЛІКАЦІЄЮ: оригінальні + з назви + з характеристик
+            # Використовуємо словник для дедуплікації: ім'я атрибута → найкращий запис
+            specs_dict = {}
+            
+            # Спочатку додаємо оригінальні (найнижчий пріоритет)
+            for spec in mapping_result['supplier']:
+                key = spec['name'].lower().strip()
+                if key not in specs_dict:
+                    specs_dict[key] = spec
+            
+            # Потім з характеристик (середній пріоритет: 10+)
+            for spec in mapping_result['mapped']:
+                key = spec['name'].lower().strip()
+                if key not in specs_dict:
+                    specs_dict[key] = spec
+                elif spec.get('rule_priority', 999) < specs_dict[key].get('rule_priority', 999):
+                    # Оновлюємо якщо пріоритет кращий
+                    spider.logger.debug(
+                        f"⚠️ Заміна дубліката '{spec['name']}': priority {specs_dict[key].get('rule_priority', 999)} → {spec.get('rule_priority', 999)}"
+                    )
+                    specs_dict[key] = spec
+            
+            # І нарешті з назви (найвищий пріоритет: 1-9) - перезаписують все
+            for spec in name_mapped:
+                key = spec['name'].lower().strip()
+                if key not in specs_dict:
+                    specs_dict[key] = spec
+                elif spec.get('rule_priority', 999) < specs_dict[key].get('rule_priority', 999):
+                    # Оновлюємо якщо пріоритет кращий
+                    spider.logger.debug(
+                        f"⚠️ Заміна з назви '{spec['name']}': priority {specs_dict[key].get('rule_priority', 999)} → {spec.get('rule_priority', 999)}"
+                    )
+                    specs_dict[key] = spec
+            
+            # Конвертуємо назад у список
+            specs_list = list(specs_dict.values())
             
             spider.logger.info(
                 f"📊 Маппінг характеристик: "
                 f"{len(mapping_result['supplier'])} користувацьких + "
-                f"{len(mapping_result['mapped'])} портальних = "
-                f"{len(specs_list)} загалом"
+                f"{len(name_mapped)} з назви + "
+                f"{len(mapping_result['mapped'])} з характеристик = "
+                f"{len(specs_list)} фінально (після дедуплікації)"
             )
             
             if mapping_result['unmapped']:

@@ -33,27 +33,44 @@ class AttributeMapper:
                         continue
                     
                     rule = {
+                        'supplier_name_substring': row.get('supplier_name_substring', '').strip(),  # ПЕРША колонка!
                         'supplier_attribute': row['supplier_attribute'].strip(),
                         'supplier_value_pattern': row['supplier_value_pattern'].strip(),
                         'pattern_type': row['pattern_type'].strip(),
                         'prom_attribute': row['prom_attribute'].strip(),
                         'prom_value_template': row['prom_value_template'].strip(),
                         'priority': int(row.get('priority', 100)),
-                        'category_id': row.get('category_id', '').strip(),  # Нова колонка!
+                        'category_id': row.get('category_id', '').strip(),
                         'notes': row.get('notes', '').strip()
                     }
                     
                     # Прекомпілюємо regex для швидкості
                     if rule['pattern_type'] == 'regex':
-                        try:
-                            self.regex_cache[row['supplier_value_pattern']] = re.compile(
-                                row['supplier_value_pattern'], 
-                                re.IGNORECASE | re.UNICODE
-                            )
-                        except re.error as e:
-                            if self.logger:
-                                self.logger.error(f"❌ Невалідний regex: {row['supplier_value_pattern']} | {e}")
-                            continue
+                        # Regex для supplier_value_pattern
+                        if row['supplier_value_pattern']:
+                            try:
+                                self.regex_cache[row['supplier_value_pattern']] = re.compile(
+                                    row['supplier_value_pattern'], 
+                                    re.IGNORECASE | re.UNICODE
+                                )
+                            except re.error as e:
+                                if self.logger:
+                                    self.logger.error(f"❌ Невалідний regex (value): {row['supplier_value_pattern']} | {e}")
+                                continue
+                        
+                        # Regex для supplier_name_substring
+                        name_pattern = row.get('supplier_name_substring', '').strip()
+                        if name_pattern:
+                            try:
+                                cache_key = f"name:{name_pattern}"
+                                self.regex_cache[cache_key] = re.compile(
+                                    name_pattern,
+                                    re.IGNORECASE | re.UNICODE
+                                )
+                            except re.error as e:
+                                if self.logger:
+                                    self.logger.error(f"❌ Невалідний regex (name): {name_pattern} | {e}")
+                                continue
                     
                     self.rules.append(rule)
             
@@ -149,6 +166,7 @@ class AttributeMapper:
         
         normalized_name = self._normalize_attribute_name(supplier_name)
         mapped_attributes = []
+        seen_attributes = {}  # Дедуплікація: ім'я атрибута → найкращий пріоритет
         
         # Шукаємо підходящі правила
         for rule in self.rules:
@@ -187,13 +205,45 @@ class AttributeMapper:
                         self.logger.debug(f"⏭️ Пропускаю: {supplier_name} = {supplier_value}")
                     return []  # Не додаємо цю характеристику взагалі
                 
-                # Додаємо змаплену характеристику
-                mapped_attributes.append({
+                # ДЕДУПЛІКАЦІЯ: Перевіряємо чи цей атрибут вже є
+                attr_key = prom_attribute.lower().strip()
+                if attr_key in seen_attributes:
+                    # Атрибут вже існує - порівнюємо пріоритети
+                    existing_priority = seen_attributes[attr_key]['rule_priority']
+                    current_priority = rule['priority']
+                    
+                    if current_priority < existing_priority:
+                        # Поточне правило має вищий пріоритет (менше число) - оновлюємо
+                        if self.logger:
+                            self.logger.warning(
+                                f"⚠️ ДУБЛЮВАННЯ: '{prom_attribute}' вже є з priority={existing_priority}, "
+                                f"оновлюю на priority={current_priority}: {supplier_name}={supplier_value} → {mapped_value}"
+                            )
+                        # Знаходимо і оновлюємо існуючий запис
+                        for attr in mapped_attributes:
+                            if attr['name'].lower().strip() == attr_key:
+                                attr['value'] = mapped_value
+                                attr['unit'] = supplier_unit
+                                attr['rule_priority'] = current_priority
+                                seen_attributes[attr_key] = attr
+                                break
+                    else:
+                        # Існуючий пріоритет кращий - пропускаємо
+                        if self.logger:
+                            self.logger.debug(
+                                f"⏭️ Пропускаю дублікат '{prom_attribute}': існуючий priority={existing_priority} кращий за {current_priority}"
+                            )
+                    continue
+                
+                # Додаємо нову змаплену характеристику
+                new_attr = {
                     'name': prom_attribute,
                     'unit': supplier_unit,  # Зберігаємо одиницю виміру
                     'value': mapped_value,
                     'rule_priority': rule['priority']
-                })
+                }
+                mapped_attributes.append(new_attr)
+                seen_attributes[attr_key] = new_attr
                 
                 if self.logger:
                     rule_cat_info = f" [cat={rule['category_id']}]" if rule.get('category_id') else " [universal]"
@@ -201,6 +251,97 @@ class AttributeMapper:
                         f"✅ Змапилось{rule_cat_info}: {supplier_name}={supplier_value} → "
                         f"{prom_attribute}={mapped_value} (priority {rule['priority']})"
                     )
+        
+        return mapped_attributes
+    
+    def map_product_name(self, product_name: str, category_id: Optional[str] = None) -> List[Dict]:
+        """
+        Мапить характеристики з назви товару
+        
+        Args:
+            product_name: Назва товару (наприклад, "Hikvision DS-2CE16D0T-IT3F 2MP HD-TVI 2.8mm")
+            category_id: ID категорії
+        
+        Returns:
+            Список змаплених характеристик (БЕЗ дублікатів)
+        """
+        if not product_name:
+            return []
+        
+        mapped_attributes = []
+        seen_attributes = {}  # Дедуплікація: ім'я атрибута → найкращий пріоритет
+        
+        # Шукаємо правила з supplier_name_substring
+        for rule in self.rules:
+            # Пропускаємо правила без name pattern
+            name_pattern = rule.get('supplier_name_substring', '').strip()
+            if not name_pattern:
+                continue
+            
+            # Фільтр по категорії
+            rule_category = rule.get('category_id', '').strip()
+            if rule_category:
+                if not category_id or str(rule_category) != str(category_id):
+                    continue
+            
+            # Перевіряємо regex зі списку name
+            if rule['pattern_type'] == 'regex':
+                cache_key = f"name:{name_pattern}"
+                regex = self.regex_cache.get(cache_key)
+                
+                if regex and regex.search(product_name):
+                    prom_attribute = rule['prom_attribute']
+                    prom_value = rule['prom_value_template']
+                    
+                    # Спеціальний маркер "Пропустити"
+                    if prom_attribute == 'Пропустити':
+                        continue
+                    
+                    # ДЕДУПЛІКАЦІЯ: Перевіряємо чи цей атрибут вже є
+                    attr_key = prom_attribute.lower().strip()
+                    if attr_key in seen_attributes:
+                        # Атрибут вже існує - порівнюємо пріоритети
+                        existing_priority = seen_attributes[attr_key]['rule_priority']
+                        current_priority = rule['priority']
+                        
+                        if current_priority < existing_priority:
+                            # Поточне правило має вищий пріоритет - оновлюємо
+                            if self.logger:
+                                self.logger.warning(
+                                    f"⚠️ ДУБЛЮВАННЯ в назві: '{prom_attribute}' вже є з priority={existing_priority}, "
+                                    f"оновлюю на priority={current_priority}: '{product_name}' → {prom_value}"
+                                )
+                            # Знаходимо і оновлюємо існуючий запис
+                            for attr in mapped_attributes:
+                                if attr['name'].lower().strip() == attr_key:
+                                    attr['value'] = prom_value
+                                    attr['rule_priority'] = current_priority
+                                    seen_attributes[attr_key] = attr
+                                    break
+                        else:
+                            # Існуючий пріоритет кращий - пропускаємо
+                            if self.logger:
+                                self.logger.debug(
+                                    f"⏭️ Пропускаю дублікат з назви '{prom_attribute}': "
+                                    f"існуючий priority={existing_priority} кращий за {current_priority}"
+                                )
+                        continue
+                    
+                    # Додаємо нову характеристику
+                    new_attr = {
+                        'name': prom_attribute,
+                        'unit': '',
+                        'value': prom_value,
+                        'rule_priority': rule['priority'],
+                        'source': 'product_name'  # Позначаємо джерело
+                    }
+                    mapped_attributes.append(new_attr)
+                    seen_attributes[attr_key] = new_attr
+                    
+                    if self.logger:
+                        self.logger.debug(
+                            f"✅ Змаплено з назви: '{product_name}' → {prom_attribute} = {prom_value} [priority={rule['priority']}]"
+                        )
         
         return mapped_attributes
     

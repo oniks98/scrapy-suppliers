@@ -1,371 +1,387 @@
-﻿supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_value_template;priority;is_active;category_id;notes
-Тип;(?:UTP|U/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;10;TRUE;7190605;CAT5e variants
-Тип;(?:UTP|U/UTP).*[Cc]at\.\s*5[Ee];regex;Категорія витої пари;САТ5е;11;TRUE;7190605;Cat.5e variants
-Тип;(?:FTP|F/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;12;TRUE;7190605;FTP CAT5e
-Тип;(?:Cat|CAT)\s*6\s*[Aa];regex;Категорія витої пари;CAT6a;20;TRUE;7190605;CAT6a
-Тип;(?:Cat|CAT)\s*6(?![Aa]);regex;Категорія витої пари;CAT6;21;TRUE;7190605;CAT6 not 6a
-Тип;(?:UTP|U/UTP);regex;Тип витої пари;UTP;30;TRUE;7190605;UTP type
-Тип;(?:FTP|F/UTP);regex;Тип витої пари;F/UTP;31;TRUE;7190605;FTP type
-Тип;коаксіальн;contains;Тип кабеля;Коаксіальний;40;TRUE;7190605;Coaxial cable
-Тип;комбінований;contains;Тип кабеля;Комбінований;41;TRUE;7190605;Combined cable
-Тип;сигнальний;contains;Тип кабеля;Сигнальний;42;TRUE;7190605;Signal cable
-Оболонка;(?:PVC|ПВХ|полівінілхлорид);regex;Материал оболочки;ПВХ;50;TRUE;7190605;PVC sheath
-Оболонка;(?:PE|поліетилен);regex;Материал оболочки;Поліетилен;51;TRUE;7190605;PE sheath
-Оболонка;LSZH|LSOH|безгалоген;regex;Материал оболочки;LSZH;52;TRUE;7190605;LSZH sheath
-Довжина кабеля;(\d+)\s*м(?!м);regex;Длина в упаковке (м);$1 ;60;TRUE;7190605;Cable length in meters
-Матеріал жили;мідь|медь|Cu|Мідь;regex;Матеріал жили;Мідь;70;TRUE;7190605;Copper core
-Матеріал жили;CCA|Алюміній-Мідь;regex;Матеріал жили;CCA;71;TRUE;7190605;CCA core
-Матеріал жили;біметал;contains;Матеріал жили;Біметал;72;TRUE;7190605;Bimetal
-Центральний провідник;мідь|медь|Cu|Мідь|Мідний;regex;Матеріал центральної жили;Мідь;80;TRUE;7190605;Copper central conductor
-Центральний провідник;CCA|Алюміній-Мідь;regex;Матеріал центральної жили;CCA;81;TRUE;7190605;CCA central
-Центральний провідник;біметал;contains;Матеріал центральної жили;Біметал;82;TRUE;7190605;Bimetal central
-Монтаж;зовні приміщення|поза приміщенням;regex;Тип монтажу;Зовнішній;90;TRUE;7190605;External mounting
-Монтаж;приміщенн|всередині приміщення|в приміщенні;regex;Тип монтажу;Внутрішній;91;TRUE;7190605;Internal mounting
-Кількість жил;(\d+);regex;Кількість жил;$1 ;100;TRUE;7190605;Number of cores
-Переріз;(\d+\.?\d*)\s*мм;regex;Діаметр жили (мм);$1 ;110;TRUE;7190605;Cross-section in mm
-Переріз;(\d+\.?\d*)\s*мм2;regex;Площа перетину (кв. мм);$1 ;111;TRUE;7190605;Cross-section in mm2
-Екранування;відсутн;contains;Наявність екрану;Ні;120;TRUE;7190605;No shielding
-Екранування;алюмополімерна стрічка|фольг;regex;Виконання 1 екрана;Фольга;121;TRUE;7190605;Foil shielding
-Екранування;Підтримує|є;regex;Наявність екрану;Так;122;TRUE;7190605;Has shielding
-Ізоляція;(?:PVC|ПВХ|полівінілхлорид);regex;Матеріал ізоляції;ПВХ;130;TRUE;7190605;PVC insulation
-Ізоляція;поліетилен|PE;regex;Матеріал ізоляції;Поліетилен;131;TRUE;7190605;PE insulation
-Частотна характеристика;(\d+)\s*м[ГГ]ц;regex;Смуга частот (МГц);$1 ;140;TRUE;7190605;Frequency band
-Опір;(\d+)\s*Ом;regex;Хвильовий опір (Ом);$1 ;150;TRUE;7190605;Impedance
-Вага брутто;(\d+\.?\d*)\s*кг;regex;Маса (кг/м);$1 ;160;TRUE;7190605;Gross weight
-Робоча температура;(-?\d+)\s*(?:°\s*C|℃)\s*(?:-|\.\.\.)\s*\+?(-?\d+)\s*(?:°\s*C|℃);regex;Мінімальна робоча температура (град.);$1 ;170;TRUE;7190605;Temperature range min
-Робоча температура;(-?\d+)\s*(?:°\s*C|℃)\s*(?:-|\.\.\.)\s*\+?(-?\d+)\s*(?:°\s*C|℃);regex;Максимальна робоча температура (град.);$2 ;171;TRUE;7190605;Temperature range max
-Стандарти;;exact;;Пропустити;1000;TRUE;7190605;Skip standards field
-Розмір;;exact;;Пропустити;1001;TRUE;7190605;Skip size details
-Основний провідник;;exact;;Пропустити;1002;TRUE;7190605;Skip detailed conductor
-Ізоляція дроту;;exact;;Пропустити;1003;TRUE;7190605;Skip wire insulation
-Маркування кабелю;;exact;;Пропустити;1004;TRUE;7190605;Skip cable marking
-Зовнішній вигляд;;exact;;Пропустити;1005;TRUE;7190605;Skip appearance
-Колір проводу;;exact;;Пропустити;1006;TRUE;7190605;Skip wire colors
-Налагодження;;exact;;Пропустити;1007;TRUE;7190605;Skip tuning
-Опір постійного струму;;exact;;Пропустити;1008;TRUE;7190605;Skip DC resistance
-Незбалансований опір постійного струму;;exact;;Пропустити;1009;TRUE;7190605;Skip unbalanced DC
-Фізичні властивості оболонки.*;;regex;;Пропустити;1010;TRUE;7190605;Skip physical properties
-Знос;;exact;;Пропустити;1011;TRUE;7190605;Skip wear
-Холодний вигин;;exact;;Пропустити;1012;TRUE;7190605;Skip cold bending
-Ріпкорд;;exact;;Пропустити;1013;TRUE;7190605;Skip ripcord
-Вага;;exact;;Пропустити;1014;TRUE;7190605;Skip weight (not gross)
-Кількість в ящику;;exact;;Пропустити;1015;TRUE;7190605;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;1016;TRUE;7190605;Skip package dimensions
-Діелектрик;;exact;;Пропустити;1017;TRUE;7190605;Skip dielectric
-Зворотні втрати;;exact;;Пропустити;1018;TRUE;7190605;Skip return loss
-Додатково;;exact;;Пропустити;1019;TRUE;7190605;Skip additional
-Радіус вигину;;exact;;Пропустити;1020;TRUE;7190605;Skip bending radius
-Вхідна напруга;;exact;;Пропустити;1021;TRUE;7190605;Skip input voltage
-Матеріал корпусу;;exact;;Пропустити;1022;TRUE;7190605;Skip housing material
-Діаметр;;exact;;Пропустити;1023;TRUE;7190605;Skip diameter details
-Матриця;(?:1/1\.8)[""\s]*;regex;Тип камери;IP;10;TRUE;301105;IP camera from sensor size
-Матриця;(?:1/2\.[0-9]|1/3)[""\s]*.*CMOS;regex;Тип матриці;CMOS;20;TRUE;301105;CMOS sensor
-Матриця;(1/1\.8|1/2\.7|1/2\.8|1/2\.9|1/3)["”\s]*(?:Progressive\s*(?:Scan\s*)?)?CMOS;regex;Фізичний розмір матриці;$1";30;TRUE;301105;Sensor size extraction
-Матриця;([0-9]+)\s*МП;regex;Роздільна здатність (Мп);$1 ;40;TRUE;301105;Megapixels from description UA
-Матриця;([0-9]+)\s*MP;regex;Роздільна здатність (Мп);$1 ;41;TRUE;301105;Megapixels from description EN
-Мін\. чутливість;([0-9\.]+)\s*(?:лк|люкс|lux);regex;Чутливість (люкс);$1 ;50;TRUE;301105;Light sensitivity
-Швидкість затвора;1/([0-9]+)\s*[-–]\s*1/([0-9\s]+)\s*с;regex;Пропустити;skip;60;TRUE;301105;Skip shutter speed details
-Регулювання по осях;.*Поворот.*([0-9]+)°.*Нахил.*([0-9]+)°;regex;Кут повороту (град.);$1 ;70;TRUE;301105;Pan angle
-Регулювання по осях;.*Нахил.*([0-9]+)°;regex;Кут нахилу (град.);$1 ;71;TRUE;301105;Tilt angle
-Тип підсвічування;ІЧ|інфрачервон;regex;Наявність ІЧ-підсвічування;Так;80;TRUE;301105;IR illumination present
-Тип підсвічування;LED|світлодіод|видиме світло;regex;Наявність LED-підсвічування;Так;81;TRUE;301105;LED illumination present
-Тип підсвічування;ІЧ\+LED|ІЧ\+видиме світло|LED тепле світло;regex;Наявність ІЧ-підсвічування;Так;82;TRUE;301105;IR+LED both IR
-Тип підсвічування;ІЧ\+LED|ІЧ\+видиме світло|LED тепле світло;regex;Наявність LED-підсвічування;Так;83;TRUE;301105;IR+LED both LED
-Дальність підсвічування;([0-9]+)\s*м;regex;Дальність ІЧ-підсвічування (м);$1 ;90;TRUE;301105;IR range extraction
-Дальність підсвічування;([0-9]+)/([0-9]+)\s*м;regex;Дальність ІЧ-підсвічування (м);$1 ;91;TRUE;301105;IR range (dual mode first)
-Дальність підсвічування;([0-9]+)/([0-9]+)\s*м;regex;Дальність LED підсвічування (м);$2 ;92;TRUE;301105;LED range (dual mode second)
-Фокусна відстань;([0-9\.]+)\s*[-–]\s*([0-9\.]+)\s*мм;regex;Мінімальне значення фокусної відстані (мм);$1 ;100;TRUE;301105;Focal length min
-Фокусна відстань;([0-9\.]+)\s*[-–]\s*([0-9\.]+)\s*мм;regex;Максимальне значення фокусної відстані (мм);$2 ;101;TRUE;301105;Focal length max
-Фокусна відстань;([0-9\.]+)\s*мм;regex;Фокусна відстань (мм);$1 ;102;TRUE;301105;Fixed focal length
-Кути огляду;.*Г:\s*([0-9\.]+)°;regex;Кут огляду по горизонталі (град.);$1 ;110;TRUE;301105;Horizontal FOV
-Кути огляду;.*В:\s*([0-9\.]+)°;regex;Кут огляду по вертикалі (град.);$1 ;111;TRUE;301105;Vertical FOV
-Роздільна здатність відео;.*([0-9]+)\s*×\s*([0-9]+);regex;Роздільна здатність матриці;$1x$2;120;TRUE;301105;Video resolution
-Роздільна здатність відео;.*1920\s*×\s*1080|.*1080[Pp];regex;Роздільна здатність (Мп);2;121;TRUE;301105;2MP from 1080p
-Роздільна здатність відео;.*2560\s*×\s*1440;regex;Роздільна здатність (Мп);4;122;TRUE;301105;4MP from resolution
-Роздільна здатність відео;.*2688\s*×\s*1520;regex;Роздільна здатність (Мп);4;123;TRUE;301105;4MP variant
-Роздільна здатність відео;.*2880\s*×\s*1620;regex;Роздільна здатність (Мп);5;124;TRUE;301105;5MP from resolution
-Роздільна здатність відео;.*3840\s*×\s*2160;regex;Роздільна здатність (Мп);8;125;TRUE;301105;8MP from 4K
-Частота кадрів \(головний потік\);.*([0-9]+)\s*к/с;regex;Пропустити;skip;130;TRUE;301105;Skip framerate details
-Відео компресія;H\.265;contains;Формат стиснення;H. 265;140;TRUE;301105;H.265 compression
-Відео компресія;H\.264;contains;Формат стиснення;H. 264;141;TRUE;301105;H.264 compression
-Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;142;TRUE;301105;MJPEG compression
-WDR;([0-9]+)\s*дБ;regex;Пропустити;skip;150;TRUE;301105;Skip WDR value
-WDR;Підтримує|Так;regex;WDR;Так;151;TRUE;301105;WDR supported
-BLC;Підтримує|Так;regex;BLC;Так;160;TRUE;301105;BLC supported
-HLC;Підтримує|Так;regex;Пропустити;skip;161;TRUE;301105;Skip HLC
-Придушення шуму \(DNR\);2D;exact;DNR;2D;170;TRUE;301105;2D noise reduction
-Придушення шуму \(DNR\);3D;exact;DNR;3D;171;TRUE;301105;3D noise reduction
-DWDR;Підтримує|Так;regex;Пропустити;skip;180;TRUE;301105;Skip DWDR
-Мережеві інтерфейси;RJ-45|RJ45|Ethernet;regex;Тип камери;IP;190;TRUE;301105;IP camera from network
-Мережеві інтерфейси;Wi-Fi|IEEE\s*802\.11;regex;Тип камери;Wi-Fi;191;TRUE;301105;WiFi camera
-Мережеві інтерфейси;Wi-Fi|IEEE\s*802\.11;regex;Бездротовий інтерфейс;Так;192;TRUE;301105;WiFi interface
-Аудіо інтерфейси;вбудований мікрофон;contains;Вбудований мікрофон;Так;200;TRUE;301105;Built-in microphone
-Аудіо інтерфейси;вбудований мікрофон;contains;Мікрофонний вхід;Так;201;TRUE;301105;Microphone input
-Аудіо інтерфейси;динамік;contains;Аудиовихід;Так;202;TRUE;301105;Audio output
-Метод зберігання;[Mm]icro\s*SD|SD-карт;regex;Порт для SD-карти;Так;210;TRUE;301105;SD card slot
-Живлення;12\s*В\s*DC|DC\s*12В;regex;Живлення;Мережа 12В;220;TRUE;301105;12V DC power
-Живлення;24\s*В\s*(?:DC|AC);regex;Живлення;Мережа 24В;221;TRUE;301105;24V power
-Живлення;5\s*В\s*DC|DC\s*5В;regex;Додаткове джерело живлення;Мережа 12В;222;TRUE;301105;5V secondary power
-PoE;802\.3af|PoE;regex;Живлення;PoE;230;TRUE;301105;PoE power
-PoE;802\.3at|PoE\+;regex;Додаткове джерело живлення;PoE;231;TRUE;301105;PoE+ secondary
-Ступінь захисту;(IP[0-9]{2});regex;Захист обладнання від води і пилу IP;$1 ;240;TRUE;301105;IP rating
-Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–]\s*\+?(-?[0-9]+)\s*°?\s*C;regex;Мінімальна робоча температура (град.);$1 ;250;TRUE;301105;Operating temp min
-Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–]\s*\+?(-?[0-9]+)\s*°?\s*C;regex;Максимальна робоча температура (град.);$2 ;251;TRUE;301105;Operating temp max
-Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм;regex;Довжина (мм);$1 ;260;TRUE;301105;Dimensions length
-Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм;regex;Ширина (мм);$2 ;261;TRUE;301105;Dimensions width
-Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм;regex;Висота (мм);$3 ;262;TRUE;301105;Dimensions height
-Розміри;^([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм$;regex;Довжина (мм);$1 ;264;TRUE;301105;Dimensions 2D length
-Розміри;^([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм$;regex;Ширина (мм);$2 ;265;TRUE;301105;Dimensions 2D width
-Розміри;Ø\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*мм|Φ([0-9\.]+)\s*×\s*([0-9\.]+);regex;Пропустити;skip;263;TRUE;301105;Skip dome dimensions
-Вага;([0-9\.]+)\s*[гk]г?\b(?!\s*\+);regex;Вага (г);$1 ;270;TRUE;301105;Weight in grams
-Матеріал;пластик;contains;Антивандальний корпус;Ні;280;TRUE;301105;Plastic not vandal-proof
-Матеріал;метал|алюміній;regex;Антивандальний корпус;Так;281;TRUE;301105;Metal vandal-proof
-Датчик руху;виявлення руху|motion detection;regex;Датчик руху;Так;290;TRUE;301105;Motion detection
-Перетин лінії;Підтримує|Так;regex;Виявлення руху;Так;300;TRUE;301105;Line crossing detection
-Вторгнення в область;Підтримує|Так;regex;Виявлення руху;Так;301;TRUE;301105;Area intrusion detection
-Виявлення облич;Підтримує|Так;regex;Пропустити;skip;310;TRUE;301105;Skip face detection
-Цільові типи;Підтримує|Так;regex;Виявлення руху;Так;320;TRUE;301105;Target types detection
-Оптичне збільшення;([0-9]+)×|([0-9]+)x;regex;Оптичне збільшення (х);$1$2;330;TRUE;301105;Optical zoom
-Цифрове збільшення;([0-9]+)×|([0-9]+)x;regex;Цифрове збільшення (х);$1$2;340;TRUE;301105;Digital zoom
-Строк гарантії;([0-9]+)\s*міс;regex;Гарантійний термін (міс);$1 ;350;TRUE;301105;Warranty period
-Строк гарантії;([0-9]+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};351;TRUE;301105;Warranty in years to months
-Тип об'єктива;фіксований|фікс;regex;Тип об'єктива;Фіксований;360;TRUE;301105;Fixed lens
-Тип об'єктива;варіофокальн|змінн;regex;Тип об'єктива;Варіофокальний;361;TRUE;301105;Varifocal lens
-Тип об'єктива;моторизован;contains;Тип об'єктива;Моторизований;362;TRUE;301105;Motorized lens
-Апертура;F([0-9\.]+);regex;Світлосила об'єктива (F);$1 ;370;TRUE;301105;Aperture F-number
-Кількість в ящику;;exact;;Пропустити;2000;TRUE;301105;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301105;Skip package dimensions
-Вага брутто;;exact;;Пропустити;2002;TRUE;301105;Skip gross weight
-Потужність споживання;;exact;;Пропустити;2003;TRUE;301105;Skip power consumption
-Програмне забезпечення;;exact;;Пропустити;2004;TRUE;301105;Skip software details
-Сумісність;;exact;;Пропустити;2005;TRUE;301105;Skip compatibility
-ROM/RAM;;exact;;Пропустити;2006;TRUE;301105;Skip memory specs
-Кількість потоків;;exact;;Пропустити;2007;TRUE;301105;Skip stream count
-Частота кадрів.*;;regex;;Пропустити;2008;TRUE;301105;Skip framerate details
-Виявлення об'єкта.*;;regex;;Пропустити;2009;TRUE;301105;Skip DORI detection
-Спостереження за об'єктом.*;;regex;;Пропустити;2010;TRUE;301105;Skip DORI observation
-Розпізнавання об'єкту.*;;regex;;Пропустити;2011;TRUE;301105;Skip DORI recognition
-Ідентифікація об'єкта.*;;regex;;Пропустити;2012;TRUE;301105;Skip DORI identification
-Тригери тривоги;;exact;;Пропустити;2013;TRUE;301105;Skip alarm triggers
-Основні функції обробки;;exact;;Пропустити;2014;TRUE;301105;Skip processing functions
-ROI;;exact;;Пропустити;2015;TRUE;301105;Skip ROI
-Інтерфейси тривоги;;exact;;Пропустити;2016;TRUE;301105;Skip alarm interfaces
-RS-485;;exact;;Пропустити;2017;TRUE;301105;Skip RS-485
-Defog;;exact;;Пропустити;2018;TRUE;301105;Skip defog
-Залишені / зниклі предмети;;exact;;Пропустити;2019;TRUE;301105;Skip abandoned objects
-Вхід і вихід з регіону;;exact;;Пропустити;2020;TRUE;301105;Skip region entry/exit
-Виявлення аудіо винятків;;exact;;Пропустити;2021;TRUE;301105;Skip audio exceptions
-Пам'ять при відключенні живлення;;exact;;Пропустити;2022;TRUE;301105;Skip power-off memory
-Швидкість.*;;regex;;Пропустити;2023;TRUE;301105;Skip speed parameters
-Кількість попередніх налаштувань;;exact;;Пропустити;2024;TRUE;301105;Skip preset count
-Електронна стабілізація зображення.*;;regex;;Пропустити;2025;TRUE;301105;Skip EIS
-SMD;;exact;;Пропустити;2026;TRUE;301105;Skip SMD
-Аналіз поведінки;;exact;;Пропустити;2027;TRUE;301105;Skip behavior analysis
-IP камери;([0-9]+);regex;Тип відеореєстратора;NVR;10;TRUE;301101;NVR from IP cameras
-IP камери;([0-9]+);regex;Кількість каналів;$1 ;11;TRUE;301101;Channel count from IP cameras
-Аналогові входи;([0-9]+);regex;Тип відеореєстратора;DVR;20;TRUE;301101;DVR from analog inputs
-Аналогові входи;([0-9]+);regex;Кількість каналів;$1 ;21;TRUE;301101;Channel count from analog inputs
-HDCVI камери;.*;regex;Тип відеореєстратора;HD-CVI;30;TRUE;301101;HD-CVI from HDCVI cameras
-AHD камери;.*;regex;Тип відеореєстратора;AHD;31;TRUE;301101;AHD from AHD cameras
-TVI камери;.*;regex;Тип відеореєстратора;HD-TVI;32;TRUE;301101;HD-TVI from TVI cameras
-HDCVI камери;.*;regex;Тип відеореєстратора;HDVR;33;TRUE;301101;HDVR (hybrid)
-AHD камери;.*;regex;Тип відеореєстратора;HDVR;34;TRUE;301101;HDVR (hybrid) from AHD
-TVI камери;.*;regex;Тип відеореєстратора;HDVR;35;TRUE;301101;HDVR (hybrid) from TVI
-CVBS камери;.*;regex;Тип відеореєстратора;CVBS;36;TRUE;301101;CVBS type from cameras
-Відео компресія;H\.265\+|Smart\s*H\.265;regex;Формат стиснення;H. 265+;40;TRUE;301101;H.265+ compression
-Відео компресія;H\.265;contains;Формат стиснення;H. 265;41;TRUE;301101;H.265 compression
-Відео компресія;H\.264\+|Smart\s*H\.264;regex;Формат стиснення;H. 264+;42;TRUE;301101;H.264+ compression
-Відео компресія;H\.264;contains;Формат стиснення;H. 264;43;TRUE;301101;H.264 compression
-Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;44;TRUE;301101;MJPEG compression
-Відео компресія;MPEG-?4;regex;Формат стиснення;MPEG-4;45;TRUE;301101;MPEG-4 compression
-Роздільна здатність відеовиходу;.*([0-9]+)\s*×\s*([0-9]+);regex;Дозвіл запису;$1х$2;50;TRUE;301101;Video output resolution
-Інтерфейси відео виходу;HDMI;contains;HDMI відеовихід;Так;60;TRUE;301101;HDMI output
-Інтерфейси відео виходу;VGA;contains;VGA відеовихід;Так;61;TRUE;301101;VGA output
-Інтерфейси відео виходу;([0-9]+);regex;Кількість відеовиходів;$1 ;62;TRUE;301101;Video output count
-Аудіо інтерфейси;([0-9]+)\s*вх;regex;Кількість аудіоканалів;$1 ;70;TRUE;301101;Audio channels from inputs
-Внутрішні HDD;([0-9]+)\s*SATA;regex;Количество HDD;$1 ;80;TRUE;301101;HDD count from SATA
-Внутрішні HDD;до\s*([0-9]+)\s*[ТT][бb];regex;Суммарная емкость HDD (GB);{$1*1000};81;TRUE;301101;Max HDD capacity in TB to GB
-Raid;.*;regex;Підтримка RAID;Так;90;TRUE;301101;RAID supported
-PoE порти;([0-9]+);regex;Підтримка PoE;Так;100;TRUE;301101;PoE supported
-PoE порти;([0-9]+);regex;Кількість вбудованих портів POE;$1 ;101;TRUE;301101;PoE port count
-USB;([0-9]+);regex;Кількість USB-портів;$1 ;110;TRUE;301101;USB port count
-RS232;.*;regex;RS-232;Так;120;TRUE;301101;RS-232 present
-RS485;.*;regex;RS-485;Так;130;TRUE;301101;RS-485 present
-Тривожні входи;([0-9]+);regex;Тривожні входи/виходи;$1-Jan;140;TRUE;301101;Alarm inputs (format X-Jan)
-Релейні виходи;([0-9]+);regex;Тривожні входи/виходи;1/$1 ;142;TRUE;301101;Alarm outputs only
-Живлення;DC\s*12В|12\s*В\s*DC;regex;Живлення;Мережа 12В;150;TRUE;301101;12V DC power
-Живлення;DC\s*48В|48\s*В\s*DC;regex;Живлення;Мережа 12В;151;TRUE;301101;48V DC power (for PoE NVR)
-Живлення;100\s*-?\s*240\s*В\s*A[СC]|220\s*В\s*A[СC]|AC\s*100-240;regex;Живлення;Мережа 220В;152;TRUE;301101;220V AC power
-Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–]\s*\+?(-?[0-9]+)\s*°?\s*C;regex;Мінімальна робоча температура (град.);$1 ;160;TRUE;301101;Operating temp min
-Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–]\s*\+?(-?[0-9]+)\s*°?\s*C;regex;Максимальна робоча температура (град.);$2 ;161;TRUE;301101;Operating temp max
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Довжина (мм);$1 ;170;TRUE;301101;Dimensions length
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Ширина (мм);$2 ;171;TRUE;301101;Dimensions width
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Висота (мм);$3 ;172;TRUE;301101;Dimensions height
-Вага;([0-9\.]+)\s*кг;regex;Вага (кг);$1 ;180;TRUE;301101;Weight in kg
-Вага;([0-9]+)\s*г;regex;Вага (кг);{$1/1000};181;TRUE;301101;Weight in grams to kg
-Строк гарантії;([0-9]+)\s*міс;regex;Гарантійний термін (міс);$1 ;190;TRUE;301101;Warranty months
-Строк гарантії;([0-9]+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};191;TRUE;301101;Warranty years to months
-Wi-Fi;.*;regex;Бездротовий інтерфейс;Так;200;TRUE;301101;WiFi support
-Вхідний потік;([0-9]+)\s*[Мм][бb]іт;regex;Пропустити;skip;1000;TRUE;301101;Skip input bandwidth
-Макс\. кількість користувачів;.*;regex;Пропустити;skip;1001;TRUE;301101;Skip max users
-Декодування;.*;regex;Пропустити;skip;1002;TRUE;301101;Skip decoding details
-Аналітика реєстратора;.*;regex;Пропустити;skip;1003;TRUE;301101;Skip DVR analytics
-Аналітика з камерою;.*;regex;Пропустити;skip;1004;TRUE;301101;Skip camera analytics
-Підтримка роздільної здатності;.*;regex;Пропустити;skip;1005;TRUE;301101;Skip resolution support
-Частота кадрів.*;.*;regex;Пропустити;skip;1006;TRUE;301101;Skip framerate details
-Кількість в ящику;.*;regex;Пропустити;skip;2000;TRUE;301101;Skip box quantity
-Розмір упаковки.*;.*;regex;Пропустити;skip;2001;TRUE;301101;Skip package dimensions
-Вага брутто;.*;regex;Пропустити;skip;2002;TRUE;301101;Skip gross weight
-Потужність споживання;.*;regex;Пропустити;skip;2003;TRUE;301101;Skip power consumption
-Сумісність;.*;regex;Пропустити;skip;2004;TRUE;301101;Skip compatibility
-ESATA;.*;regex;Пропустити;skip;2005;TRUE;301101;Skip eSATA
-Вихід живлення;.*;regex;Пропустити;skip;2006;TRUE;301101;Skip power output
-Захист периметра.*;.*;regex;Пропустити;skip;2007;TRUE;301101;Skip perimeter protection
-Розпізнавання облич.*;.*;regex;Пропустити;skip;2008;TRUE;301101;Skip face recognition
-Режим розпізнавання обличч;.*;regex;Пропустити;skip;2009;TRUE;301101;Skip face recognition mode
-Класифікація об'єктів;.*;regex;Пропустити;skip;2010;TRUE;301101;Skip object classification
-Двостороння розмова;.*;regex;Пропустити;skip;2011;TRUE;301101;Skip two-way audio
-Форм-фактор;3\.5"";regex;Форм-фактор;3.5";10;TRUE;70704;3.5 inch form factor
-Форм-фактор;2\.5"";regex;Форм-фактор;2.5";11;TRUE;70704;2.5 inch form factor
-Форм-фактор;[Mm]2|M\.2;regex;Форм-фактор;M.2 2280;12;TRUE;70704;M.2 form factor
-Форм-фактор;[Mm]icro\s*SD(?:HC|XC)?|TF;regex;Форм-фактор;1";20;TRUE;70704;MicroSD card form factor
-Форм-фактор;SD(?:HC|XC)?(?!\s*[Cc]ard);regex;Форм-фактор;1.3";21;TRUE;70704;SD card form factor
-Ємність;(\d+)\s*[ТT][бb]|([0-9]+)ТБ;regex;Об'єм накопичувача (GB);{$1*1000|$2*1000};30;TRUE;70704;Capacity in TB to GB
-Ємність;(\d+)\s*[ГГ][бb]|([0-9]+)ГБ|([0-9]+)\s*GB;regex;Об'єм накопичувача (GB);$1$2$3;31;TRUE;70704;Capacity in GB
-Інтерфейс користувача;SATA\s*III|SATA\s*3|SATA-?600|SATAIII;regex;Інтерфейс;SATA III (SATA/600);40;TRUE;70704;SATA III interface
-Інтерфейс користувача;SATA\s*II|SATA\s*2|SATA-?300;regex;Інтерфейс;SATA II (SATA/300);41;TRUE;70704;SATA II interface
-Інтерфейс користувача;SATA(?!\s*[I23])|Serial\s*ATA;regex;Інтерфейс;SATA (SATA/150);42;TRUE;70704;SATA interface
-Інтерфейс користувача;[Nn][Vv][Mm][Ee]|NVMe|PCIe|PCI\s*Express;regex;Інтерфейс;PCI Express 4.0 x4;43;TRUE;70704;NVMe/PCIe interface
-Інтерфейс користувача;SAS;contains;Інтерфейс;SAS;44;TRUE;70704;SAS interface
-Інтерфейс користувача;USB\s*3\.[12]|USB\s*3\.2;regex;Інтерфейс;USB 3.2;45;TRUE;70704;USB 3.1/3.2 interface
-Інтерфейс користувача;USB\s*3\.0|USB\s*3;regex;Інтерфейс;USB 3.0;46;TRUE;70704;USB 3.0 interface
-Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;USB 2.0;47;TRUE;70704;USB 2.0 interface
-Швидкість обертання \(об / хв\);(\d+);regex;Швидкість обертання (об/хв);$1 ;50;TRUE;70704;RPM extraction
-Кеш-пам'ять;(\d+)\s*[МM][бБBb];regex;Об`єм буфера (MB);$1 ;60;TRUE;70704;Cache in MB
-Макс\. швидкість тривалої передачі;(\d+)(?:\s*[-/]\s*(\d+))?\s*[МM][бБBb]/[сС];regex;Швидкість зчитування (Мб/сек);$1 ;70;TRUE;70704;Max read speed (first value)
-Макс\. швидкість тривалої передачі;(\d+)\s*[-/]\s*(\d+)\s*[МM][бБBb]/[сС];regex;Швидкість запису (Мб/сек);$2 ;71;TRUE;70704;Max write speed (second value)
-Макс\. швидкість тривалої передачі;(\d+\.?\d*)\s*[ГГ][бБBb]/[сС];regex;Пропускна здатність (Мб/сек);{$1*1000};72;TRUE;70704;Speed in Gb/s to Mb/s
-Макс\. швидкість тривалої передачі;(\d+)\s*[МM][бБBb]/[сС];regex;Пропускна здатність (Мб/сек);$1 ;73;TRUE;70704;Bandwidth in MB/s
-Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;80;TRUE;70704;Warranty in months
-Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};81;TRUE;70704;Warranty in years to months
-Вага брутто;(\d+\.?\d*)\s*кг;regex;Вага (г);{$1*1000};90;TRUE;70704;Weight in kg to grams
-Розмір упаковки \(Ш х В х Г\);([0-9\.]+)\s*x\s*([0-9\.]+)\s*x\s*([0-9\.]+)\s*мм;regex;Довжина (мм);$3 ;100;TRUE;70704;Package length (depth)
-Розмір упаковки \(Ш х В х Г\);([0-9\.]+)\s*x\s*([0-9\.]+)\s*x\s*([0-9\.]+)\s*мм;regex;Ширина (мм);$1 ;101;TRUE;70704;Package width
-Розмір упаковки \(Ш х В х Г\);([0-9\.]+)\s*x\s*([0-9\.]+)\s*x\s*([0-9\.]+)\s*мм;regex;Висота (мм);$2 ;102;TRUE;70704;Package height
-Кількість в ящику;;exact;;Пропустити;2000;TRUE;70704;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;70704;Skip package dimensions (already mapped)
-Вага брутто;;exact;;Пропустити;2002;TRUE;70704;Skip gross weight (already mapped)
-Матеріал;[Аа]люміній|[Аа]люмін[іи]є?вий\s*сплав|ADC12;regex;Матеріал;Алюміній;10;TRUE;301112;Aluminum material
-Матеріал;[Нн]ержав[іи]юч|SUS304|SECC;regex;Матеріал;Нержавіюча сталь;11;TRUE;301112;Stainless steel
-Матеріал;[Сс]таль|SGCC|Q235;regex;Матеріал;Сталь;12;TRUE;301112;Steel material
-Матеріал;[Пп]ластик|ABS|PC|ПП;regex;Матеріал;Пластик;13;TRUE;301112;Plastic material
-Навантаження;(\d+\.?\d*)\s*[Кк][гГ];regex;Маx нагрузка на кронштейн (кг);$1 ;20;TRUE;301112;Load capacity in kg
-Навантаження;(\d+)\s*[Гг]|([0-9]+)р;regex;Маx нагрузка на кронштейн (кг);{$1/1000|$2/1000};21;TRUE;301112;Load capacity grams to kg
-Кріплення;[Нн]а\s*ст[іи]ну|[Нн]аст[іи]н;regex;Тип кріплення кронштейна;Настінне кріплення;30;TRUE;301112;Wall mounting
-Кріплення;[Нн]а\s*стовп|[Сс]телов;regex;Тип кріплення кронштейна;Кріплення для монтажу на стовп/балку;31;TRUE;301112;Pole mounting
-Кріплення;[Сс]тельов;regex;Тип кріплення кронштейна;Стельове кріплення;32;TRUE;301112;Ceiling mounting
-Кріплення;[Кк]утов;regex;Тип кріплення кронштейна;Кріплення для монтажу камери відеоспостереження на кут;33;TRUE;301112;Corner mounting
-Кріплення;[Пп]оворот.*?(\d+)°;regex;Кут повороту (град.);$1 ;40;TRUE;301112;Pan angle extraction
-Кріплення;[Нн]ахил.*?(\d+)°;regex;Кут нахилу (град.);$1 ;41;TRUE;301112;Tilt angle extraction
-Ступінь захисту;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;50;TRUE;301112;IP rating
-Клас захисту;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;51;TRUE;301112;IP protection class
-Захист;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;52;TRUE;301112;Protection rating
-Робоча температура;(-?\d+)\s*°?\s*[CС]\s*[-–~]\s*\+?(-?\d+)\s*°?\s*[CС];regex;Мінімальна робоча температура (град.);$1 ;60;TRUE;301112;Operating temp min
-Робоча температура;(-?\d+)\s*°?\s*[CС]\s*[-–~]\s*\+?(-?\d+)\s*°?\s*[CС];regex;Максимальна робоча температура (град.);$2 ;61;TRUE;301112;Operating temp max
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Довжина (мм);$1 ;70;TRUE;301112;Dimensions length
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Ширина (мм);$2 ;71;TRUE;301112;Dimensions width
-Розміри;([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*[×хxX]\s*([0-9\.]+)\s*мм;regex;Висота (мм);$3 ;72;TRUE;301112;Dimensions height
-Розміри;Ф\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$2 ;73;TRUE;301112;Cylindrical length
-Розміри;Ф\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;74;TRUE;301112;Diameter as length
-Розміри;Φ\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$2 ;75;TRUE;301112;Phi cylindrical length
-Розміри;Φ\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;76;TRUE;301112;Phi diameter
-Розмір;Ф\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$2 ;77;TRUE;301112;Size cylindrical
-Розмір;(\d+)\s*[×хxX]\s*(\d+)\s*см;regex;Довжина (мм);{$1*10};78;TRUE;301112;Size in cm to mm length
-Розмір;(\d+)\s*[×хxX]\s*(\d+)\s*см;regex;Ширина (мм);{$2*10};79;TRUE;301112;Size in cm to mm width
-Вага;(\d+\.?\d*)\s*[Кк][гГ];regex;Вага (г);{$1*1000};80;TRUE;301112;Weight kg to grams
-Вага;(\d+)\s*[Гг]|([0-9]+)\s*г;regex;Вага (г);$1$2;81;TRUE;301112;Weight in grams
-Колір;[Бб][іи]л;regex;Пропустити;skip;90;TRUE;301112;Skip color white
-Колір;[Чч]орн|[Сс][іи]р|[Сс]рібн;regex;Пропустити;skip;91;TRUE;301112;Skip other colors
-Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;100;TRUE;301112;Warranty months
-Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};101;TRUE;301112;Warranty years to months
-Сумісний з серіями камер;;exact;;Пропустити;2000;TRUE;301112;Skip camera compatibility
-Вологість;;exact;;Пропустити;2001;TRUE;301112;Skip humidity
-Кількість в ящику;;exact;;Пропустити;2002;TRUE;301112;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;2003;TRUE;301112;Skip package dimensions
-Вага брутто;;exact;;Пропустити;2004;TRUE;301112;Skip gross weight
-Напрямок;всеспрямован|омни;regex;Спрямованість;Всеспрямований;10;TRUE;6371204;Omnidirectional
-Напрямок;кардіо[ії]д;regex;Спрямованість;Кардіоїдна;11;TRUE;6371204;Cardioid pattern
-Напрямок;суперкардіо[ії]д;regex;Спрямованість;Суперкардіоїдна;12;TRUE;6371204;Supercardioid
-Напрямок;гіперкардіо[ії]д;regex;Спрямованість;Гіперкардіоїдна;13;TRUE;6371204;Hypercardioid
-Напрямок;двонапр|біди|bi-direct;regex;Спрямованість;Двонаправлений;14;TRUE;6371204;Bidirectional
-Напрямок;односпрям|уні;regex;Спрямованість;Односпрямований;15;TRUE;6371204;Unidirectional
-Чутливість мікрофона;(-?\d+\.?\d*)\s*d[Bb];regex;Чутливість (дБ);$1 ;20;TRUE;6371204;Sensitivity in dB
-Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[KkКк]?[HГ][zц];regex;Частота (Гц);$2000;30;TRUE;6371204;Frequency range max in kHz
-Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[HГ][zц];regex;Частота (Гц);$2 ;31;TRUE;6371204;Frequency range max in Hz
-Вихідний опір;(\d+)\s*[Оо]м;regex;Опір (Ом);$1 ;40;TRUE;6371204;Output impedance
-SNR;(\d+)\s*д[Бб];regex;Пропустити;skip;50;TRUE;6371204;Skip SNR
-Динамічний діапазон;(\d+)\s*[Дд][бБ];regex;Пропустити;skip;51;TRUE;6371204;Skip dynamic range
-Живлення;(?:DC\s*)?12\s*[ВV];regex;Пропустити;skip;60;TRUE;6371204;Skip 12V power
-Живлення;(?:DC\s*)?5\s*[ВV];regex;Пропустити;skip;61;TRUE;6371204;Skip 5V power
-Живлення;(?:DC\s*)?(\d+)\s*[ВV];regex;Пропустити;skip;62;TRUE;6371204;Skip other voltages
-Потужність споживання;(\d+)\s*м[АA];regex;Споживаний струм (А);{$1/1000};70;TRUE;6371204;Current consumption mA to A
-Потужність споживання;(\d+\.?\d*)\s*[АA];regex;Споживаний струм (А);$1 ;71;TRUE;6371204;Current consumption in A
-Матеріал;алюміній|алюмін;regex;Колір;Сріблястий;80;TRUE;6371204;Aluminum typically silver
-Матеріал;пластик;regex;Пропустити;skip;81;TRUE;6371204;Skip plastic material
-Матеріал;метал|сталь;regex;Пропустити;skip;82;TRUE;6371204;Skip metal material
-Розміри;[ФΦ]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Діаметр (мм);$1 ;90;TRUE;6371204;Diameter from cylindrical dimensions
-Розміри;[ФΦ]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$2 ;91;TRUE;6371204;Length from cylindrical dimensions
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;92;TRUE;6371204;Length from 3D dimensions
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Ширина (мм);$2 ;93;TRUE;6371204;Width from 3D dimensions
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм$;regex;Довжина (мм);$1 ;94;TRUE;6371204;Length from 2D dimensions
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм$;regex;Ширина (мм);$2 ;95;TRUE;6371204;Width from 2D dimensions
-Вага;(\d+\.?\d*)\s*[Кк][гГ];regex;Вага (г);{$1*1000};100;TRUE;6371204;Weight kg to grams
-Вага;(\d+)\s*[Гг];regex;Вага (г);$1 ;101;TRUE;6371204;Weight in grams
-Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;110;TRUE;6371204;Warranty in months
-Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};111;TRUE;6371204;Warranty years to months
-Площа;;exact;;Пропустити;2000;TRUE;6371204;Skip coverage area
-Кількість в ящику;;exact;;Пропустити;2001;TRUE;6371204;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;6371204;Skip package dimensions
-Вага брутто;;exact;;Пропустити;2003;TRUE;6371204;Skip gross weight
-Дисплей;LCD|РК;regex;Монітор;LCD;10;TRUE;301110;LCD display
-Дисплей;LED;contains;Монітор;LED;11;TRUE;301110;LED display
-Дисплей;TFT;contains;Монітор;TFT;12;TRUE;301110;TFT display
-Роздільна здатність дисплея;(\d+)\s*[×хxX]\s*(\d+);regex;Пропустити;skip;20;TRUE;301110;Skip display resolution
-Джойстик;2[- ]?осьов;regex;Джойстик;2D;30;TRUE;301110;2D joystick
-Джойстик;3[- ]?осьов;regex;Джойстик;3D;31;TRUE;301110;3D joystick
-Джойстик;4[- ]?осьов;regex;Джойстик;4D;32;TRUE;301110;4D joystick
-Джойстик;кнопк;regex;Джойстик;Кнопковий;33;TRUE;301110;Button joystick
-Джойстик;відсутн|немає;regex;Джойстик;Немає;34;TRUE;301110;No joystick
-Інтерфейси керування;USB;contains;Протокол зв'язку;USB 2.0;40;TRUE;301110;USB interface
-Інтерфейси керування;RS-?232;regex;Протокол зв'язку;RS-232;41;TRUE;301110;RS-232 interface
-Інтерфейси керування;RS-?422;regex;Протокол зв'язку;RS-422;42;TRUE;301110;RS-422 interface
-Інтерфейси керування;RS-?485;regex;Протокол зв'язку;RS-485;43;TRUE;301110;RS-485 interface
-Інтерфейси керування;ІЧ|ІК|infrared|IR;regex;Протокол зв'язку;ІК-порт;44;TRUE;301110;IR interface
-Мережеві інтерфейси;RJ-?45|Ethernet;regex;Інтерфейс;Провідний;50;TRUE;301110;Wired interface
-Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Інтерфейс;Бездротовий;51;TRUE;301110;Wireless interface
-Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Протокол зв'язку;Wi-Fi;52;TRUE;301110;WiFi protocol
-USB;USB\s*3;regex;Протокол зв'язку;USB 3.0;60;TRUE;301110;USB 3.0 protocol
-USB;USB\s*2|USB(?!\s*3);regex;Протокол зв'язку;USB 2.0;61;TRUE;301110;USB 2.0 protocol
-Живлення;батарей.*?[Аа][Аа][Аа]|AAA;regex;Живлення;Батарейки одноразові;70;TRUE;301110;AAA batteries
-Живлення;батарей.*?AA(?!A)|AA(?!A);regex;Живлення;Батарейки одноразові;71;TRUE;301110;AA batteries
-Живлення;акумулятор;regex;Живлення;Батарейки акумуляторного типу;72;TRUE;301110;Rechargeable batteries
-Живлення;(?:DC\s*)?12\s*[ВV](?:DC)?;regex;Живлення;Мережа 12В;73;TRUE;301110;12V DC power
-Живлення;(?:AC\s*)?220\s*[ВV]|100\s*[~-]\s*240\s*[ВV];regex;Живлення;Мережа 220В;74;TRUE;301110;220V AC power
-Живлення;(?:DC\s*)?5\s*[ВV](?:DC)?;regex;Додаткове джерело живлення;Мережа 12В;75;TRUE;301110;5V DC secondary
-Потужність споживання;(\d+\.?\d*)\s*[ВWватВт]+;regex;Пропустити;skip;80;TRUE;301110;Skip power consumption
-Робоча температура;(-?\d+)\s*[°℃]?\s*[CС]\s*[~–-]\s*\+?(-?\d+)\s*[°℃]?\s*[CС];regex;Мінімальна робоча температура (град.);$1 ;90;TRUE;301110;Operating temp min
-Робоча температура;(-?\d+)\s*[°℃]?\s*[CС]\s*[~–-]\s*\+?(-?\d+)\s*[°℃]?\s*[CС];regex;Максимальна робоча температура (град.);$2 ;91;TRUE;301110;Operating temp max
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Довжина (мм);$1 ;100;TRUE;301110;Dimensions length
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Ширина (мм);$2 ;101;TRUE;301110;Dimensions width
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм;regex;Висота (мм);$3 ;102;TRUE;301110;Dimensions height
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм\s*\|;regex;Довжина (мм);$1 ;103;TRUE;301110;Length from multi-part dimensions
-Розміри;(\d+\.?\d*)\s*[×хxX]\s*(\d+\.?\d*)\s*мм\s*\|;regex;Ширина (мм);$2 ;104;TRUE;301110;Width from multi-part dimensions
-Вага;(\d+\.?\d*)\s*[Кк][гГ];regex;Вага (г);{$1*1000};110;TRUE;301110;Weight kg to grams
-Вага;(\d+)\s*[Гг];regex;Вага (г);$1 ;111;TRUE;301110;Weight in grams
-Строк гарантії;(\d+)\s*міс;regex;Гарантійний термін (міс);$1 ;120;TRUE;301110;Warranty in months
-Строк гарантії;(\d+)\s*рік|([0-9]+)\s*року;regex;Гарантійний термін (міс);{$1*12|$2*12};121;TRUE;301110;Warranty years to months
-Оперційна система;;exact;;Пропустити;2000;TRUE;301110;Skip OS
-Кількість в ящику;;exact;;Пропустити;2001;TRUE;301110;Skip box quantity
-Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;301110;Skip package dimensions
-Вага брутто;;exact;;Пропустити;2003;TRUE;301110;Skip gross weight
-Особливості;;exact;;Пропустити;2004;TRUE;301110;Skip features
+﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_value_template;priority;is_active;category_id;notes
+.*HDCVI.*;;;regex;Тип камери;HDCVI;1;TRUE;301105;Camera type from name HDCVI
+.*HD-TVI.*;;;regex;Тип камери;HD-TVI;2;TRUE;301105;Camera type from name HD-TVI
+.*HDTVI.*;;;regex;Тип камери;HD-TVI;2;TRUE;301105;Camera type from name HDTVI
+.*Turbo HD.*;;;regex;Тип камери;HD-TVI;2;TRUE;301105;Camera type from name Turbo HD
+.*IP.*;;;regex;Тип камери;IP;3;TRUE;301105;Camera type from name IP
+.*Wi-Fi.*;;;regex;Тип камери;Wi-Fi;3;TRUE;301105;Camera type from name WiFi
+.*HFW.*;;;regex;Форм-фактор;Корпусний;4;TRUE;301105;Form factor bullet from name
+.*PTZ.*;;;regex;Форм-фактор;Поворотний;4;TRUE;301105;Form factor PTZ from name
+.*HDW.*;;;regex;Форм-фактор;Купольний;4;TRUE;301105;Form factor dome from name
+.*PTZ.*;;;regex;Тип об'єктива;Моторизований;5;TRUE;301105;Motorized lens from PTZ name
+.*Starlight.*;;;regex;Перемикання режимів "День/ніч";Starlight;5;TRUE;301105;Starlight from name
+.*ColorVu.*;;;regex;Перемикання режимів "День/ніч";ColorVu;5;TRUE;301105;ColorVu from name
+.*1МП.*;;;regex;Роздільна здатність (Мп);1;6;TRUE;301105;1MP from name UA
+.*720P.*;;;regex;Роздільна здатність (Мп);1;6;TRUE;301105;1MP from 720P name
+.*2MP.*;;;regex;Роздільна здатність (Мп);2;6;TRUE;301105;2MP from name EN
+.*1080.*;;;regex;Роздільна здатність (Мп);2;6;TRUE;301105;2MP from 1080 name
+.*2МП.*;;;regex;Роздільна здатність (Мп);2;6;TRUE;301105;2MP from name UA
+.*3МП.*;;;regex;Роздільна здатність (Мп);3;6;TRUE;301105;3MP from name
+.*4МП.*;;;regex;Роздільна здатність (Мп);4;6;TRUE;301105;4MP from name UA
+.*4MP.*;;;regex;Роздільна здатність (Мп);4;6;TRUE;301105;4MP from name EN
+.*5МП.*;;;regex;Роздільна здатність (Мп);5;6;TRUE;301105;5MP from name
+.*6МП.*;;;regex;Роздільна здатність (Мп);6;6;TRUE;301105;6MP from name
+.*8МП.*;;;regex;Роздільна здатність (Мп);8;6;TRUE;301105;8MP from name
+.*4K.*;;;regex;Роздільна здатність (Мп);8;6;TRUE;301105;8MP from 4K name
+.*10МП.*;;;regex;Роздільна здатність (Мп);10;6;TRUE;301105;10MP from name
+.*12МП.*;;;regex;Роздільна здатність (Мп);12;6;TRUE;301105;12MP from name
+.*14МП.*;;;regex;Роздільна здатність (Мп);14;6;TRUE;301105;14MP from name
+.*16МП.*;;;regex;Роздільна здатність (Мп);16;6;TRUE;301105;16MP from name
+.*1\.4мм.*;;;regex;Фокусна відстань (мм);1.4;7;TRUE;301105;Fixed focal 1.4mm from name
+.*2\.1мм.*;;;regex;Фокусна відстань (мм);2.1;7;TRUE;301105;Fixed focal 2.1mm from name
+.*2\.4мм.*;;;regex;Фокусна відстань (мм);2.4;7;TRUE;301105;Fixed focal 2.4mm from name
+.*2\.8 мм.*;;;regex;Фокусна відстань (мм);2.8;7;TRUE;301105;Fixed focal 2.8mm from name space
+.*2\.8мм.*;;;regex;Фокусна відстань (мм);2.8;7;TRUE;301105;Fixed focal 2.8mm from name
+.*2\.8 mm.*;;;regex;Фокусна відстань (мм);2.8;7;TRUE;301105;Fixed focal 2.8mm from name EN
+.*4 mm.*;;;regex;Фокусна відстань (мм);4;7;TRUE;301105;Fixed focal 4mm from name EN
+.*3\.6мм.*;;;regex;Фокусна відстань (мм);3.6;7;TRUE;301105;Fixed focal 3.6mm from name
+.*4мм.*;;;regex;Фокусна відстань (мм);4;7;TRUE;301105;Fixed focal 4mm from name
+.*6мм.*;;;regex;Фокусна відстань (мм);6;7;TRUE;301105;Fixed focal 6mm from name
+.*8мм.*;;;regex;Фокусна відстань (мм);8;7;TRUE;301105;Fixed focal 8mm from name
+.*2\.7-13\.5мм.*;;;regex;Мінімальне значення фокусної відстані (мм);2.7;8;TRUE;301105;Varifocal min 2.7mm from name
+.*2\.8-12мм.*;;;regex;Мінімальне значення фокусної відстані (мм);2.8;8;TRUE;301105;Varifocal min 2.8mm from name
+.*2\.8\+4\.8-120мм.*;;;regex;Мінімальне значення фокусної відстані (мм);2.8;8;TRUE;301105;Varifocal min 2.8mm dual from name
+.*2\+2\.8-12мм.*;;;regex;Мінімальне значення фокусної відстані (мм);2.8;8;TRUE;301105;Varifocal min 2.8mm from name variant
+.*3\.95-177\.75мм.*;;;regex;Мінімальне значення фокусної відстані (мм);3.95;8;TRUE;301105;Varifocal min 3.95mm from name
+.*4\.8-120мм.*;;;regex;Мінімальне значення фокусної відстані (мм);4.8;8;TRUE;301105;Varifocal min 4.8mm from name
+.*4\.8-153\.6мм.*;;;regex;Мінімальне значення фокусної відстані (мм);4.8;8;TRUE;301105;Varifocal min 4.8mm variant from name
+.*5-75мм.*;;;regex;Мінімальне значення фокусної відстані (мм);5;8;TRUE;301105;Varifocal min 5mm from name
+.*5-125мм.*;;;regex;Мінімальне значення фокусної відстані (мм);5;8;TRUE;301105;Varifocal min 5mm variant from name
+.*2\.7-13\.5мм.*;;;regex;Максимальне значення фокусної відстані (мм);13.5;9;TRUE;301105;Varifocal max 13.5mm from name
+.*2\.8-12мм.*;;;regex;Максимальне значення фокусної відстані (мм);12;9;TRUE;301105;Varifocal max 12mm from name
+.*2\.8\+4\.8-120мм.*;;;regex;Максимальне значення фокусної відстані (мм);120;9;TRUE;301105;Varifocal max 120mm dual from name
+.*2\+2\.8-12мм.*;;;regex;Максимальне значення фокусної відстані (мм);12;9;TRUE;301105;Varifocal max 12mm variant from name
+.*3\.95-177\.75мм.*;;;regex;Максимальне значення фокусної відстані (мм);177.75;9;TRUE;301105;Varifocal max 177.75mm from name
+.*4\.8-120мм.*;;;regex;Максимальне значення фокусної відстані (мм);120;9;TRUE;301105;Varifocal max 120mm from name
+.*4\.8-153\.6мм.*;;;regex;Максимальне значення фокусної відстані (мм);153.6;9;TRUE;301105;Varifocal max 153.6mm from name
+.*5-75мм.*;;;regex;Максимальне значення фокусної відстані (мм);75;9;TRUE;301105;Varifocal max 75mm from name
+.*5-125мм.*;;;regex;Максимальне значення фокусної відстані (мм);125;9;TRUE;301105;Varifocal max 125mm from name
+;Матриця;(?:1/1\.8)[""\s]*;regex;Тип камери;IP;10;TRUE;301105;IP camera from sensor size
+;Матриця;(?:1/2\.[0-9]|1/3)[""\s]*.*CMOS;regex;Тип матриці;CMOS;20;TRUE;301105;CMOS sensor
+;Матриця;(1/1\.8|1/2\.7|1/2\.8|1/2\.9|1/3)["”\s]*(?:Progressive\s*(?:Scan\s*)?)?CMOS;regex;Фізичний розмір матриці;$1";30;TRUE;301105;Sensor size extraction
+;Матриця;([0-9]+)\s*МП;regex;Роздільна здатність (Мп);$1 ;40;TRUE;301105;Megapixels from description UA
+;Матриця;([0-9]+)\s*MP;regex;Роздільна здатність (Мп);$1 ;41;TRUE;301105;Megapixels from description EN
+;Мін\. чутливість;([0-9\.]+)\s*(?:лк|люкс|lux);regex;Чутливість (люкс);$1 ;50;TRUE;301105;Light sensitivity
+;Швидкість затвора;1/([0-9]+)\s*[-–]\s*1/([0-9\s]+)\s*с;regex;Пропустити;skip;60;TRUE;301105;Skip shutter speed details
+;Регулювання по осях;.*Поворот.*([0-9]+)°.*Нахил.*([0-9]+)°;regex;Кут повороту (град.);$1 ;70;TRUE;301105;Pan angle
+;Регулювання по осях;.*Нахил.*([0-9]+)°;regex;Кут нахилу (град.);$1 ;71;TRUE;301105;Tilt angle
+;Тип підсвічування;ІЧ|інфрачервон;regex;Наявність ІЧ-підсвічування;Так;80;TRUE;301105;IR illumination present
+;Тип підсвічування;LED|світлодіод|видиме світло;regex;Наявність LED-підсвічування;Так;81;TRUE;301105;LED illumination present
+;Тип підсвічування;ІЧ\+LED|ІЧ\+видиме світло|LED тепле світло;regex;Наявність ІЧ-підсвічування;Так;82;TRUE;301105;IR+LED both IR
+;Тип підсвічування;ІЧ\+LED|ІЧ\+видиме світло|LED тепле світло;regex;Наявність LED-підсвічування;Так;83;TRUE;301105;IR+LED both LED
+;Дальність підсвічування;([0-9]+)\s*м;regex;Дальність ІЧ-підсвічування (м);$1 ;90;TRUE;301105;IR range extraction
+;Дальність підсвічування;([0-9]+)/([0-9]+)\s*м;regex;Дальність ІЧ-підсвічування (м);$1 ;91;TRUE;301105;IR range (dual mode first)
+;Дальність підсвічування;([0-9]+)/([0-9]+)\s*м;regex;Дальність LED підсвічування (м);$2 ;92;TRUE;301105;LED range (dual mode second)
+;Фокусна відстань;([0-9\.]+)\s*[-–]\s*([0-9\.]+)\s*мм;regex;Мінімальне значення фокусної відстані (мм);$1 ;100;TRUE;301105;Focal length min
+;Фокусна відстань;([0-9\.]+)\s*[-–]\s*([0-9\.]+)\s*мм;regex;Максимальне значення фокусної відстані (мм);$2 ;101;TRUE;301105;Focal length max
+;Фокусна відстань;([0-9\.]+)\s*мм;regex;Фокусна відстань (мм);$1 ;102;TRUE;301105;Fixed focal length
+;Кути огляду;.*Г:\s*([0-9\.]+)°;regex;Кут огляду по горизонталі (град.);$1 ;110;TRUE;301105;Horizontal FOV
+;Кути огляду;.*В:\s*([0-9\.]+)°;regex;Кут огляду по вертикалі (град.);$1 ;111;TRUE;301105;Vertical FOV
+;Роздільна здатність відео;.*([0-9]+)\s*×\s*([0-9]+);regex;Роздільна здатність матриці;$1x$2;120;TRUE;301105;Video resolution
+;Роздільна здатність відео;.*1920\s*×\s*1080|.*1080[Pp];regex;Роздільна здатність (Мп);2;121;TRUE;301105;2MP from 1080p
+;Роздільна здатність відео;.*2560\s*×\s*1440;regex;Роздільна здатність (Мп);4;122;TRUE;301105;4MP from resolution
+;Роздільна здатність відео;.*2688\s*×\s*1520;regex;Роздільна здатність (Мп);4;123;TRUE;301105;4MP variant
+;Роздільна здатність відео;.*2880\s*×\s*1620;regex;Роздільна здатність (Мп);5;124;TRUE;301105;5MP from resolution
+;Роздільна здатність відео;.*3840\s*×\s*2160;regex;Роздільна здатність (Мп);8;125;TRUE;301105;8MP from 4K
+;Частота кадрів \(головний потік\);.*([0-9]+)\s*к/с;regex;Пропустити;skip;130;TRUE;301105;Skip framerate details
+;Відео компресія;H\.265;contains;Формат стиснення;H. 265;140;TRUE;301105;H.265 compression
+;Відео компресія;H\.264;contains;Формат стиснення;H. 264;141;TRUE;301105;H.264 compression
+;Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;142;TRUE;301105;MJPEG compression
+;WDR;([0-9]+)\s*дБ;regex;Пропустити;skip;150;TRUE;301105;Skip WDR value
+;WDR;Підтримує|Так;regex;WDR;підтримує;151;TRUE;301105;WDR supported
+;BLC;Підтримує|Так;regex;BLC;підтримує;160;TRUE;301105;BLC supported
+;BLC;Підтримка;regex;BLC;підтримує;160;TRUE;301105;BLC supported
+;HLC;Підтримує|Так;regex;HLC;підтримує;161;TRUE;301105;HLC supported
+;Придушення шуму \(DNR\);2D;exact;DNR;2D;170;TRUE;301105;2D noise reduction
+;Придушення шуму \(DNR\);3D;exact;DNR;3D;171;TRUE;301105;3D noise reduction
+;DWDR;Підтримує|Так;regex;DWDR;підтримує;180;TRUE;301105;Skip DWDR
+;DWDR;Підтримують;regex;DWDR;підтримує;180;TRUE;301105;Skip DWDR
+;Мережеві інтерфейси;RJ-45|RJ45|Ethernet;regex;Тип камери;IP;190;TRUE;301105;IP camera from network
+;Мережеві інтерфейси;Wi-Fi|IEEE\s*802\.11;regex;Тип камери;Wi-Fi;191;TRUE;301105;WiFi camera
+;Мережеві інтерфейси;Wi-Fi|IEEE\s*802\.11;regex;Бездротовий інтерфейс;Так;192;TRUE;301105;WiFi interface
+;Аудіо інтерфейси;вбудований мікрофон;contains;Вбудований мікрофон;Так;200;TRUE;301105;Built-in microphone
+;Аудіо інтерфейси;динамік;contains;Аудиовихід;Так;202;TRUE;301105;Audio output
+;Метод зберігання;[Mm]icro\s*SD|SD-карт;regex;Порт для SD-карти;Так;210;TRUE;301105;SD card slot
+;Живлення;12\s*В\s*DC|DC\s*12В;regex;Живлення;Мережа 12В;220;TRUE;301105;12V DC power
+;Живлення;24\s*В\s*(?:DC|AC);regex;Живлення;Мережа 24В;221;TRUE;301105;24V power
+;Живлення;5\s*В\s*DC|DC\s*5В;regex;Додаткове джерело живлення;Мережа 12В;222;TRUE;301105;5V secondary power
+;PoE;802\.3af|PoE;regex;Живлення;PoE;230;TRUE;301105;PoE power
+;PoE;802\.3at|PoE\+;regex;Додаткове джерело живлення;PoE;231;TRUE;301105;PoE+ secondary
+;Ступінь захисту;(IP[0-9]{2});regex;Захист обладнання від води і пилу IP;$1 ;240;TRUE;301105;IP rating
+;Матеріал;пластик;contains;Антивандальний корпус;Ні;280;TRUE;301105;Plastic not vandal-proof
+;Матеріал;метал|алюміній;regex;Антивандальний корпус;Так;281;TRUE;301105;Metal vandal-proof
+;Датчик руху;виявлення руху|motion detection;regex;Датчик руху;Так;290;TRUE;301105;Motion detection
+;Перетин лінії;Підтримує|Так;regex;Виявлення руху;Так;300;TRUE;301105;Line crossing detection
+;Вторгнення в область;Підтримує|Так;regex;Виявлення руху;Так;301;TRUE;301105;Area intrusion detection
+;Виявлення облич;Підтримує|Так;regex;Пропустити;skip;310;TRUE;301105;Skip face detection
+;Цільові типи;Підтримує|Так;regex;Виявлення руху;Так;320;TRUE;301105;Target types detection
+;Оптичне збільшення;([0-9]+)×|([0-9]+)x;regex;Оптичне збільшення (х);$1$2;330;TRUE;301105;Optical zoom
+;Цифрове збільшення;([0-9]+)×|([0-9]+)x;regex;Цифрове збільшення (х);$1$2;340;TRUE;301105;Digital zoom
+;Тип об'єктива;фіксований|фікс;regex;Тип об'єктива;Фіксований;360;TRUE;301105;Fixed lens
+;Тип об'єктива;варіофокальн|змінн;regex;Тип об'єктива;Варіофокальний;361;TRUE;301105;Varifocal lens
+;Тип об'єктива;моторизован;contains;Тип об'єктива;Моторизований;362;TRUE;301105;Motorized lens
+;Апертура;F([0-9\.]+);regex;Світлосила об'єктива (F);$1 ;370;TRUE;301105;Aperture F-number
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;301105;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301105;Skip package dimensions
+;Потужність споживання;;exact;;Пропустити;2003;TRUE;301105;Skip power consumption
+;Програмне забезпечення;;exact;;Пропустити;2004;TRUE;301105;Skip software details
+;Сумісність;;exact;;Пропустити;2005;TRUE;301105;Skip compatibility
+;ROM/RAM;;exact;;Пропустити;2006;TRUE;301105;Skip memory specs
+;Кількість потоків;;exact;;Пропустити;2007;TRUE;301105;Skip stream count
+;Частота кадрів.*;;regex;;Пропустити;2008;TRUE;301105;Skip framerate details
+;Виявлення об'єкта.*;;regex;;Пропустити;2009;TRUE;301105;Skip DORI detection
+;Спостереження за об'єктом.*;;regex;;Пропустити;2010;TRUE;301105;Skip DORI observation
+;Розпізнавання об'єкту.*;;regex;;Пропустити;2011;TRUE;301105;Skip DORI recognition
+;Ідентифікація об'єкта.*;;regex;;Пропустити;2012;TRUE;301105;Skip DORI identification
+;Тригери тривоги;;exact;;Пропустити;2013;TRUE;301105;Skip alarm triggers
+;Основні функції обробки;;exact;;Пропустити;2014;TRUE;301105;Skip processing functions
+;ROI;;exact;;Пропустити;2015;TRUE;301105;Skip ROI
+;Інтерфейси тривоги;;exact;;Пропустити;2016;TRUE;301105;Skip alarm interfaces
+;RS-485;;exact;;Пропустити;2017;TRUE;301105;Skip RS-485
+;Defog;;exact;;Пропустити;2018;TRUE;301105;Skip defog
+;Залишені / зниклі предмети;;exact;;Пропустити;2019;TRUE;301105;Skip abandoned objects
+;Вхід і вихід з регіону;;exact;;Пропустити;2020;TRUE;301105;Skip region entry/exit
+;Виявлення аудіо винятків;;exact;;Пропустити;2021;TRUE;301105;Skip audio exceptions
+;Пам'ять при відключенні живлення;;exact;;Пропустити;2022;TRUE;301105;Skip power-off memory
+;Швидкість.*;;regex;;Пропустити;2023;TRUE;301105;Skip speed parameters
+;Кількість попередніх налаштувань;;exact;;Пропустити;2024;TRUE;301105;Skip preset count
+;Електронна стабілізація зображення.*;;regex;;Пропустити;2025;TRUE;301105;Skip EIS
+;SMD;;exact;;Пропустити;2026;TRUE;301105;Skip SMD
+;Аналіз поведінки;;exact;;Пропустити;2027;TRUE;301105;Skip behavior analysis
+.*HQHI.*;;;regex;Тип відеореєстратора;HDVR;1;TRUE;301101;DVR type HD-TVI from name HQHI
+.*HGHI.*;;;regex;Тип відеореєстратора;HDVR;1;TRUE;301101;DVR type HD-TVI from name HGHI
+.*HUHI.*;;;regex;Тип відеореєстратора;HDVR;1;TRUE;301101;DVR type HD-TVI from name HUHI
+.*HTHI.*;;;regex;Тип відеореєстратора;HDVR;1;TRUE;301101;DVR type HD-TVI from name HTHI
+.*XVR.*;;;regex;Тип відеореєстратора;HDVR;2;TRUE;301101;DVR type HD-CVI from name XVR
+.*NI.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;DVR type NVR from name NI
+.*NXI.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;DVR type NVR from name NXI
+.*NVR.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;DVR type NVR from name NVR
+.*HQHI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from HQHI
+.*HGHI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from HGHI
+.*HUHI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from HUHI
+.*HTHI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from HTHI
+.*XVR.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from XVR
+.*NI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from NI
+.*NXI.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from NXI
+.*NVR.*;;;regex;Функціональність;Pentaplex;4;TRUE;301101;Functionality Pentaplex from NVR
+.*4-кан.*;;;regex;Кількість каналів;4;5;TRUE;301101;Channel count 4 from name
+.*8-кан.*;;;regex;Кількість каналів;8;5;TRUE;301101;Channel count 8 from name
+.*16-кан.*;;;regex;Кількість каналів;16;5;TRUE;301101;Channel count 16 from name
+.*32-кан.*;;;regex;Кількість каналів;32;5;TRUE;301101;Channel count 32 from name
+.*64-кан.*;;;regex;Кількість каналів;64;5;TRUE;301101;Channel count 64 from name
+.*PoE.*;;;regex;Підтримка PoE;Так;6;TRUE;301101;PoE support from name
+;IP камери;([0-9]+);regex;Кількість каналів;$1 ;11;TRUE;301101;Channel count from IP cameras
+;Аналогові входи;([0-9]+);regex;Кількість каналів;$1 ;21;TRUE;301101;Channel count from analog inputs
+;Відео компресія;H\.265\+|Smart\s*H\.265;regex;Формат стиснення;H. 265+;40;TRUE;301101;H.265+ compression
+;Відео компресія;H\.265;contains;Формат стиснення;H. 265;41;TRUE;301101;H.265 compression
+;Відео компресія;H\.264\+|Smart\s*H\.264;regex;Формат стиснення;H. 264+;42;TRUE;301101;H.264+ compression
+;Відео компресія;H\.264;contains;Формат стиснення;H. 264;43;TRUE;301101;H.264 compression
+;Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;44;TRUE;301101;MJPEG compression
+;Відео компресія;MPEG-?4;regex;Формат стиснення;MPEG-4;45;TRUE;301101;MPEG-4 compression
+;Роздільна здатність відеовиходу;.*([0-9]+)\s*×\s*([0-9]+);regex;Дозвіл запису;$1х$2;50;TRUE;301101;Video output resolution
+;Інтерфейси відео виходу;HDMI;contains;HDMI відеовихід;Так;60;TRUE;301101;HDMI output
+;Інтерфейси відео виходу;VGA;contains;VGA відеовихід;Так;61;TRUE;301101;VGA output
+;Інтерфейси відео виходу;([0-9]+);regex;Кількість відеовиходів;$1 ;62;TRUE;301101;Video output count
+;Аудіо інтерфейси;([0-9]+)\s*вх;regex;Кількість аудіоканалів;$1 ;70;TRUE;301101;Audio channels from inputs
+;Внутрішні HDD;([0-9]+)\s*SATA;regex;Количество HDD;$1 ;80;TRUE;301101;HDD count from SATA
+;Внутрішні HDD;до\s*([0-9]+)\s*[ТT][бb];regex;Суммарная емкость HDD (GB);{$1*1000};81;TRUE;301101;Max HDD capacity in TB to GB
+;Raid;.*;regex;Підтримка RAID;Так;90;TRUE;301101;RAID supported
+;PoE порти;([0-9]+);regex;Підтримка PoE;Так;100;TRUE;301101;PoE supported
+;PoE порти;([0-9]+);regex;Кількість вбудованих портів POE;$1 ;101;TRUE;301101;PoE port count
+;USB;([0-9]+);regex;Кількість USB-портів;$1 ;110;TRUE;301101;USB port count
+;RS232;.*;regex;RS-232;Так;120;TRUE;301101;RS-232 present
+;RS485;.*;regex;RS-485;Так;130;TRUE;301101;RS-485 present
+;Тривожні входи;([0-9]+);regex;Тривожні входи/виходи;$1-Jan;140;TRUE;301101;Alarm inputs (format X-Jan)
+;Релейні виходи;([0-9]+);regex;Тривожні входи/виходи;1/$1 ;142;TRUE;301101;Alarm outputs only
+;Живлення;DC\s*12В|12\s*В\s*DC;regex;Живлення;Мережа 12В;150;TRUE;301101;12V DC power
+;Живлення;DC\s*48В|48\s*В\s*DC;regex;Живлення;Мережа 12В;151;TRUE;301101;48V DC power (for PoE NVR)
+;Живлення;100\s*-?\s*240\s*В\s*A[СC]|220\s*В\s*A[СC]|AC\s*100-240;regex;Живлення;Мережа 220В;152;TRUE;301101;220V AC power
+;Wi-Fi;.*;regex;Бездротовий інтерфейс;Так;200;TRUE;301101;WiFi support
+;Вхідний потік;([0-9]+)\s*[Мм][бb]іт;regex;Пропустити;skip;1000;TRUE;301101;Skip input bandwidth
+;Макс\. кількість користувачів;.*;regex;Пропустити;skip;1001;TRUE;301101;Skip max users
+;Декодування;.*;regex;Пропустити;skip;1002;TRUE;301101;Skip decoding details
+;Аналітика реєстратора;.*;regex;Пропустити;skip;1003;TRUE;301101;Skip DVR analytics
+;Аналітика з камерою;.*;regex;Пропустити;skip;1004;TRUE;301101;Skip camera analytics
+;Підтримка роздільної здатності;.*;regex;Пропустити;skip;1005;TRUE;301101;Skip resolution support
+;Частота кадрів.*;.*;regex;Пропустити;skip;1006;TRUE;301101;Skip framerate details
+;Кількість в ящику;.*;regex;Пропустити;skip;2000;TRUE;301101;Skip box quantity
+;Потужність споживання;.*;regex;Пропустити;skip;2003;TRUE;301101;Skip power consumption
+;Сумісність;.*;regex;Пропустити;skip;2004;TRUE;301101;Skip compatibility
+;ESATA;.*;regex;Пропустити;skip;2005;TRUE;301101;Skip eSATA
+;Вихід живлення;.*;regex;Пропустити;skip;2006;TRUE;301101;Skip power output
+;Захист периметра.*;.*;regex;Пропустити;skip;2007;TRUE;301101;Skip perimeter protection
+;Розпізнавання облич.*;.*;regex;Пропустити;skip;2008;TRUE;301101;Skip face recognition
+;Режим розпізнавання обличч;.*;regex;Пропустити;skip;2009;TRUE;301101;Skip face recognition mode
+;Класифікація об'єктів;.*;regex;Пропустити;skip;2010;TRUE;301101;Skip object classification
+;Двостороння розмова;.*;regex;Пропустити;skip;2011;TRUE;301101;Skip two-way audio
+;Форм-фактор;3\.5"";regex;Форм-фактор;3.5";10;TRUE;70704;3.5 inch form factor
+;Форм-фактор;2\.5"";regex;Форм-фактор;2.5";11;TRUE;70704;2.5 inch form factor
+;Форм-фактор;[Mm]2|M\.2;regex;Форм-фактор;M.2 2280;12;TRUE;70704;M.2 form factor
+;Форм-фактор;[Mm]icro\s*SD(?:HC|XC)?|TF;regex;Форм-фактор;1";20;TRUE;70704;MicroSD card form factor
+;Форм-фактор;SD(?:HC|XC)?(?!\s*[Cc]ard);regex;Форм-фактор;1.3";21;TRUE;70704;SD card form factor
+;Ємність;(\d+)\s*[ТT][бb]|([0-9]+)ТБ;regex;Об'єм накопичувача (GB);{$1*1000|$2*1000};30;TRUE;70704;Capacity in TB to GB
+;Ємність;(\d+)\s*[ГГ][бb]|([0-9]+)ГБ|([0-9]+)\s*GB;regex;Об'єм накопичувача (GB);$1$2$3;31;TRUE;70704;Capacity in GB
+;Інтерфейс користувача;SATA\s*III|SATA\s*3|SATA-?600|SATAIII;regex;Інтерфейс;SATA III (SATA/600);40;TRUE;70704;SATA III interface
+;Інтерфейс користувача;SATA\s*II|SATA\s*2|SATA-?300;regex;Інтерфейс;SATA II (SATA/300);41;TRUE;70704;SATA II interface
+;Інтерфейс користувача;SATA(?!\s*[I23])|Serial\s*ATA;regex;Інтерфейс;SATA (SATA/150);42;TRUE;70704;SATA interface
+;Інтерфейс користувача;[Nn][Vv][Mm][Ee]|NVMe|PCIe|PCI\s*Express;regex;Інтерфейс;PCI Express 4.0 x4;43;TRUE;70704;NVMe/PCIe interface
+;Інтерфейс користувача;SAS;contains;Інтерфейс;SAS;44;TRUE;70704;SAS interface
+;Інтерфейс користувача;USB\s*3\.[12]|USB\s*3\.2;regex;Інтерфейс;USB 3.2;45;TRUE;70704;USB 3.1/3.2 interface
+;Інтерфейс користувача;USB\s*3\.0|USB\s*3;regex;Інтерфейс;USB 3.0;46;TRUE;70704;USB 3.0 interface
+;Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;USB 2.0;47;TRUE;70704;USB 2.0 interface
+;Швидкість обертання \(об / хв\);(\d+);regex;Швидкість обертання (об/хв);$1 ;50;TRUE;70704;RPM extraction
+;Кеш-пам'ять;(\d+)\s*[МM][бБBb];regex;Об`єм буфера (MB);$1 ;60;TRUE;70704;Cache in MB
+;Макс\. швидкість тривалої передачі;(\d+)(?:\s*[-/]\s*(\d+))?\s*[МM][бБBb]/[сС];regex;Швидкість зчитування (Мб/сек);$1 ;70;TRUE;70704;Max read speed (first value)
+;Макс\. швидкість тривалої передачі;(\d+)\s*[-/]\s*(\d+)\s*[МM][бБBb]/[сС];regex;Швидкість запису (Мб/сек);$2 ;71;TRUE;70704;Max write speed (second value)
+;Макс\. швидкість тривалої передачі;(\d+\.?\d*)\s*[ГГ][бБBb]/[сС];regex;Пропускна здатність (Мб/сек);{$1*1000};72;TRUE;70704;Speed in Gb/s to Mb/s
+;Макс\. швидкість тривалої передачі;(\d+)\s*[МM][бБBb]/[сС];regex;Пропускна здатність (Мб/сек);$1 ;73;TRUE;70704;Bandwidth in MB/s
+;Матеріал;[Аа]люміній|[Аа]люмін[іи]є?вий\s*сплав|ADC12;regex;Матеріал;Алюміній;10;TRUE;301112;Aluminum material
+;Матеріал;[Нн]ержав[іи]юч|SUS304|SECC;regex;Матеріал;Нержавіюча сталь;11;TRUE;301112;Stainless steel
+;Матеріал;[Сс]таль|SGCC|Q235;regex;Матеріал;Сталь;12;TRUE;301112;Steel material
+;Матеріал;[Пп]ластик|ABS|PC|ПП;regex;Матеріал;Пластик;13;TRUE;301112;Plastic material
+;Навантаження;(\d+\.?\d*)\s*[Кк][гГ];regex;Маx нагрузка на кронштейн (кг);$1 ;20;TRUE;301112;Load capacity in kg
+;Навантаження;(\d+)\s*[Гг]|([0-9]+)р;regex;Маx нагрузка на кронштейн (кг);{$1/1000|$2/1000};21;TRUE;301112;Load capacity grams to kg
+;Кріплення;[Нн]а\s*ст[іи]ну|[Нн]аст[іи]н;regex;Тип кріплення кронштейна;Настінне кріплення;30;TRUE;301112;Wall mounting
+;Кріплення;[Нн]а\s*стовп|[Сс]телов;regex;Тип кріплення кронштейна;Кріплення для монтажу на стовп/балку;31;TRUE;301112;Pole mounting
+;Кріплення;[Сс]тельов;regex;Тип кріплення кронштейна;Стельове кріплення;32;TRUE;301112;Ceiling mounting
+;Кріплення;[Кк]утов;regex;Тип кріплення кронштейна;Кріплення для монтажу камери відеоспостереження на кут;33;TRUE;301112;Corner mounting
+;Кріплення;[Пп]оворот.*?(\d+)°;regex;Кут повороту (град.);$1 ;40;TRUE;301112;Pan angle extraction
+;Кріплення;[Нн]ахил.*?(\d+)°;regex;Кут нахилу (град.);$1 ;41;TRUE;301112;Tilt angle extraction
+;Ступінь захисту;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;50;TRUE;301112;IP rating
+;Клас захисту;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;51;TRUE;301112;IP protection class
+;Захист;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;52;TRUE;301112;Protection rating
+;Колір;[Бб][іи]л;regex;Пропустити;skip;90;TRUE;301112;Skip color white
+;Колір;[Чч]орн|[Сс][іи]р|[Сс]рібн;regex;Пропустити;skip;91;TRUE;301112;Skip other colors
+;Сумісний з серіями камер;;exact;;Пропустити;2000;TRUE;301112;Skip camera compatibility
+;Вологість;;exact;;Пропустити;2001;TRUE;301112;Skip humidity
+;Кількість в ящику;;exact;;Пропустити;2002;TRUE;301112;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2003;TRUE;301112;Skip package dimensions
+;Напрямок;всеспрямован|омни;regex;Спрямованість;Всеспрямований;10;TRUE;6371204;Omnidirectional
+;Напрямок;кардіо[ії]д;regex;Спрямованість;Кардіоїдна;11;TRUE;6371204;Cardioid pattern
+;Напрямок;суперкардіо[ії]д;regex;Спрямованість;Суперкардіоїдна;12;TRUE;6371204;Supercardioid
+;Напрямок;гіперкардіо[ії]д;regex;Спрямованість;Гіперкардіоїдна;13;TRUE;6371204;Hypercardioid
+;Напрямок;двонапр|біди|bi-direct;regex;Спрямованість;Двонаправлений;14;TRUE;6371204;Bidirectional
+;Напрямок;односпрям|уні;regex;Спрямованість;Односпрямований;15;TRUE;6371204;Unidirectional
+;Чутливість мікрофона;(-?\d+\.?\d*)\s*d[Bb];regex;Чутливість (дБ);$1 ;20;TRUE;6371204;Sensitivity in dB
+;Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[KkКк]?[HГ][zц];regex;Частота (Гц);$2.000 ;30;TRUE;6371204;Frequency range max in kHz
+;Частотна характеристика;(\d+)\s*[HГ][zц]\s*[~–-]\s*(\d+)\s*[HГ][zц];regex;Частота (Гц);$2 ;31;TRUE;6371204;Frequency range max in Hz
+;Вихідний опір;(\d+)\s*[Оо]м;regex;Опір (Ом);$1 ;40;TRUE;6371204;Output impedance
+;SNR;(\d+)\s*д[Бб];regex;Пропустити;skip;50;TRUE;6371204;Skip SNR
+;Динамічний діапазон;(\d+)\s*[Дд][бБ];regex;Пропустити;skip;51;TRUE;6371204;Skip dynamic range
+;Живлення;(?:DC\s*)?12\s*[ВV];regex;Пропустити;skip;60;TRUE;6371204;Skip 12V power
+;Живлення;(?:DC\s*)?5\s*[ВV];regex;Пропустити;skip;61;TRUE;6371204;Skip 5V power
+;Живлення;(?:DC\s*)?(\d+)\s*[ВV];regex;Пропустити;skip;62;TRUE;6371204;Skip other voltages
+;Потужність споживання;(\d+)\s*м[АA];regex;Споживаний струм (А);{$1/1000};70;TRUE;6371204;Current consumption mA to A
+;Потужність споживання;(\d+\.?\d*)\s*[АA];regex;Споживаний струм (А);$1 ;71;TRUE;6371204;Current consumption in A
+;Матеріал;алюміній|алюмін;regex;Колір;Сріблястий;80;TRUE;6371204;Aluminum typically silver
+;Матеріал;пластик;regex;Пропустити;skip;81;TRUE;6371204;Skip plastic material
+;Матеріал;метал|сталь;regex;Пропустити;skip;82;TRUE;6371204;Skip metal material
+;Площа;;exact;;Пропустити;2000;TRUE;6371204;Skip coverage area
+;Кількість в ящику;;exact;;Пропустити;2001;TRUE;6371204;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;6371204;Skip package dimensions
+;Дисплей;LCD|РК;regex;Монітор;LCD;10;TRUE;301110;LCD display
+;Дисплей;LED;contains;Монітор;LED;11;TRUE;301110;LED display
+;Дисплей;TFT;contains;Монітор;TFT;12;TRUE;301110;TFT display
+;Роздільна здатність дисплея;(\d+)\s*[×хxX]\s*(\d+);regex;Пропустити;skip;20;TRUE;301110;Skip display resolution
+;Джойстик;2[- ]?осьов;regex;Джойстик;2D;30;TRUE;301110;2D joystick
+;Джойстик;3[- ]?осьов;regex;Джойстик;3D;31;TRUE;301110;3D joystick
+;Джойстик;4[- ]?осьов;regex;Джойстик;4D;32;TRUE;301110;4D joystick
+;Джойстик;кнопк;regex;Джойстик;Кнопковий;33;TRUE;301110;Button joystick
+;Джойстик;відсутн|немає;regex;Джойстик;Немає;34;TRUE;301110;No joystick
+;Інтерфейси керування;USB;contains;Протокол зв'язку;USB 2.0;40;TRUE;301110;USB interface
+;Інтерфейси керування;RS-?232;regex;Протокол зв'язку;RS-232;41;TRUE;301110;RS-232 interface
+;Інтерфейси керування;RS-?422;regex;Протокол зв'язку;RS-422;42;TRUE;301110;RS-422 interface
+;Інтерфейси керування;RS-?485;regex;Протокол зв'язку;RS-485;43;TRUE;301110;RS-485 interface
+;Інтерфейси керування;ІЧ|ІК|infrared|IR;regex;Протокол зв'язку;ІК-порт;44;TRUE;301110;IR interface
+;Мережеві інтерфейси;RJ-?45|Ethernet;regex;Інтерфейс;Провідний;50;TRUE;301110;Wired interface
+;Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Інтерфейс;Бездротовий;51;TRUE;301110;Wireless interface
+;Мережеві інтерфейси;Wi-?Fi|бездрот;regex;Протокол зв'язку;Wi-Fi;52;TRUE;301110;WiFi protocol
+;USB;USB\s*3;regex;Протокол зв'язку;USB 3.0;60;TRUE;301110;USB 3.0 protocol
+;USB;USB\s*2|USB(?!\s*3);regex;Протокол зв'язку;USB 2.0;61;TRUE;301110;USB 2.0 protocol
+;Живлення;батарей.*?[Аа][Аа][Аа]|AAA;regex;Живлення;Батарейки одноразові;70;TRUE;301110;AAA batteries
+;Живлення;батарей.*?AA(?!A)|AA(?!A);regex;Живлення;Батарейки одноразові;71;TRUE;301110;AA batteries
+;Живлення;акумулятор;regex;Живлення;Батарейки акумуляторного типу;72;TRUE;301110;Rechargeable batteries
+;Живлення;(?:DC\s*)?12\s*[ВV](?:DC)?;regex;Живлення;Мережа 12В;73;TRUE;301110;12V DC power
+;Живлення;(?:AC\s*)?220\s*[ВV]|100\s*[~-]\s*240\s*[ВV];regex;Живлення;Мережа 220В;74;TRUE;301110;220V AC power
+;Живлення;(?:DC\s*)?5\s*[ВV](?:DC)?;regex;Додаткове джерело живлення;Мережа 12В;75;TRUE;301110;5V DC secondary
+;Потужність споживання;(\d+\.?\d*)\s*[ВWватВт]+;regex;Пропустити;skip;80;TRUE;301110;Skip power consumption
+;Оперційна система;;exact;;Пропустити;2000;TRUE;301110;Skip OS
+;Кількість в ящику;;exact;;Пропустити;2001;TRUE;301110;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2002;TRUE;301110;Skip package dimensions
+;Особливості;;exact;;Пропустити;2004;TRUE;301110;Skip features
+;Тип;(?:UTP|U/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;10;TRUE;7190605;CAT5e variants
+;Тип;(?:UTP|U/UTP).*[Cc]at\.\s*5[Ee];regex;Категорія витої пари;САТ5е;11;TRUE;7190605;Cat.5e variants
+;Тип;(?:FTP|F/UTP).*CAT\s*5[Ee];regex;Категорія витої пари;САТ5е;12;TRUE;7190605;FTP CAT5e
+;Тип;(?:Cat|CAT)\s*6\s*[Aa];regex;Категорія витої пари;CAT6a;20;TRUE;7190605;CAT6a
+;Тип;(?:Cat|CAT)\s*6(?![Aa]);regex;Категорія витої пари;CAT6;21;TRUE;7190605;CAT6 not 6a
+;Тип;(?:UTP|U/UTP);regex;Тип витої пари;UTP;30;TRUE;7190605;UTP type
+;Тип;(?:FTP|F/UTP);regex;Тип витої пари;F/UTP;31;TRUE;7190605;FTP type
+;Тип;коаксіальн;contains;Тип кабеля;Коаксіальний;40;TRUE;7190605;Coaxial cable
+;Тип;комбінований;contains;Тип кабеля;Комбінований;41;TRUE;7190605;Combined cable
+;Тип;сигнальний;contains;Тип кабеля;Сигнальний;42;TRUE;7190605;Signal cable
+;Оболонка;(?:PVC|ПВХ|полівінілхлорид);regex;Материал оболочки;ПВХ;50;TRUE;7190605;PVC sheath
+;Оболонка;(?:PE|поліетилен);regex;Материал оболочки;Поліетилен;51;TRUE;7190605;PE sheath
+;Оболонка;LSZH|LSOH|безгалоген;regex;Материал оболочки;LSZH;52;TRUE;7190605;LSZH sheath
+;Довжина кабеля;(\d+)\s*м(?!м);regex;Длина в упаковке (м);$1 ;60;TRUE;7190605;Cable length in meters
+;Матеріал жили;мідь|медь|Cu|Мідь;regex;Матеріал жили;Мідь;70;TRUE;7190605;Copper core
+;Матеріал жили;CCA|Алюміній-Мідь;regex;Матеріал жили;CCA;71;TRUE;7190605;CCA core
+;Матеріал жили;біметал;contains;Матеріал жили;Біметал;72;TRUE;7190605;Bimetal
+;Центральний провідник;мідь|медь|Cu|Мідь|Мідний;regex;Матеріал центральної жили;Мідь;80;TRUE;7190605;Copper central conductor
+;Центральний провідник;CCA|Алюміній-Мідь;regex;Матеріал центральної жили;CCA;81;TRUE;7190605;CCA central
+;Центральний провідник;біметал;contains;Матеріал центральної жили;Біметал;82;TRUE;7190605;Bimetal central
+;Монтаж;зовні приміщення|поза приміщенням;regex;Тип монтажу;Зовнішній;90;TRUE;7190605;External mounting
+;Монтаж;приміщенн|всередині приміщення|в приміщенні;regex;Тип монтажу;Внутрішній;91;TRUE;7190605;Internal mounting
+;Кількість жил;(\d+);regex;Кількість жил;$1 ;100;TRUE;7190605;Number of cores
+;Переріз;(\d+\.?\d*)\s*мм;regex;Діаметр жили (мм);$1 ;110;TRUE;7190605;Cross-section in mm
+;Переріз;(\d+\.?\d*)\s*мм2;regex;Площа перетину (кв. мм);$1 ;111;TRUE;7190605;Cross-section in mm2
+;Екранування;відсутн;contains;Наявність екрану;Ні;120;TRUE;7190605;No shielding
+;Екранування;алюмополімерна стрічка|фольг;regex;Виконання 1 екрана;Фольга;121;TRUE;7190605;Foil shielding
+;Екранування;Підтримує|є;regex;Наявність екрану;Так;122;TRUE;7190605;Has shielding
+;Ізоляція;(?:PVC|ПВХ|полівінілхлорид);regex;Матеріал ізоляції;ПВХ;130;TRUE;7190605;PVC insulation
+;Ізоляція;поліетилен|PE;regex;Матеріал ізоляції;Поліетилен;131;TRUE;7190605;PE insulation
+;Частотна характеристика;(\d+)\s*м[ГГ]ц;regex;Смуга частот (МГц);$1 ;140;TRUE;7190605;Frequency band
+;Опір;(\d+)\s*Ом;regex;Хвильовий опір (Ом);$1 ;150;TRUE;7190605;Impedance
+;Стандарти;;exact;;Пропустити;1000;TRUE;7190605;Skip standards field
+;Розмір;;exact;;Пропустити;1001;TRUE;7190605;Skip size details
+;Основний провідник;;exact;;Пропустити;1002;TRUE;7190605;Skip detailed conductor
+;Ізоляція дроту;;exact;;Пропустити;1003;TRUE;7190605;Skip wire insulation
+;Маркування кабелю;;exact;;Пропустити;1004;TRUE;7190605;Skip cable marking
+;Зовнішній вигляд;;exact;;Пропустити;1005;TRUE;7190605;Skip appearance
+;Колір проводу;;exact;;Пропустити;1006;TRUE;7190605;Skip wire colors
+;Налагодження;;exact;;Пропустити;1007;TRUE;7190605;Skip tuning
+;Опір постійного струму;;exact;;Пропустити;1008;TRUE;7190605;Skip DC resistance
+;Незбалансований опір постійного струму;;exact;;Пропустити;1009;TRUE;7190605;Skip unbalanced DC
+;Фізичні властивості оболонки.*;;regex;;Пропустити;1010;TRUE;7190605;Skip physical properties
+;Знос;;exact;;Пропустити;1011;TRUE;7190605;Skip wear
+;Холодний вигин;;exact;;Пропустити;1012;TRUE;7190605;Skip cold bending
+;Ріпкорд;;exact;;Пропустити;1013;TRUE;7190605;Skip ripcord
+;Вага;;exact;;Пропустити;1014;TRUE;7190605;Skip weight (not gross)
+;Кількість в ящику;;exact;;Пропустити;1015;TRUE;7190605;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;1016;TRUE;7190605;Skip package dimensions
+;Діелектрик;;exact;;Пропустити;1017;TRUE;7190605;Skip dielectric
+;Зворотні втрати;;exact;;Пропустити;1018;TRUE;7190605;Skip return loss
+;Додатково;;exact;;Пропустити;1019;TRUE;7190605;Skip additional
+;Радіус вигину;;exact;;Пропустити;1020;TRUE;7190605;Skip bending radius
+;Вхідна напруга;;exact;;Пропустити;1021;TRUE;7190605;Skip input voltage
+;Матеріал корпусу;;exact;;Пропустити;1022;TRUE;7190605;Skip housing material
+;Діаметр;;exact;;Пропустити;1023;TRUE;7190605;Skip diameter details
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
+;;;;;;;;3029;
