@@ -365,23 +365,118 @@
 ;Вхідна напруга;;exact;;Пропустити;1021;TRUE;7190605;Skip input voltage
 ;Матеріал корпусу;;exact;;Пропустити;1022;TRUE;7190605;Skip housing material
 ;Діаметр;;exact;;Пропустити;1023;TRUE;7190605;Skip diameter details
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
-;;;;;;;;3029;
+;Дисплей;(\d+\.?\d*)[""\s]*(?:дюйм|inch|\"|");regex;Діагональ екрану (дюйм);$1";1;TRUE;3029;Display diagonal from supplier
+;Дисплей;10\.1|10,1;regex;Діагональ екрану (дюйм);10.1";2;TRUE;3029;Display 10.1 inch
+;Дисплей;TFT;contains;Тип матриці;TFT IPS;10;TRUE;3029;TFT display type
+;Дисплей;IPS;contains;Тип матриці;IPS;11;TRUE;3029;IPS display type
+;Дисплей;LCD;contains;Тип матриці;TFT IPS;12;TRUE;3029;LCD display mapped to TFT
+;Роздільна здатність дисплея;(\d+)\s*[×хxX]\s*(\d+);regex;Роздільна здатність екрану;$1×$2;20;TRUE;3029;Screen resolution
+;Роздільна здатність дисплея;1920\s*[×х]\s*1080;regex;Роздільна здатність екрану;Full HD (1920×1080);21;TRUE;3029;Full HD resolution
+;Роздільна здатність дисплея;1280\s*[×х]\s*800;regex;Роздільна здатність екрану;1280×800;22;TRUE;3029;1280x800 resolution
+;Роздільна здатність дисплея;1024\s*[×х]\s*600;regex;Роздільна здатність екрану;1024×600;23;TRUE;3029;1024x600 resolution
+;Роздільна здатність дисплея;800\s*[×х]\s*480;regex;Роздільна здатність екрану;800×480;24;TRUE;3029;800x480 resolution
+;Роздільна здатність дисплея;480\s*[×х]\s*272;regex;Роздільна здатність екрану;640×272;25;TRUE;3029;480x272 resolution
+;Монтаж;накладн;contains;Тип встановлення;Накладної;30;TRUE;3029;Surface mounting
+;Монтаж;вріз;contains;Тип встановлення;Врізний;31;TRUE;3029;Flush mounting
+;Монтаж;прихован;contains;Тип встановлення;Прихований монтаж;32;TRUE;3029;Hidden mounting
+;Камера;(\d+)\s*[МM][ПPпp];regex;Роздільна здатність камери (Мп);$1 ;40;TRUE;3029;Camera resolution in MP
+;Камера;1920\s*[×х]\s*1080|1080[Pp];regex;Роздільна здатність камери (Мп);2;41;TRUE;3029;2MP from 1080p
+;Камера;2048\s*[×х]\s*1296;regex;Роздільна здатність камери (Мп);3;42;TRUE;3029;3MP from 2048x1296
+;Камера;2592\s*[×х]\s*1944;regex;Роздільна здатність камери (Мп);5;43;TRUE;3029;5MP resolution
+;Камера;(\d+)\s*[ТT][ВBвb][ЛLл];regex;Роздільна здатність камери (ТВЛ);$1 ;44;TRUE;3029;Camera resolution in TVL
+;Роздільна здатність;(\d+)\s*[МM][ПPпp];regex;Роздільна здатність камери (Мп);$1 ;45;TRUE;3029;Resolution MP from field
+;Роздільна здатність;(\d+)\s*[ТT][ВBвb][ЛLл];regex;Роздільна здатність камери (ТВЛ);$1 ;46;TRUE;3029;Resolution TVL from field
+;Камера;CMOS;contains;Тип матриці;CMOS;50;TRUE;3029;CMOS sensor
+;Камера;CCD;contains;Тип матриці;CCD;51;TRUE;3029;CCD sensor
+;Камера;(1/\d+\.?\d*)[""\s]*;regex;Фізичний розмір матриці;$1";52;TRUE;3029;Camera sensor size
+;Фізичний розмір матриці;(1/\d+\.?\d*);regex;Фізичний розмір матриці;$1";53;TRUE;3029;Sensor physical size
+;Кути огляду;(\d+)°|Г[:]?\s*(\d+)°;regex;Кут огляду камери (град.);$1$2;60;TRUE;3029;Camera FOV angle
+;Кути огляду;.*Г[:]?\s*(\d+)°;regex;Кут огляду камери по горизонталі (град.);$1 ;61;TRUE;3029;Horizontal FOV
+;Кути огляду;.*В[:]?\s*(\d+)°;regex;Кут огляду камери по вертикалі (град.);$1 ;62;TRUE;3029;Vertical FOV
+;Кути огляду;.*Д[:]?\s*(\d+)°;regex;Кут огляду камери по діагоналі (град.);$1 ;63;TRUE;3029;Diagonal FOV
+;Кут огляду камери.*;(\d+)°;regex;Кут огляду камери (град.);$1 ;64;TRUE;3029;FOV angle generic
+;Тип підсвічування;ІЧ|інфрачервон|infrared|IR;regex;Дальність ІЧ-підсвічування (м);1.5;70;TRUE;3029;IR illumination default
+;Тип підсвічування;відсутн|[Нн]емає;regex;Пропустити;skip;71;TRUE;3029;No illumination
+;Дальність підсвічування;(\d+\.?\d*)\s*м;regex;Дальність ІЧ-підсвічування (м);$1 ;72;TRUE;3029;IR range in meters
+;Зчитувач карт;Mifare|IC.*13\.56;regex;Протокол зв'язку;Dallas Touch Memory;80;TRUE;3029;Mifare card reader
+;Зчитувач карт;EM-Marin|EM.*125|ID.*125;regex;Протокол зв'язку;Dallas Touch Memory;81;TRUE;3029;EM-Marin card reader
+;Зчитувач карт;RFID;contains;Протокол зв'язку;Dallas Touch Memory;82;TRUE;3029;RFID card reader
+;Кількість абонентів;(\d+);regex;Кількість абонентів;$1 ;90;TRUE;3029;Number of subscribers
+;Метод роботи;сенсорн|тач;regex;Підсвічування клавіш;Так;100;TRUE;3029;Touch/sensor control
+;Метод роботи;механічн|кнопк;regex;Пропустити;skip;101;TRUE;3029;Skip mechanical buttons
+;Аудіо вхід;мікрофон|всеспрямован;regex;Зв'язок з абонентом;Дуплексна гучний зв'язок;110;TRUE;3029;Audio input microphone
+;Аудіо вихід;динамік|speaker;regex;Зв'язок з абонентом;Дуплексна гучний зв'язок;111;TRUE;3029;Audio output speaker
+;Аудіо вихід;трубк;contains;Зв'язок з абонентом;Дуплексна з допомогою трубки;112;TRUE;3029;Handset audio
+;Підключення;панел.*?(\d+)|вик��ичн.*?(\d+);regex;Входи для підключення;$1$2;120;TRUE;3029;Call panel connections
+;Підключення;камер.*?(\d+)|відеокамер.*?(\d+);regex;Входи для підключення;2+$1$2;121;TRUE;3029;Camera connections
+;Підключення;(\d+)\s*(?:панел|викличн).*?(\d+).*?(?:камер|відеокамер);regex;Входи для підключення;$1+$2;122;TRUE;3029;Panels + cameras
+;Підключення монітора;дод.*?монітор.*;regex;Підключення додаткового монітора;Так;130;TRUE;3029;Additional monitor support
+;Відеокамер;(\d+);regex;Входи для підключення;2+$1;131;TRUE;3029;Video cameras count
+;Панелей виклику|Викличних панелей;(\d+);regex;Входи для підключення;$1;132;TRUE;3029;Call panels count
+;Локальна пам'ять;SD|MicroSD|[Mm]icro\s*SD|TF;regex;Порт для SD-карти;Так;140;TRUE;3029;SD card slot
+;Локальна пам'ять;SD|MicroSD|[Mm]icro\s*SD|TF;regex;Наявність блоку пам'яті;Так;141;TRUE;3029;Memory block present
+;Локальна пам'ять;(\d+)\s*[ГГ][бБBb];regex;Пропустити;skip;142;TRUE;3029;Skip memory capacity
+;Формат відео;PAL;contains;Формат відео;PAL;150;TRUE;3029;PAL video format
+;Формат відео;NTSC;contains;Формат відео;NTSC;151;TRUE;3029;NTSC video format
+;Тип сигналу;PAL;contains;Формат відео;PAL;152;TRUE;3029;PAL signal
+;Тип сигналу;NTSC;contains;Формат відео;NTSC;153;TRUE;3029;NTSC signal
+;Тип сигналу;AHD|TVI|CVI;regex;Формат відео;PAL;154;TRUE;3029;HD analog formats
+;Ethernet;RJ-?45|10/100;regex;Інтерфейс;Провідний;160;TRUE;3029;Wired Ethernet interface
+;Ethernet;RJ-?45|10/100;regex;Протокол зв'язку;RJ-45;161;TRUE;3029;RJ-45 protocol
+;Wi-Fi;IEEE\s*802\.11|Wi-?Fi|бездрот;regex;Інтерфейс;Провідний/Бездротовий;162;TRUE;3029;WiFi interface
+;Wi-Fi;IEEE\s*802\.11|Wi-?Fi|бездрот;regex;Протокол зв'язку;Wi-Fi;163;TRUE;3029;WiFi protocol
+;Мережеві протоколи;TCP/?IP;regex;Протокол зв'язку;IP;164;TRUE;3029;TCP/IP protocol
+;Мережеві протоколи;SIP;contains;Протокол зв'язку;IP;165;TRUE;3029;SIP protocol
+;RS485;є|підтрим|Підтримує|\d+;regex;Протокол зв'язку;RS-485;170;TRUE;3029;RS-485 present
+;RS232;є|підтрим|Підтримує|\d+;regex;Протокол зв'язку;RS-232;171;TRUE;3029;RS-232 present
+;Wiegand;є|підтрим|Підтримує;regex;Протокол зв'язку;Wiegand;172;TRUE;3029;Wiegand protocol
+;Тривожні входи;(\d+);regex;Пропустити;skip;180;TRUE;3029;Skip alarm inputs
+;Релейні виходи|Тривожні виходи;(\d+);regex;Пропустити;skip;181;TRUE;3029;Skip relay outputs
+;Керування замком;є|підтрим|Підтримує|[Нн]ормальн;regex;Живлення замку від пристрою;Так;190;TRUE;3029;Lock control supported
+;Живлення;(?:DC\s*)?12\s*[ВV]|12В\s*DC;regex;Живлення;Мережа 12В;200;TRUE;3029;12V DC power
+;Живлення;(?:DC\s*)?24\s*[ВV]|24В\s*DC;regex;Живлення;Мережа 24В;201;TRUE;3029;24V DC power
+;Живлення;(?:AC\s*)?220\s*[ВV]|100[~-]240\s*[ВV];regex;Живлення;Мережа 220В;202;TRUE;3029;220V AC power
+;Живлення;(?:DC\s*)?5\s*[ВV];regex;Додаткове джерело живлення;Мережа 12В;203;TRUE;3029;5V DC secondary
+;Живлення;(?:DC\s*)?15\s*[ВV];regex;Додаткове джерело живлення;Мережа 12В;204;TRUE;3029;15V DC secondary
+;Живлення;батарей;regex;Живлення;Батарейки одноразові;205;TRUE;3029;Battery powered
+;Живлення;акумулятор;regex;Живлення;Батарейки акумуляторного типу;206;TRUE;3029;Rechargeable battery
+;PoE;802\.3af|802\.3at|Standard\s*PoE|IEEE.*PoE;regex;Додаткове джерело живлення;Мережа 12В;210;TRUE;3029;PoE power support
+;Потужність споживання;(\d+\.?\d*)\s*[ВWватВт]+;regex;Пропустити;skip;220;TRUE;3029;Skip power consumption
+;Ступінь захисту;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;230;TRUE;3029;IP protection rating
+;Клас захисту|Захист;(IP\d{2});regex;Захист обладнання від води і пилу IP;$1 ;231;TRUE;3029;Protection class
+;Ступінь захисту;вандал|IK\d+;regex;Вандалозахист;Так;232;TRUE;3029;Vandal protection
+;Робоча температура;[-−]?(\d+)\s*°?[СC]\s*[-–~]\s*[+]?(\d+)\s*°?[СC];regex;Пропустити;skip;240;TRUE;3029;Skip operating temperature
+;Колір корпусу|Колір;[Бб][іи]л;regex;Колір корпусу;Білий;250;TRUE;3029;White color
+;Колір корпусу|Колір;[Чч]орн;regex;Колір корпусу;Чорний;251;TRUE;3029;Black color
+;Колір корпусу|Колір;[Сс][іи]р|[Сс]ріб|метал;regex;Колір корпусу;Сріблястий;252;TRUE;3029;Silver/metallic color
+;Датчик руху|Детекція руху;є|підтрим|Підтримує|виявлення;regex;Датчик руху;Так;260;TRUE;3029;Motion sensor present
+;Реєстрація подій|Запис;фото|знімк|snapshot;regex;Реєстрація подій;Фото;270;TRUE;3029;Photo recording
+;Реєстрація подій|Запис;відео|video|запис.*відео;regex;Реєстрація подій;Відео;271;TRUE;3029;Video recording
+;Реєстрація подій|Запис;фото.*відео|відео.*фото;regex;Реєстрація подій;Фото/Відео;272;TRUE;3029;Photo and video
+;Підсвітка екрану|Підсвічування;є|так|підтрим;regex;Підсвітка екрану;Так;280;TRUE;3029;Screen backlight
+;Підсвічування клавіш;є|так|підтрим;regex;Підсвічування клавіш;Так;281;TRUE;3029;Button backlight
+;Індикація;світлов;contains;Індикація;Світлова;290;TRUE;3029;Light indication
+;Індикація;звуков;contains;Індикація;Звукова;291;TRUE;3029;Sound indication
+;Індикація;світлов.*звуков|звуков.*світлов;regex;Індикація;Світлова/Звукова;292;TRUE;3029;Light and sound
+;Операційна система;Android|Linux;regex;Пропустити;skip;2000;TRUE;3029;Skip operating system
+;ROM/RAM;;exact;;Пропустити;2001;TRUE;3029;Skip memory specs
+;Особливості;;exact;;Пропустити;2002;TRUE;3029;Skip features
+;Додатково;;exact;;Пропустити;2003;TRUE;3029;Skip additional info
+;Функції;;exact;;Пропустити;2004;TRUE;3029;Skip functions
+;Інтерфейс підключення;;exact;;Пропустити;2005;TRUE;3029;Skip connection interface details
+;Мережеві протоколи;;exact;;Пропустити;2006;TRUE;3029;Skip network protocols details
+;Аудіо компресія;;exact;;Пропустити;2007;TRUE;3029;Skip audio compression
+;Відео компресія;;exact;;Пропустити;2008;TRUE;3029;Skip video compression
+;Аудіо бітрейт;;exact;;Пропустити;2009;TRUE;3029;Skip audio bitrate
+;Частота кадрів.*;;regex;;Пропустити;2010;TRUE;3029;Skip framerate
+;WDR;;exact;;Пропустити;2011;TRUE;3029;Skip WDR
+;Придушення шуму.*;;regex;;Пропустити;2012;TRUE;3029;Skip noise reduction
+;Інтерфейс підключення модуля;;exact;;Пропустити;2013;TRUE;3029;Skip module interface
+;Пам'ять облич;;exact;;Пропустити;2014;TRUE;3029;Skip face memory
+;Розпізнавання облич;;exact;;Пропустити;2015;TRUE;3029;Skip face recognition
+;Вологість;;exact;;Пропустити;2016;TRUE;3029;Skip humidity
+;Розміри;;exact;;Пропустити;2017;TRUE;3029;Skip dimensions
+;Розмір упаковки.*;;regex;;Пропустити;2018;TRUE;3029;Skip package dimensions
+;Кількість в ящику;;exact;;Пропустити;2019;TRUE;3029;Skip box quantity
+;Вага брутто;;exact;;Пропустити;2020;TRUE;3029;Skip gross weight
+;Строк гарантії;;exact;;Пропустити;2021;TRUE;3029;Skip warranty period

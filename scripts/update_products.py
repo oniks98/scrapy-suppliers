@@ -1,61 +1,45 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Скрипт для оновлення товарів v2.1.
-Порівнює старий і новий список товарів та створює файл для імпорту.
-
-ОНОВЛЕНО: Характеристики тепер коректно копіюються з нового файлу!
+Універсальний скрипт порівняння та оновлення товарів для всіх постачальників.
+Підтримує типи: dealer, retail
 """
 
 import csv
 import os
+import sys
 from typing import Dict, List, Set
 
 
-def read_csv_file_as_rows(file_path: str) -> tuple[List[List[str]], List[str]]:
-    """
-    Читає CSV файл як список рядків (не словників).
-    Це необхідно для роботи з повторюваними заголовками характеристик.
-    
-    Args:
-        file_path: Шлях до CSV файлу
-        
-    Returns:
-        tuple: (список рядків, список заголовків)
-    """
+SUPPLIERS = ['viatec', 'secur', 'neolight', 'lun', 'eserver']
+TYPES = ['dealer', 'retail']
+
+
+def read_csv_as_rows(file_path: str) -> tuple[List[List[str]], List[str]]:
+    """Читає CSV як список рядків."""
     rows = []
     headers = []
     
     try:
         with open(file_path, 'r', encoding='utf-8-sig') as f:
             reader = csv.reader(f, delimiter=';')
-            headers = next(reader)  # Перший рядок - заголовки
+            headers = next(reader)
             for row in reader:
                 rows.append(row)
         
         print(f"✅ Прочитано {len(rows)} товарів з {os.path.basename(file_path)}")
-        print(f"   Колонок: {len(headers)}")
         return rows, headers
         
     except FileNotFoundError:
         print(f"❌ Файл не знайдено: {file_path}")
         return [], []
     except Exception as e:
-        print(f"❌ Помилка читання файлу {file_path}: {e}")
+        print(f"❌ Помилка читання: {e}")
         return [], []
 
 
 def get_field_index(headers: List[str], field_name: str) -> int:
-    """
-    Знаходить індекс поля в заголовках.
-    
-    Args:
-        headers: Список заголовків
-        field_name: Назва поля
-        
-    Returns:
-        int: Індекс поля або -1 якщо не знайдено
-    """
+    """Повертає індекс поля або -1."""
     try:
         return headers.index(field_name)
     except ValueError:
@@ -63,37 +47,12 @@ def get_field_index(headers: List[str], field_name: str) -> int:
 
 
 def normalize_name(name: str) -> str:
-    """
-    Нормалізує назву товару для порівняння.
-    - Прибирає зайві пробіли
-    - Переводить у нижній регістр для порівняння
-    
-    Приклад:
-        "антивандальний ящик IPCOM БК-400-З-2" == 
-        "Антивандальний ящик IPCOM БК-400-З-2"
-    
-    Args:
-        name: Назва товару
-        
-    Returns:
-        str: Нормалізована назва (lowercase, без зайвих пробілів)
-    """
-    # Прибираємо зайві пробіли та переводимо у нижній регістр
-    normalized = ' '.join(name.split()).strip().lower()
-    return normalized
+    """Нормалізує назву: прибирає зайві пробіли, lowercase."""
+    return ' '.join(name.split()).strip().lower()
 
 
 def get_max_product_code(rows: List[List[str]], code_idx: int) -> int:
-    """
-    Повертає максимальний код товару зі списку.
-    
-    Args:
-        rows: Список рядків товарів
-        code_idx: Індекс колонки з кодом товару
-        
-    Returns:
-        int: Максимальний код товару
-    """
+    """Повертає максимальний код товару."""
     max_code = 0
     for row in rows:
         if code_idx < len(row):
@@ -103,99 +62,73 @@ def get_max_product_code(rows: List[List[str]], code_idx: int) -> int:
                     max_code = code
             except (ValueError, IndexError):
                 continue
-    
     return max_code
 
 
 def get_characteristics_start_index(headers: List[str]) -> int:
-    """
-    Знаходить індекс початку характеристик (після "Де_знаходиться_товар").
-    
-    Args:
-        headers: Список заголовків
-        
-    Returns:
-        int: Індекс початку характеристик
-    """
+    """Індекс початку характеристик (після "Де_знаходиться_товар")."""
     try:
-        base_end_idx = headers.index("Де_знаходиться_товар")
-        return base_end_idx + 1
+        return headers.index("Де_знаходиться_товар") + 1
     except ValueError:
-        # Якщо не знайдено, повертаємо довжину заголовків
         return len(headers)
 
 
 def merge_rows(old_row: List[str], new_row: List[str], 
-               old_headers: List[str], new_headers: List[str],
-               availability_idx: int, quantity_idx: int,
-               chars_start_idx: int) -> List[str]:
-    """
-    Об'єднує дані старого та нового рядка.
-    Базові поля зі старого, наявність/кількість/характеристики з нового.
-    
-    Args:
-        old_row: Старий рядок
-        new_row: Новий рядок
-        old_headers: Заголовки старого файлу
-        new_headers: Заголовки нового файлу
-        availability_idx: Індекс колонки "Наявність"
-        quantity_idx: Індекс колонки "Кількість"
-        chars_start_idx: Індекс початку характеристик
-        
-    Returns:
-        List[str]: Об'єднаний рядок
-    """
+               old_headers: List[str], availability_idx: int, 
+               quantity_idx: int, chars_start_idx: int) -> List[str]:
+    """Об'єднує рядки: базові поля зі старого, наявність/кількість/характеристики з нового."""
     merged = old_row.copy()
     
-    # Оновлюємо Наявність
-    if availability_idx < len(new_row):
-        if availability_idx < len(merged):
-            merged[availability_idx] = new_row[availability_idx]
+    # Оновлюємо Наявність та Кількість
+    if availability_idx < len(new_row) and availability_idx < len(merged):
+        merged[availability_idx] = new_row[availability_idx]
     
-    # Оновлюємо Кількість
-    if quantity_idx < len(new_row):
-        if quantity_idx < len(merged):
-            merged[quantity_idx] = new_row[quantity_idx]
+    if quantity_idx < len(new_row) and quantity_idx < len(merged):
+        merged[quantity_idx] = new_row[quantity_idx]
     
-    # 🔥 КЛЮЧОВЕ: Заміняємо ВСІ характеристики з нового файлу
-    # Видаляємо старі характеристики
+    # Заміняємо характеристики
     merged = merged[:chars_start_idx]
-    
-    # Додаємо нові характеристики з нового файлу
     if chars_start_idx < len(new_row):
         merged.extend(new_row[chars_start_idx:])
     
-    # Доповнюємо до потрібної довжини якщо треба
+    # Доповнюємо до потрібної довжини
     while len(merged) < len(old_headers):
         merged.append("")
     
     return merged
 
 
-def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
-    """
-    Створює файл для імпорту на основі порівняння старого та нового файлів.
+def process_supplier(supplier: str, product_type: str) -> None:
+    """Обробляє одного постачальника з вказаним типом."""
+    print(f"\n{'='*60}")
+    print(f"🔄 {supplier.upper()} - {product_type.upper()}")
+    print(f"{'='*60}")
     
-    Логіка:
-    1. Якщо Наявність ТА Кількість однакові - НЕ додаємо в імпорт
-    2. Якщо щось змінилося - додаємо зі старого з оновленими даними + характеристики з НОВОГО
-    3. Якщо товар є в новому, але немає в старому - додаємо з новим кодом
-    4. Якщо товар є в старому, але немає в новому - додаємо з Наявність="-" та Кількість="0"
+    base_path = r"C:\FullStack\Scrapy"
     
-    Args:
-        old_file: Шлях до старого файлу
-        new_file: Шлях до нового файлу
-        output_file: Шлях до вихідного файлу
-    """
-    # Читаємо файли як рядки
-    old_rows, old_headers = read_csv_file_as_rows(old_file)
-    new_rows, new_headers = read_csv_file_as_rows(new_file)
+    # Шляхи до файлів
+    export_file = os.path.join(base_path, "data", supplier, "export-products.csv")
+    new_file = os.path.join(base_path, "output", f"{supplier}_{product_type}.csv")
+    import_file = os.path.join(base_path, "data", supplier, "import_products.csv")
     
-    if not old_rows or not new_rows:
-        print("❌ Не вдалося прочитати файли. Перевірте шляхи.")
+    # Перевіряємо існування файлів
+    if not os.path.exists(export_file):
+        print(f"❌ Export файл не знайдено: {export_file}")
         return
     
-    # Знаходимо індекси важливих полів
+    if not os.path.exists(new_file):
+        print(f"❌ {product_type.capitalize()} файл не знайдено: {new_file}")
+        return
+    
+    # Читаємо файли
+    old_rows, old_headers = read_csv_as_rows(export_file)
+    new_rows, new_headers = read_csv_as_rows(new_file)
+    
+    if not old_rows or not new_rows:
+        print("❌ Не вдалося прочитати файли")
+        return
+    
+    # Індекси полів
     name_idx = get_field_index(old_headers, "Назва_позиції")
     code_idx = get_field_index(old_headers, "Код_товару")
     availability_idx = get_field_index(old_headers, "Наявність")
@@ -206,15 +139,7 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
         print("❌ Не знайдено колонку 'Назва_позиції'")
         return
     
-    print(f"📊 Індекси полів:")
-    print(f"   Назва_позиції: {name_idx}")
-    print(f"   Код_товару: {code_idx}")
-    print(f"   Наявність: {availability_idx}")
-    print(f"   Кількість: {quantity_idx}")
-    print(f"   Початок характеристик: {chars_start_idx}")
-    print(f"   Кількість полів характеристик: {len(old_headers) - chars_start_idx}")
-    
-    # Створюємо словники для швидкого пошуку
+    # Створюємо словники
     old_products_dict: Dict[str, List[str]] = {}
     for row in old_rows:
         if name_idx < len(row):
@@ -229,26 +154,13 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
             if name:
                 new_products_dict[name] = row
     
-    print(f"\n📊 Статистика:")
-    print(f"   Старих товарів: {len(old_products_dict)}")
-    print(f"   Нових товарів: {len(new_products_dict)}")
+    print(f"📊 Старих товарів: {len(old_products_dict)}")
+    print(f"📊 Нових товарів:  {len(new_products_dict)}")
     
-    # Показуємо приклад нормалізації
-    if old_rows and name_idx < len(old_rows[0]):
-        example_original = old_rows[0][name_idx]
-        example_normalized = normalize_name(example_original)
-        print(f"\n🔤 Приклад нормалізації назв:")
-        print(f"   Оригінал:      '{example_original}'")
-        print(f"   Нормалізовано: '{example_normalized}'")
-        print(f"   Це означає що регістр не впливає на порівняння")
-    
-    # Список рядків для імпорту
+    # Список для імпорту
     import_rows: List[List[str]] = []
-    
-    # Множина оброблених товарів
     processed_names: Set[str] = set()
     
-    # Статистика
     stats = {
         'unchanged': 0,
         'qty_changed': 0,
@@ -258,19 +170,15 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
         'new_products': 0
     }
     
-    # 1. Обробляємо товари зі старого файлу
-    print("\n🔄 Обробка існуючих товарів...")
-    
+    # Обробка існуючих товарів
     for old_name, old_row in old_products_dict.items():
         processed_names.add(old_name)
         
         if old_name in new_products_dict:
             new_row = new_products_dict[old_name]
             
-            # Порівнюємо Наявність та Кількість
             old_availability = old_row[availability_idx] if availability_idx < len(old_row) else ""
             new_availability = new_row[availability_idx] if availability_idx < len(new_row) else ""
-            
             old_quantity = old_row[quantity_idx] if quantity_idx < len(old_row) else ""
             new_quantity = new_row[quantity_idx] if quantity_idx < len(new_row) else ""
             
@@ -281,25 +189,20 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
                 stats['unchanged'] += 1
                 continue
             
-            # 🔥 Об'єднуємо: базові поля зі старого + оновлені дані + характеристики з НОВОГО
-            updated_row = merge_rows(old_row, new_row, old_headers, new_headers,
+            updated_row = merge_rows(old_row, new_row, old_headers, 
                                     availability_idx, quantity_idx, chars_start_idx)
-            
-            if quantity_changed:
-                stats['qty_changed'] += 1
-            
-            if availability_changed:
-                stats['availability_changed'] += 1
             
             if availability_changed and quantity_changed:
                 stats['both_changed'] += 1
-                stats['qty_changed'] -= 1
-                stats['availability_changed'] -= 1
+            elif quantity_changed:
+                stats['qty_changed'] += 1
+            elif availability_changed:
+                stats['availability_changed'] += 1
             
             import_rows.append(updated_row)
             
         else:
-            # Товар є в старому, але немає в новому
+            # Товар відсутній у новому - видаляємо
             updated_row = old_row.copy()
             if availability_idx < len(updated_row):
                 updated_row[availability_idx] = "-"
@@ -308,9 +211,7 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
             import_rows.append(updated_row)
             stats['not_in_new'] += 1
     
-    # 2. Обробляємо нові товари
-    print("➕ Обробка нових товарів...")
-    
+    # Обробка нових товарів
     new_product_names = set(new_products_dict.keys()) - processed_names
     
     if new_product_names:
@@ -320,11 +221,9 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
         for new_name in sorted(new_product_names):
             new_row = new_products_dict[new_name].copy()
             
-            # Встановлюємо новий код
             if code_idx < len(new_row):
                 new_row[code_idx] = str(next_code)
             
-            # Доповнюємо до потрібної довжини
             while len(new_row) < len(old_headers):
                 new_row.append("")
             
@@ -332,77 +231,83 @@ def create_import_file(old_file: str, new_file: str, output_file: str) -> None:
             next_code += 1
             stats['new_products'] += 1
     
-    # 3. Записуємо результат
-    print(f"\n💾 Запис результатів у {os.path.basename(output_file)}...")
-    
+    # Запис результату
     try:
-        with open(output_file, 'w', encoding='utf-8-sig', newline='') as f:
+        os.makedirs(os.path.dirname(import_file), exist_ok=True)
+        
+        with open(import_file, 'w', encoding='utf-8-sig', newline='') as f:
             writer = csv.writer(f, delimiter=';')
-            
-            # Записуємо заголовки
             writer.writerow(old_headers)
             
-            # Записуємо всі рядки
             for row in import_rows:
-                # Обрізаємо до довжини заголовків
                 row = row[:len(old_headers)]
                 writer.writerow(row)
         
-        print(f"✅ Файл успішно створено!")
+        print(f"\n✅ Файл створено: {import_file}")
         
     except Exception as e:
-        print(f"❌ Помилка запису файлу: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ Помилка запису: {e}")
         return
     
-    # 4. Виводимо статистику
-    print("\n" + "="*60)
-    print("📈 ПІДСУМКОВА СТАТИСТИКА:")
-    print("="*60)
-    print(f"  Без змін (не додано):           {stats['unchanged']}")
-    print(f"  Змінилася кількість:            {stats['qty_changed']}")
-    print(f"  Змінилася наявність:            {stats['availability_changed']}")
-    print(f"  Змінилося обидва параметри:     {stats['both_changed']}")
-    print(f"  Відсутні в новому файлі:        {stats['not_in_new']}")
-    print(f"  Нові товари:                    {stats['new_products']}")
-    print("-"*60)
-    print(f"  ВСЬОГО для імпорту:             {len(import_rows)}")
-    print("="*60)
+    # Статистика
+    print(f"\n{'='*60}")
+    print("📈 СТАТИСТИКА:")
+    print(f"{'='*60}")
+    print(f"  Без змін:                {stats['unchanged']}")
+    print(f"  Змінилася кількість:     {stats['qty_changed']}")
+    print(f"  Змінилася наявність:     {stats['availability_changed']}")
+    print(f"  Змінилося обидва:        {stats['both_changed']}")
+    print(f"  Відсутні в новому:       {stats['not_in_new']}")
+    print(f"  Нові товари:             {stats['new_products']}")
+    print(f"{'-'*60}")
+    print(f"  ВСЬОГО для імпорту:      {len(import_rows)}")
+    print(f"{'='*60}")
 
 
 def main():
-    """Головна функція скрипта."""
+    """Головна функція."""
     print("="*60)
-    print("🚀 СКРИПТ ОНОВЛЕННЯ ТОВАРІВ v2.1")
+    print("🚀 УНІВЕРСАЛЬНИЙ СКРИПТ ОНОВЛЕННЯ ТОВАРІВ")
     print("="*60)
-    print("✨ Характеристики тепер коректно копіюються!")
     
-    # Шляхи до файлів
-    base_path = r"C:\FullStack\Scrapy\data\viatec"
-    old_file = os.path.join(base_path, "old_products.csv")
-    new_file = os.path.join(base_path, "new_products.csv")
-    output_file = os.path.join(base_path, "import_products.csv")
-    
-    print(f"\n📁 Файли:")
-    print(f"   Старий: {old_file}")
-    print(f"   Новий:  {new_file}")
-    print(f"   Вихід:  {output_file}")
-    print()
-    
-    # Перевіряємо існування вхідних файлів
-    if not os.path.exists(old_file):
-        print(f"❌ Старий файл не знайдено: {old_file}")
+    # Без аргументів - обробити всіх
+    if len(sys.argv) == 1:
+        print("\n📦 Обробка всіх постачальників...")
+        for supplier in SUPPLIERS:
+            for product_type in TYPES:
+                try:
+                    process_supplier(supplier, product_type)
+                except Exception as e:
+                    print(f"❌ Помилка {supplier} {product_type}: {e}")
+        print("\n✅ ВСІ ПОСТАЧАЛЬНИКИ ОБРОБЛЕНО")
         return
     
-    if not os.path.exists(new_file):
-        print(f"❌ Новий файл не знайдено: {new_file}")
-        return
+    # Перевірка аргументів
+    if len(sys.argv) < 3:
+        print("\n❌ Використання: python update_products.py <supplier> <type>")
+        print(f"\nПостачальники: {', '.join(SUPPLIERS)}")
+        print(f"Типи: {', '.join(TYPES)}")
+        print("\nПриклади:")
+        print("  python update_products.py                  # Всі постачальники")
+        print("  python update_products.py viatec dealer")
+        print("  python update_products.py viatec retail")
+        sys.exit(1)
     
-    # Створюємо файл для імпорту
-    create_import_file(old_file, new_file, output_file)
+    supplier = sys.argv[1].lower()
+    product_type = sys.argv[2].lower()
     
-    print("\n✅ Готово!")
+    if supplier not in SUPPLIERS:
+        print(f"❌ Невідомий постачальник: {supplier}")
+        print(f"Доступні: {', '.join(SUPPLIERS)}")
+        sys.exit(1)
+    
+    if product_type not in TYPES:
+        print(f"❌ Невідомий тип: {product_type}")
+        print(f"Доступні: {', '.join(TYPES)}")
+        sys.exit(1)
+    
+    process_supplier(supplier, product_type)
+    print("\n✅ ЗАВЕРШЕНО")
 
 
 if __name__ == "__main__":

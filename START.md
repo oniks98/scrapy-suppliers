@@ -17,7 +17,14 @@ python scripts/ultra_clean_run.py eserver_retail --no-transform
 
 ### Оновлення товарів
 
-python scripts/update_products.py
+python scripts/update_products.py viatec dealer
+python scripts/update_products.py viatec retail
+
+python scripts/update_products.py eserver retail
+
+# Всі постачальники (dealer + retail)
+
+python update_products.py
 
 # Scripts Directory
 
