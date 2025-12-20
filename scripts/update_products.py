@@ -47,8 +47,10 @@ def get_field_index(headers: List[str], field_name: str) -> int:
 
 
 def normalize_name(name: str) -> str:
-    """Нормалізує назву: прибирає зайві пробіли, lowercase."""
-    return ' '.join(name.split()).strip().lower()
+    """Нормалізує назву: прибирає зайві пробіли, lowercase, але ЗБЕРІГАЄ неразривні пробіли."""
+    # Прибираємо пробіли на початку/кінці та перетворюємо в lowercase
+    # Але НЕ використовуємо split().join() - воно замінює \xa0 на звичайні пробіли
+    return name.strip().lower()
 
 
 def get_max_product_code(rows: List[List[str]], code_idx: int) -> int:
@@ -139,23 +141,77 @@ def process_supplier(supplier: str, product_type: str) -> None:
         print("❌ Не знайдено колонку 'Назва_позиції'")
         return
     
-    # Створюємо словники
+    # Створюємо словники з відстеженням фільтрації
     old_products_dict: Dict[str, List[str]] = {}
+    old_empty_names: List[str] = []
+    old_duplicates: List[tuple[str, str]] = []
+    
     for row in old_rows:
         if name_idx < len(row):
-            name = normalize_name(row[name_idx])
-            if name:
+            original_name = row[name_idx].strip()
+            name = normalize_name(original_name)
+            
+            if not name:
+                old_empty_names.append(f"Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
+            elif name in old_products_dict:
+                old_duplicates.append((original_name, name))
+            else:
                 old_products_dict[name] = row
     
     new_products_dict: Dict[str, List[str]] = {}
+    new_empty_names: List[str] = []
+    new_duplicates: List[tuple[str, str]] = []
+    
     for row in new_rows:
         if name_idx < len(row):
-            name = normalize_name(row[name_idx])
-            if name:
+            original_name = row[name_idx].strip()
+            name = normalize_name(original_name)
+            
+            if not name:
+                new_empty_names.append(f"Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
+            elif name in new_products_dict:
+                new_duplicates.append((original_name, name))
+            else:
                 new_products_dict[name] = row
     
     print(f"📊 Старих товарів: {len(old_products_dict)}")
     print(f"📊 Нових товарів:  {len(new_products_dict)}")
+    
+    # Виводимо інформацію про фільтрацію
+    if old_empty_names or old_duplicates or new_empty_names or new_duplicates:
+        print(f"\n{'-'*60}")
+        print("⚠️  ФІЛЬТРАЦІЯ ТОВАРІВ:")
+        print(f"{'-'*60}")
+        
+        if old_empty_names:
+            print(f"\n🚫 Порожні назви в export-products.csv: {len(old_empty_names)}")
+            for item in old_empty_names[:5]:
+                print(f"   - {item}")
+            if len(old_empty_names) > 5:
+                print(f"   ... та ще {len(old_empty_names) - 5}")
+        
+        if old_duplicates:
+            print(f"\n🔁 Дублікати в export-products.csv: {len(old_duplicates)}")
+            for orig, norm in old_duplicates[:5]:
+                print(f"   - '{orig}' → '{norm}'")
+            if len(old_duplicates) > 5:
+                print(f"   ... та ще {len(old_duplicates) - 5}")
+        
+        if new_empty_names:
+            print(f"\n🚫 Порожні назви в {product_type}.csv: {len(new_empty_names)}")
+            for item in new_empty_names[:5]:
+                print(f"   - {item}")
+            if len(new_empty_names) > 5:
+                print(f"   ... та ще {len(new_empty_names) - 5}")
+        
+        if new_duplicates:
+            print(f"\n🔁 Дублікати в {product_type}.csv: {len(new_duplicates)}")
+            for orig, norm in new_duplicates[:5]:
+                print(f"   - '{orig}' → '{norm}'")
+            if len(new_duplicates) > 5:
+                print(f"   ... та ще {len(new_duplicates) - 5}")
+        
+        print(f"{'-'*60}")
     
     # Список для імпорту
     import_rows: List[List[str]] = []
@@ -167,6 +223,7 @@ def process_supplier(supplier: str, product_type: str) -> None:
         'availability_changed': 0,
         'both_changed': 0,
         'not_in_new': 0,
+        'already_unavailable': 0,
         'new_products': 0
     }
     
@@ -202,7 +259,16 @@ def process_supplier(supplier: str, product_type: str) -> None:
             import_rows.append(updated_row)
             
         else:
-            # Товар відсутній у новому - видаляємо
+            # Товар відсутній у новому - перевіряємо чи він вже був відсутній
+            old_availability = old_row[availability_idx] if availability_idx < len(old_row) else ""
+            old_quantity = old_row[quantity_idx] if quantity_idx < len(old_row) else ""
+            
+            # Якщо товар УЖЕ був відсутній - пропускаємо (не потрібно оновлювати)
+            if old_availability.strip() == "-" and old_quantity.strip() == "0":
+                stats['already_unavailable'] += 1
+                continue
+            
+            # Товар був в наявності, але зник - позначаємо як відсутній
             updated_row = old_row.copy()
             if availability_idx < len(updated_row):
                 updated_row[availability_idx] = "-"
@@ -258,6 +324,7 @@ def process_supplier(supplier: str, product_type: str) -> None:
     print(f"  Змінилася наявність:     {stats['availability_changed']}")
     print(f"  Змінилося обидва:        {stats['both_changed']}")
     print(f"  Відсутні в новому:       {stats['not_in_new']}")
+    print(f"  Вже були відсутні:      {stats['already_unavailable']}")
     print(f"  Нові товари:             {stats['new_products']}")
     print(f"{'-'*60}")
     print(f"  ВСЬОГО для імпорту:      {len(import_rows)}")
