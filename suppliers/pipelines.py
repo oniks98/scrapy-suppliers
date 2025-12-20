@@ -276,10 +276,22 @@ class SuppliersPipeline:
         cleaned_item["Опис_укр"] = self._clean_description(cleaned_item.get("Опис_укр", ""))
         
         # ========== САНІТИЗАЦІЯ URL ЗОБРАЖЕНЬ ==========
-        # Гарантуємо, що запятая в URL замінена на %2C
+        # Зображення можуть бути через кому і пробіл: "url1, url2, url3"
+        # НЕ замінюємо коми між URL, бо вони є роздільниками
+        # Замінюємо тільки коми ВСЕРЕДИНІ кожного URL на %2C
         image_url = cleaned_item.get("Посилання_зображення", "")
         if image_url:
-            cleaned_item["Посилання_зображення"] = image_url.replace(",", "%2C")
+            # Розділяємо на окремі URL за патерном ", " (кома + пробіл)
+            urls = [u.strip() for u in image_url.split(", ") if u.strip()]
+            # Санітизуємо кожен URL окремо (замінюємо коми всередині URL на %2C)
+            sanitized_urls = []
+            for url in urls:
+                # Якщо в URL є кома (що рідко, але можливо), замінюємо на %2C
+                if ',' in url:
+                    url = url.replace(",", "%2C")
+                sanitized_urls.append(url)
+            # З'єднуємо назад через ", "
+            cleaned_item["Посилання_зображення"] = ", ".join(sanitized_urls)
         
         # ========== ОБРОБКА ХАРАКТЕРИСТИК ==========
         specs_list_original = adapter.get("specifications_list", [])

@@ -280,9 +280,27 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
             self.logger.info(f"📝 Опис RU: {len(description_ru)} символів")
             self.logger.info(f"📝 Опис UA: {len(description_ua)} символів")
             
-            images = response.css("img.card-header__card-images-image::attr(src)").getall()
-            image_url = response.urljoin(images[0]) if images else ""
-            image_url = self._sanitize_image_url(image_url)
+            # Парсимо всі зображення товару
+            # Спочатку шукаємо в галереї (якщо є кілька зображень)
+            gallery_images = response.css('a[data-fancybox*="gallery"]::attr(href)').getall()
+            
+            # Якщо галереї немає, беремо зображення з img тегів
+            if not gallery_images:
+                gallery_images = response.css("img.card-header__card-images-image::attr(src)").getall()
+            
+            self.logger.info(f"🖼️ Знайдено зображень: {len(gallery_images)}")
+            
+            # Формуємо список URL через кому і пробіл
+            image_urls = []
+            for img in gallery_images:
+                full_url = response.urljoin(img)
+                sanitized_url = self._sanitize_image_url(full_url)
+                if sanitized_url:
+                    image_urls.append(sanitized_url)
+            
+            image_url = ", ".join(image_urls) if image_urls else ""
+            if len(image_urls) > 1:
+                self.logger.info(f"🖼️ Оброблено множинних зображень: {len(image_urls)} шт.")
             
             availability_raw_text = response.css("div.card-header__card-status-badge::text").get()
             availability_status = self._normalize_availability(availability_raw_text)
@@ -323,7 +341,7 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
                 "specifications_list": specs_list,
             }
             
-            self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} USD | Характеристик: {len(specs_list)}")
+            self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} USD | Зображень: {len(image_urls)} | Характеристик: {len(specs_list)}")
             yield item
             
             yield from self._skip_product(response.meta)
