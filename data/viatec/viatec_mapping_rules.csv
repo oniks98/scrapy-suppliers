@@ -366,7 +366,7 @@
 ;Матеріал корпусу;;exact;;Пропустити;1022;TRUE;7190605;Skip housing material
 ;Діаметр;;exact;;Пропустити;1023;TRUE;7190605;Skip diameter details
 ;Дисплей;(\d+\.?\d*)[""\s]*(?:дюйм|inch|\"|");regex;Діагональ екрану (дюйм);$1";1;TRUE;3029;Display diagonal from supplier
-;Дисплей;10\.1|10,1;regex;Діагональ екрану (дюйм);10.1";2;TRUE;3029;Display 10.1 inch
+;Дисплей;"10\.1|10,1";regex;Діагональ екрану (дюйм);10.1";2;TRUE;3029;Display 10.1 inch
 ;Дисплей;TFT;contains;Тип матриці;TFT IPS;10;TRUE;3029;TFT display type
 ;Дисплей;IPS;contains;Тип матриці;IPS;11;TRUE;3029;IPS display type
 ;Дисплей;LCD;contains;Тип матриці;TFT IPS;12;TRUE;3029;LCD display mapped to TFT
@@ -412,7 +412,7 @@
 ;Підключення;(\d+)\s*(?:панел|викличн).*?(\d+).*?(?:камер|відеокамер);regex;Входи для підключення;$1+$2;122;TRUE;3029;Panels + cameras
 ;Підключення монітора;дод.*?монітор.*;regex;Підключення додаткового монітора;Так;130;TRUE;3029;Additional monitor support
 ;Відеокамер;(\d+);regex;Входи для підключення;2+$1;131;TRUE;3029;Video cameras count
-;Панелей виклику|Викличних панелей;(\d+);regex;Входи для підключення;$1;132;TRUE;3029;Call panels count
+;Панелей виклику|Викличних панелей;(\d+);regex;Входи для підключення;$1 ;132;TRUE;3029;Call panels count
 ;Локальна пам'ять;SD|MicroSD|[Mm]icro\s*SD|TF;regex;Порт для SD-карти;Так;140;TRUE;3029;SD card slot
 ;Локальна пам'ять;SD|MicroSD|[Mm]icro\s*SD|TF;regex;Наявність блоку пам'яті;Так;141;TRUE;3029;Memory block present
 ;Локальна пам'ять;(\d+)\s*[ГГ][бБBb];regex;Пропустити;skip;142;TRUE;3029;Skip memory capacity
@@ -480,3 +480,118 @@
 ;Кількість в ящику;;exact;;Пропустити;2019;TRUE;3029;Skip box quantity
 ;Вага брутто;;exact;;Пропустити;2020;TRUE;3029;Skip gross weight
 ;Строк гарантії;;exact;;Пропустити;2021;TRUE;3029;Skip warranty period
+;Wi-Fi;підтрим|є|2\.4\s*G|IEEE\s*802\.11;regex;Протокол зв'язку;Wi-Fi;1;TRUE;302306;WiFi protocol support
+;Wi-Fi;підтрим|є|2\.4\s*G|IEEE\s*802\.11;regex;Інтерфейс;Бездротовий;2;TRUE;302306;Wireless interface from WiFi
+;Ethernet;RJ-?45|10\s*/\s*100|Ethernet;regex;Інтерфейс;Провідний/Бездротовий;3;TRUE;302306;Wired+Wireless interface
+;Ethernet;RJ-?45|10\s*/\s*100;regex;Управління;Локальне/Мережеве;4;TRUE;302306;Network management capability
+;GPRS|3G/4G|GSM;є|підтрим|GSM|GPRS|LTE|WCDMA;regex;Інтерфейс;Бездротовий;5;TRUE;302306;Cellular interface
+;3G/4G|GPRS;LTE|WCDMA|GSM;regex;Управління;Мережне;6;TRUE;302306;Remote cellular management
+;Частотна характеристика;(\d+\.?\d*)\s*[МM][ГГ]ц;regex;Робоча частота (МГц);$1 ;10;TRUE;302306;Operating frequency in MHz
+;Частотна характеристика;(\d+)\s*[МM]Гц;regex;Робоча частота (МГц);$1 ;11;TRUE;302306;Frequency MHz variant
+;Відстань передачі;до\s*(\d+)\s*м|(\d+)\s*м;regex;Протяжність (м);$1$2;20;TRUE;302306;Transmission distance
+;Бездротові зони|Кількість зон;(\d+);regex;"Кількість зон, що захищаються";$1 ;30;TRUE;302306;Number of wireless zones
+;Бездротовий брелок|Кількість брелоків;до\s*(\d+)|(\d+);regex;Кількість підтримуваних пристроїв;$1$2;40;TRUE;302306;Number of key fobs
+;Бездротові сирени;до\s*(\d+)|(\d+);regex;Пропустити;skip;41;TRUE;302306;Skip sirens count
+;Зчитувач карт;до\s*(\d+)|(\d+);regex;Пропустити;skip;42;TRUE;302306;Skip card readers
+;Кількість шлейфів;(\d+);regex;Кількість шлейфів;$1 ;50;TRUE;302306;Number of loops
+;Кількість ліній;(\d+);regex;Кількість ліній;$1 ;51;TRUE;302306;Number of lines
+;Max довжина лінії;(\d+)\s*м;regex;Max довжина лінії (м);$1 ;52;TRUE;302306;Max line length
+;Метод роботи;[Дд]востор|двонаправл|two-way;regex;Тип системи/сигналізації;Адресна;60;TRUE;302306;Two-way communication indicates addressable
+;Метод роботи;бездротов|wireless;regex;Інтерфейс;Бездротовий;61;TRUE;302306;Wireless operation
+;RS-?485;є|підтрим|Підтримує|\d+;regex;Протокол зв'язку;RS-485;70;TRUE;302306;RS-485 protocol
+;RS-?232;є|підтрим|Підтримує|\d+;regex;Протокол зв'язку;RS-232;71;TRUE;302306;RS-232 protocol
+;USB;є|підтрим|USB\s*[23];regex;Протокол зв'язку;USB 2.0;72;TRUE;302306;USB protocol
+;Індикація;світлов|LED;regex;Індикація режиму роботи;Так;80;TRUE;302306;LED indication present
+;Розширення|Можливість розширення;є|так|підтрим|можлив;regex;Можливість розширення;Так;90;TRUE;302306;Expandable system
+;Інтеграція|Можливість інтеграції;є|так|підтрим|можлив;regex;Можливість для інтеграції;Так;91;TRUE;302306;Integration capability
+;Резервна батарея|Backup|АКБ;є|вбудован|літієв|акумулятор;regex;Пропустити;skip;100;TRUE;302306;Skip backup battery
+;Живлення|Питання;(?:AC\s*)?220\s*[ВV]|100[–~-]240\s*V;regex;Пропустити;skip;110;TRUE;302306;Skip power supply
+;Живлення|Питання;(?:DC\s*)?12\s*[ВV];regex;Пропустити;skip;111;TRUE;302306;Skip 12V power
+;Потужність споживання;(\d+\.?\d*)\s*[ВWватВт]+;regex;Пропустити;skip;120;TRUE;302306;Skip power consumption
+;Обсяг журналу|Журнал подій;(\d+);regex;Обсяг журналу реєстрацій (подій);$1 ;130;TRUE;302306;Event log capacity
+;Робоча температура|Рабочая температура;[-−]?(\d+)\s*°?[СC]\s*[-–~]\s*[+]?(\d+)\s*°?[СC];regex;Пропустити;skip;140;TRUE;302306;Skip operating temperature
+;Колір|Цвет;[Бб][іеи]л;regex;Пропустити;skip;150;TRUE;302306;Skip white color
+;Колір|Цвет;[Чч]орн|[Сс][іи]р;regex;Пропустити;skip;151;TRUE;302306;Skip other colors
+;Колір;Білий;exact;Колір;Білий;10;TRUE;301305;Color white
+;Колір;Бежевий;exact;Колір;Бежевий;11;TRUE;301305;Color beige
+;Колір;Сірий;exact;Колір;Сірий;12;TRUE;301305;Color grey
+;Колір;Чорний;exact;Колір;Чорний;13;TRUE;301305;Color black
+;Метод роботи;.*[Бб]ездротов.*|.*[Ww]ireless.*;regex;Інтерфейс;Бездротовий;20;TRUE;301305;Wireless interface
+;Метод роботи;.*[Кк]лавіатур.*;contains;Інтерфейс;Бездротовий;21;TRUE;301305;Keyboard wireless default
+;Частотна характеристика;868.*МГц|868.*MHz;regex;Протокол зв'язку;Закритий протокол;30;TRUE;301305;868 MHz protocol
+;Частотна характеристика;([0-9]+).*МГц|([0-9]+).*MHz;regex;skip;skip;31;TRUE;301305;Skip frequency value
+;Відстань передачі;.*([0-9]+).*м|.*([0-9]+).*m;regex;skip;skip;40;TRUE;301305;Skip transmission distance
+;Питание;.*4.*AA|.*АА;regex;Живлення;Батарейки одноразові;50;TRUE;301305;AA batteries power
+;Питание;.*12.*V|.*12.*В;regex;Живлення;Мережа 12В;51;TRUE;301305;12V power
+;Питание;.*5.*V|.*5.*В;regex;Живлення;USB;52;TRUE;301305;USB 5V power
+;Питание;.*3.*V|.*3.*В|CR2450;regex;Живлення;Батарейки одноразові;53;TRUE;301305;3V battery power
+;Питание;.*24.*V|.*24.*В;regex;Живлення;Мережа 24В;54;TRUE;301305;24V power
+;Количество кнопок;([0-9]+);regex;Кількість кнопок (шт.);$1 ;60;TRUE;301305;Button count extraction
+;Індикація станів;.*[Пп]ідтримує.*|.*LED.*;regex;Індикація режиму роботи;Так;70;TRUE;301305;Status indication supported
+;Індикація станів;.*[Пп]ідтримує.*|.*LED.*;regex;Підсвічування;Так;71;TRUE;301305;Backlight from indication
+;Метод роботи;.*LCD.*|.*[Ее]кран.*;regex;Монітор;LCD;80;TRUE;301305;LCD display present
+;Метод роботи;.*LED.*;contains;Підсвічування;Так;81;TRUE;301305;LED backlight present
+;Антісаботаж;.*[Пп]ідтримує.*;regex;Вандалозахист;Так;90;TRUE;301305;Antisabotage protection
+;Монтаж;.*[Гг]винт.*|.*[Вв]становк.*;regex;Спосіб монтажу;Накладний;100;TRUE;301305;Screw mounting
+;Віддалене налаштування і тестування;.*[Пп]ідтримує.*;regex;skip;skip;110;TRUE;301305;Skip remote config
+;Температурный сенсор;.*[Пп]ідтримує.*;regex;skip;skip;111;TRUE;301305;Skip temperature sensor
+;Захист від підбору пароля;.*[Пп]ідтримує.*;regex;skip;skip;112;TRUE;301305;Skip password protection
+;Метод роботи;PIR;contains;Принцип роботи сповіщувача;Оптико-електронний (пасивний);10;TRUE;302302;PIR motion detector
+;Метод роботи;Геркон;contains;Принцип роботи сповіщувача;Магнітоконтактний;11;TRUE;302302;Reed switch contact detector
+;Метод роботи;(?:СВЧ|мікрохвиль);regex;Принцип роботи сповіщувача;Радіохвильовий;12;TRUE;302302;Microwave detector
+;Метод роботи;(?:вібрац|акселероме);regex;Принцип роботи сповіщувача;Вібраційний;13;TRUE;302302;Vibration sensor
+;Метод роботи;(?:датчик.*скла|мікрофон);regex;Принцип роботи сповіщувача;Акустичний (звукової);14;TRUE;302302;Glass break acoustic detector
+;Метод роботи;(?:контактн|СМК);regex;Принцип роботи сповіщувача;Магнітоконтактний;15;TRUE;302302;Contact magnetic detector
+;Метод роботи;датчик.*затоплення;regex;Тип сповіщувача;Точковий;16;TRUE;302302;Flood point detector
+;Частотна характеристика;868;contains;Інтерфейс;Бездротовий;20;TRUE;302302;868MHz wireless
+;Частотна характеристика;433;contains;Інтерфейс;Бездротовий;21;TRUE;302302;433MHz wireless
+;Частотна характеристика;([0-9]+)\s*(?:МГц|MHz);regex;Протокол зв'язку;Закритий протокол;22;TRUE;302302;Proprietary wireless protocol
+;Питание;(?:CR123A|CR2450|батаре);regex;Живлення;Батарейки одноразові;30;TRUE;302302;Battery powered
+;Питание;([0-9]+)\s*[-–]\s*([0-9]+)\s*(?:В|V).*DC;regex;Живлення;Мережа 12В;31;TRUE;302302;DC power supply
+;Питание;9\s*[-–]\s*16.*(?:В|V);regex;Живлення;Мережа 12В;32;TRUE;302302;9-16V DC power
+;Термін роботи батареї;([0-9]+)\s*(?:рок|year);regex;пропустити;skip;40;TRUE;302302;Skip battery life
+;Рабочая температура;([-–]?[0-9]+)\s*°?C?\s*[-–]\s*\+?([0-9]+)\s*°?C;regex;пропустити;skip;50;TRUE;302302;Skip operating temperature
+;Покрытие;([0-9]+)\s*м;regex;пропустити;skip;60;TRUE;302302;Skip coverage range
+;Покрытие;.*([0-9]+)°;regex;пропустити;skip;61;TRUE;302302;Skip coverage angle
+;Імунітет до тварин;([0-9]+)\s*кг;regex;пропустити;skip;70;TRUE;302302;Skip pet immunity
+;Антісаботаж;Підтримує|Так;regex;пропустити;skip;80;TRUE;302302;Skip tamper protection
+;Высота установки;([0-9\.]+)\s*[-–]?\s*([0-9\.]+)?\s*м;regex;пропустити;skip;90;TRUE;302302;Skip installation height
+;Відстань передачі;([0-9]+)\s*(?:м|km);regex;пропустити;skip;100;TRUE;302302;Skip transmission distance
+;Цифрова температурна компенсація;Підтримує|Так;regex;пропустити;skip;110;TRUE;302302;Skip temperature compensation
+;Швидкість детекції;.*м/с;regex;пропустити;skip;120;TRUE;302302;Skip detection speed
+;Степень защиты;(IP[0-9]{2});regex;пропустити;skip;130;TRUE;302302;Skip IP rating
+;Камера;.*JPEG.*;regex;пропустити;skip;140;TRUE;302302;Skip camera specs
+;Разрешение;.*[0-9]+.*×.*[0-9]+;regex;пропустити;skip;141;TRUE;302302;Skip resolution
+;Сенсор;.*;regex;пропустити;skip;142;TRUE;302302;Skip sensor specs
+;Особенности;.*;regex;пропустити;skip;150;TRUE;302302;Skip special features
+;Виходи тривоги;.*;regex;пропустити;skip;151;TRUE;302302;Skip alarm outputs
+;Автоматична чутливість;.*;regex;пропустити;skip;160;TRUE;302302;Skip auto sensitivity
+;Індикатор рівня сигналу;.*;regex;пропустити;skip;161;TRUE;302302;Skip signal indicator
+;Нижня зона виявлення;.*;regex;пропустити;skip;162;TRUE;302302;Skip lower detection zone
+;Можливості використання;.*;regex;пропустити;skip;170;TRUE;302302;Skip mounting options
+;Площадь;.*;regex;пропустити;skip;171;TRUE;302302;Skip coverage area
+;Тип сповіщення;світло.*звук;regex;Тип;Проблисковий маячок;10;TRUE;300402;Light and sound siren
+;Тип сповіщення;звуковий;contains;пропустити;skip;11;TRUE;300402;Audio only no type mapping
+;Тип сповіщення;світло;contains;Тип;Проблисковий маячок;12;TRUE;300402;Light siren
+;Індикація станів;червоний;regex;Колір ковпака;Червоний;20;TRUE;300402;Red indicator color
+;Індикація станів;синій;regex;Колір ковпака;Синій;21;TRUE;300402;Blue indicator color
+;Індикація станів;жовтий;regex;Колір ковпака;Жовтий;22;TRUE;300402;Yellow indicator color
+;Індикація станів;зелений;regex;Колір діодів;Білий;23;TRUE;300402;Green indicator mapped to white LED
+;Індикація станів;\bLED\b;regex;Джерело світла;Діоди;24;TRUE;300402;LED light source
+;Метод роботи;бездротовий|868.*[Мм][Гг]ц;regex;пропустити;skip;30;TRUE;300402;Skip wireless method
+;Метод роботи;Двосторонній;contains;пропустити;skip;31;TRUE;300402;Skip two-way communication
+;Питание;(?:CR123A|CR2450|батаре);regex;Живлення;Батарейки одноразові;40;TRUE;300402;Battery powered
+;Питание;([0-9]+).*CR123A;regex;пропустити;skip;41;TRUE;300402;Skip battery count
+;Питание;([0-9]+)\s*[×xх]\s*CR123A;regex;пропустити;skip;42;TRUE;300402;Skip battery quantity
+;Питание;акумулятор;regex;Живлення;Акумулятор;43;TRUE;300402;Rechargeable battery
+;Питание;12\s*В;regex;Живлення;Мережа 12В;44;TRUE;300402;12V power
+;Питание;24\s*В;regex;Живлення;Мережа 24В;45;TRUE;300402;24V power
+;Рівень гучності звуку;([0-9]+)\s*[-–]\s*([0-9]+)\s*д[Бб];regex;пропустити;skip;50;TRUE;300402;Skip sound level range
+;Рівень гучності звуку;≥?\s*([0-9]+).*д[Бб];regex;пропустити;skip;51;TRUE;300402;Skip sound level value
+;Монтаж;[Нн]астен|[Ww]all;regex;Кріплення;Стаціонарне;60;TRUE;300402;Wall mounting stationary
+;Монтаж;[Мм]агніт;regex;Кріплення;Магнітне;61;TRUE;300402;Magnetic mounting
+;Класс защиты;(IP[0-9]{2});regex;пропустити;skip;70;TRUE;300402;Skip IP rating
+;Антісаботаж;Підтримує|Так|Тампер;regex;пропустити;skip;80;TRUE;300402;Skip tamper protection
+;Віддалене налаштування;Підтримує|Так;regex;пропустити;skip;90;TRUE;300402;Skip remote configuration
+;Час звучання тривоги;([0-9]+)\s*с;regex;пропустити;skip;100;TRUE;300402;Skip alarm duration
+;Температурный сенсор;.*;regex;пропустити;skip;110;TRUE;300402;Skip temperature sensor

@@ -3,16 +3,44 @@
 """
 Універсальний скрипт порівняння та оновлення товарів для всіх постачальників.
 Підтримує типи: dealer, retail
+
+ОНОВЛЕНО: Порівняння товарів по артикулу постачальника (supplier_sku) замість назви
 """
 
 import csv
 import os
 import sys
-from typing import Dict, List, Set
+import re
+from typing import Dict, List, Set, Optional
 
 
 SUPPLIERS = ['viatec', 'secur', 'neolight', 'lun', 'eserver']
 TYPES = ['dealer', 'retail']
+
+
+def extract_supplier_sku(personal_notes: str) -> Optional[str]:
+    """
+    Витягує артикул постачальника з Особисті_нотатки.
+    
+    Пріоритет 1: supplier_sku=(\d{2}-\d{8}) - формат XX-XXXXXXXX
+    Пріоритет 2: (?:^|,\s*)supplier_sku=([^,]+) - будь-який формат
+    
+    Повертає артикул або None
+    """
+    if not personal_notes:
+        return None
+    
+    # Пріоритет 1: стандартний формат XX-XXXXXXXX
+    match = re.search(r'supplier_sku=(\d{2}-\d{8})', personal_notes)
+    if match:
+        return match.group(1)
+    
+    # Пріоритет 2: будь-який формат
+    match = re.search(r'(?:^|,\s*)supplier_sku=([^,]+)', personal_notes)
+    if match:
+        return match.group(1).strip()
+    
+    return None
 
 
 def read_csv_as_rows(file_path: str) -> tuple[List[List[str]], List[str]]:
@@ -44,13 +72,6 @@ def get_field_index(headers: List[str], field_name: str) -> int:
         return headers.index(field_name)
     except ValueError:
         return -1
-
-
-def normalize_name(name: str) -> str:
-    """Нормалізує назву: прибирає зайві пробіли, lowercase, але ЗБЕРІГАЄ неразривні пробіли."""
-    # Прибираємо пробіли на початку/кінці та перетворюємо в lowercase
-    # Але НЕ використовуємо split().join() - воно замінює \xa0 на звичайні пробіли
-    return name.strip().lower()
 
 
 def get_max_product_code(rows: List[List[str]], code_idx: int) -> int:
@@ -135,79 +156,88 @@ def process_supplier(supplier: str, product_type: str) -> None:
     code_idx = get_field_index(old_headers, "Код_товару")
     availability_idx = get_field_index(old_headers, "Наявність")
     quantity_idx = get_field_index(old_headers, "Кількість")
+    personal_notes_idx = get_field_index(old_headers, "Особисті_нотатки")
     chars_start_idx = get_characteristics_start_index(old_headers)
     
     if name_idx == -1:
         print("❌ Не знайдено колонку 'Назва_позиції'")
         return
     
-    # Створюємо словники з відстеженням фільтрації
-    old_products_dict: Dict[str, List[str]] = {}
-    old_empty_names: List[str] = []
+    if personal_notes_idx == -1:
+        print("❌ Не знайдено колонку 'Особисті_нотатки'")
+        return
+    
+    # Створюємо словники по АРТИКУЛУ (замість назви)
+    old_products_dict: Dict[str, List[str]] = {}  # {supplier_sku: row}
+    old_no_sku: List[str] = []
     old_duplicates: List[tuple[str, str]] = []
     
     for row in old_rows:
-        if name_idx < len(row):
-            original_name = row[name_idx].strip()
-            name = normalize_name(original_name)
+        if personal_notes_idx < len(row):
+            personal_notes = row[personal_notes_idx].strip()
+            supplier_sku = extract_supplier_sku(personal_notes)
             
-            if not name:
-                old_empty_names.append(f"Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
-            elif name in old_products_dict:
-                old_duplicates.append((original_name, name))
+            if not supplier_sku:
+                product_name = row[name_idx].strip() if name_idx < len(row) else 'N/A'
+                old_no_sku.append(f"{product_name[:40]}... | Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
+            elif supplier_sku in old_products_dict:
+                product_name = row[name_idx].strip() if name_idx < len(row) else 'N/A'
+                old_duplicates.append((product_name, supplier_sku))
             else:
-                old_products_dict[name] = row
+                old_products_dict[supplier_sku] = row
     
-    new_products_dict: Dict[str, List[str]] = {}
-    new_empty_names: List[str] = []
+    new_products_dict: Dict[str, List[str]] = {}  # {supplier_sku: row}
+    new_no_sku: List[str] = []
     new_duplicates: List[tuple[str, str]] = []
     
     for row in new_rows:
-        if name_idx < len(row):
-            original_name = row[name_idx].strip()
-            name = normalize_name(original_name)
+        if personal_notes_idx < len(row):
+            personal_notes = row[personal_notes_idx].strip()
+            supplier_sku = extract_supplier_sku(personal_notes)
             
-            if not name:
-                new_empty_names.append(f"Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
-            elif name in new_products_dict:
-                new_duplicates.append((original_name, name))
+            if not supplier_sku:
+                product_name = row[name_idx].strip() if name_idx < len(row) else 'N/A'
+                new_no_sku.append(f"{product_name[:40]}... | Код: {row[code_idx] if code_idx < len(row) else 'N/A'}")
+            elif supplier_sku in new_products_dict:
+                product_name = row[name_idx].strip() if name_idx < len(row) else 'N/A'
+                new_duplicates.append((product_name, supplier_sku))
             else:
-                new_products_dict[name] = row
+                new_products_dict[supplier_sku] = row
     
-    print(f"📊 Старих товарів: {len(old_products_dict)}")
-    print(f"📊 Нових товарів:  {len(new_products_dict)}")
+    print(f"📊 Старих товарів (з артикулом): {len(old_products_dict)}")
+    print(f"📊 Нових товарів (з артикулом):  {len(new_products_dict)}")
     
     # Виводимо інформацію про фільтрацію
-    if old_empty_names or old_duplicates or new_empty_names or new_duplicates:
+    if old_no_sku or old_duplicates or new_no_sku or new_duplicates:
         print(f"\n{'-'*60}")
         print("⚠️  ФІЛЬТРАЦІЯ ТОВАРІВ:")
         print(f"{'-'*60}")
         
-        if old_empty_names:
-            print(f"\n🚫 Порожні назви в export-products.csv: {len(old_empty_names)}")
-            for item in old_empty_names[:5]:
+        if old_no_sku:
+            print(f"\n🚫 Без артикулу в export-products.csv: {len(old_no_sku)}")
+            for item in old_no_sku[:5]:
                 print(f"   - {item}")
-            if len(old_empty_names) > 5:
-                print(f"   ... та ще {len(old_empty_names) - 5}")
+            if len(old_no_sku) > 5:
+                print(f"   ... та ще {len(old_no_sku) - 5}")
         
         if old_duplicates:
-            print(f"\n🔁 Дублікати в export-products.csv: {len(old_duplicates)}")
-            for orig, norm in old_duplicates[:5]:
-                print(f"   - '{orig}' → '{norm}'")
+            print(f"\n🔁 Дублікати артикулів в export-products.csv: {len(old_duplicates)}")
+            for orig, sku in old_duplicates[:5]:
+                print(f"   - '{orig}' | SKU: '{sku}'")
             if len(old_duplicates) > 5:
                 print(f"   ... та ще {len(old_duplicates) - 5}")
         
-        if new_empty_names:
-            print(f"\n🚫 Порожні назви в {product_type}.csv: {len(new_empty_names)}")
-            for item in new_empty_names[:5]:
+        if new_no_sku:
+            print(f"\n🚫 Без артикулу в {product_type}.csv: {len(new_no_sku)}")
+            for item in new_no_sku[:5]:
                 print(f"   - {item}")
-            if len(new_empty_names) > 5:
-                print(f"   ... та ще {len(new_empty_names) - 5}")
+            if len(new_no_sku) > 5:
+                print(f"   ... та ще {len(new_no_sku) - 5}")
         
         if new_duplicates:
-            print(f"\n🔁 Дублікати в {product_type}.csv: {len(new_duplicates)}")
-            for orig, norm in new_duplicates[:5]:
-                print(f"   - '{orig}' → '{norm}'")
+            print(f"\n🔁 Дублікати артикулів в {product_type}.csv: {len(new_duplicates)}")
+            for orig, sku in new_duplicates[:5]:
+                print(f"   - '{orig}' | SKU: '{sku}'")
             if len(new_duplicates) > 5:
                 print(f"   ... та ще {len(new_duplicates) - 5}")
         
@@ -215,7 +245,7 @@ def process_supplier(supplier: str, product_type: str) -> None:
     
     # Список для імпорту
     import_rows: List[List[str]] = []
-    processed_names: Set[str] = set()
+    processed_skus: Set[str] = set()  # Змінено: відстежуємо артикули замість назв
     
     stats = {
         'unchanged': 0,
@@ -227,12 +257,12 @@ def process_supplier(supplier: str, product_type: str) -> None:
         'new_products': 0
     }
     
-    # Обробка існуючих товарів
-    for old_name, old_row in old_products_dict.items():
-        processed_names.add(old_name)
+    # Обробка існуючих товарів (порівнюємо по артикулу)
+    for old_sku, old_row in old_products_dict.items():
+        processed_skus.add(old_sku)
         
-        if old_name in new_products_dict:
-            new_row = new_products_dict[old_name]
+        if old_sku in new_products_dict:
+            new_row = new_products_dict[old_sku]
             
             old_availability = old_row[availability_idx] if availability_idx < len(old_row) else ""
             new_availability = new_row[availability_idx] if availability_idx < len(new_row) else ""
@@ -277,15 +307,15 @@ def process_supplier(supplier: str, product_type: str) -> None:
             import_rows.append(updated_row)
             stats['not_in_new'] += 1
     
-    # Обробка нових товарів
-    new_product_names = set(new_products_dict.keys()) - processed_names
+    # Обробка нових товарів (порівнюємо по артикулу)
+    new_product_skus = set(new_products_dict.keys()) - processed_skus
     
-    if new_product_names:
+    if new_product_skus:
         max_code = get_max_product_code(old_rows, code_idx)
         next_code = max_code + 1
         
-        for new_name in sorted(new_product_names):
-            new_row = new_products_dict[new_name].copy()
+        for new_sku in sorted(new_product_skus):
+            new_row = new_products_dict[new_sku].copy()
             
             if code_idx < len(new_row):
                 new_row[code_idx] = str(next_code)
@@ -334,7 +364,7 @@ def process_supplier(supplier: str, product_type: str) -> None:
 def main():
     """Головна функція."""
     print("="*60)
-    print("🚀 УНІВЕРСАЛЬНИЙ СКРИПТ ОНОВЛЕННЯ ТОВАРІВ")
+    print("🚀 УНІВЕРСАЛЬНИЙ СКРИПТ ОНОВЛЕННЯ ТОВАРІВ (v2 - BY SKU)")
     print("="*60)
     
     # Без аргументів - обробити всіх
@@ -351,13 +381,13 @@ def main():
     
     # Перевірка аргументів
     if len(sys.argv) < 3:
-        print("\n❌ Використання: python update_products.py <supplier> <type>")
+        print("\n❌ Використання: python update_products_v2.py <supplier> <type>")
         print(f"\nПостачальники: {', '.join(SUPPLIERS)}")
         print(f"Типи: {', '.join(TYPES)}")
         print("\nПриклади:")
-        print("  python update_products.py                  # Всі постачальники")
-        print("  python update_products.py viatec dealer")
-        print("  python update_products.py viatec retail")
+        print("  python update_products_v2.py                  # Всі постачальники")
+        print("  python update_products_v2.py viatec dealer")
+        print("  python update_products_v2.py viatec retail")
         sys.exit(1)
     
     supplier = sys.argv[1].lower()

@@ -257,18 +257,47 @@ class SuppliersPipeline:
         # Якщо кількість не вказана постачальником, ставимо 100 за замовчуванням
         cleaned_item["Кількість"] = quantity if quantity else "100"
         
-        # ========== ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ==========
-        # Ініціалізуємо лічільник для цього файлу якщо немає
-        if output_file not in self.product_counters:
-            self.product_counters[output_file] = 200000
+        # ========== ГЕНЕРАЦІЯ КОДУ НА ОСНОВІ АРТИКУЛУ ==========
+        supplier_sku = adapter.get("supplier_sku", "")
         
-        cleaned_item["Код_товару"] = str(self.product_counters[output_file])
-        self.product_counters[output_file] += 1
+        if supplier_sku:
+            # Формула: base_code + crc32("supplier_id|sku") % 10000000
+            # Для viatec_dealer base=100000000, що дає діапазон 100000000-109999999 (майже 10 млн унікальних кодів)
+            import zlib
+            supplier_id = adapter.get("supplier_id", "unknown")
+            unique_string = f"{supplier_id}|{supplier_sku}"
+            crc_value = zlib.crc32(unique_string.encode('utf-8')) & 0xffffffff  # Позитивне значення
+            
+            # Отримуємо базовий код з лічильника
+            if output_file not in self.product_counters:
+                self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
+            
+            base_code = self.product_counters[output_file]
+            # КРИТИЧНО: модуль 10000000 для мінімізації колізій на великих обсягах
+            product_code = base_code + (crc_value % 10000000)
+            cleaned_item["Код_товару"] = str(product_code)
+            
+            spider.logger.info(f"🔢 Код товару для '{supplier_sku}': {product_code} (base={base_code}, crc32={crc_value % 10000000})")
+        else:
+            # Якщо артикула немає - використовуємо послідовну нумерацію (стара логіка)
+            if output_file not in self.product_counters:
+                self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
+            
+            cleaned_item["Код_товару"] = str(self.product_counters[output_file])
+            self.product_counters[output_file] += 1
+            spider.logger.warning(f"⚠️ Артикул відсутній! Використано послідовний код: {cleaned_item['Код_товару']}")
         
-        # Встановлюємо Особисті_нотатки за Номер_групи
+        # Встановлюємо Особисті_нотатки: supplier_sku + інші нотатки
         group_number = adapter.get("Номер_групи", "")
-        personal_note = self.personal_notes_mapping.get(group_number, "PROM")
-        spider.logger.debug(f"📝 Особиста нотатка для Номер_групи='{group_number}': '{personal_note}'")
+        personal_note_from_mapping = self.personal_notes_mapping.get(group_number, "PROM")
+        
+        # Формуємо: supplier_sku=99-00020786, інші нотатки
+        if supplier_sku:
+            personal_note = f"supplier_sku={supplier_sku}, {personal_note_from_mapping}"
+        else:
+            personal_note = personal_note_from_mapping
+        
+        spider.logger.debug(f"📝 Особисті нотатки: '{personal_note}'")
         cleaned_item["Особисті_нотатки"] = personal_note
         
         # ========== ОБРОБКА ОПИСУ ==========

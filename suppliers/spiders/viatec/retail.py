@@ -203,6 +203,16 @@ class ViatecRetailSpider(ViatecBaseSpider, BaseRetailSpider):
             specs_list = response.meta.get("specifications_list", [])
             
             code = ""
+            
+            # Парсимо артикул постачальника
+            supplier_sku = response.css("span.card-header__card-articul-text-value::text").get()
+            supplier_sku = supplier_sku.strip() if supplier_sku else ""
+            
+            if supplier_sku:
+                self.logger.info(f"🔖 Артикул постачальника: {supplier_sku}")
+            else:
+                self.logger.warning(f"⚠️ Артикул не знайдено для товару: {response.url}")
+            
             price_raw = response.css("div.card-header__card-price-new::text").get()
             price_raw = price_raw.strip().replace("&nbsp;", "").replace(" ", "") if price_raw else ""
             price = self._clean_price(price_raw) if price_raw else ""
@@ -269,6 +279,7 @@ class ViatecRetailSpider(ViatecBaseSpider, BaseRetailSpider):
                 "output_file": self.output_filename,
                 "Продукт_на_сайті": response.meta.get("original_url", response.url),
                 "specifications_list": specs_list,
+                "supplier_sku": supplier_sku,  # Додаємо артикул в item
             }
             
             self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} | Характеристик: {len(specs_list)}")
