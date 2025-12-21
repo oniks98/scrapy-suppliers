@@ -339,6 +339,7 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
                 "Назва_групи": response.meta.get("category_ru", ""),
                 "Назва_групи_укр": response.meta.get("category_ua", ""),
                 "Номер_групи": response.meta.get("group_number", ""),
+                "Ідентифікатор_товару": supplier_sku,  # Артикул постачальника
                 "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
                 "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
                 "Виробник": manufacturer,
@@ -348,7 +349,6 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
                 "output_file": self.output_filename,
                 "Продукт_на_сайті": response.meta.get("original_url", response.url),
                 "specifications_list": specs_list,
-                "supplier_sku": supplier_sku,  # Додаємо артикул в item
             }
             
             self.logger.info(f"✅ YIELD: {item['Назва_позиції']} | Ціна: {item['Ціна']} USD | Зображень: {len(image_urls)} | Характеристик: {len(specs_list)}")
