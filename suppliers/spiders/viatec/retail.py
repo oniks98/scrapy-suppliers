@@ -3,7 +3,7 @@ Spider для парсингу роздрібних цін з viatec.ua (UAH)
 Вигружає дані в: output/viatec_retail.csv
 
 ПОСЛІДОВНА ОБРОБКА: категорія → всі сторінки пагінації → наступна категорія
-ХАРАКТЕРИСТИКИ: парсяться УКРАЇНСЬКОЮ (UA) мовою
+ХАРАКТЕРИСТИКИ: парсяться УКРАЇНСЬКОЮ (UA) мовою з підтримкою rule_kind
 """
 import scrapy
 import csv
@@ -221,16 +221,13 @@ class ViatecRetailSpider(ViatecBaseSpider, BaseRetailSpider):
             self.logger.info(f"📝 Опис UA: {len(description_ua)} символів")
             
             # Парсимо всі зображення товару
-            # Спочатку шукаємо в галереї (якщо є кілька зображень)
             gallery_images = response.css('a[data-fancybox*="gallery"]::attr(href)').getall()
             
-            # Якщо галереї немає, беремо зображення з img тегів
             if not gallery_images:
                 gallery_images = response.css("img.card-header__card-images-image::attr(src)").getall()
             
             self.logger.info(f"🖼️ Знайдено зображень: {len(gallery_images)}")
             
-            # Формуємо список URL через кому і пробіл
             image_urls = []
             for img in gallery_images:
                 full_url = response.urljoin(img)
@@ -270,7 +267,7 @@ class ViatecRetailSpider(ViatecBaseSpider, BaseRetailSpider):
                 "Назва_групи": response.meta.get("category_ru", ""),
                 "Назва_групи_укр": response.meta.get("category_ua", ""),
                 "Номер_групи": response.meta.get("group_number", ""),
-                "Ідентифікатор_товару": supplier_sku,  # Артикул постачальника
+                "Ідентифікатор_товару": supplier_sku,
                 "Ідентифікатор_підрозділу": response.meta.get("subdivision_id", ""),
                 "Посилання_підрозділу": response.meta.get("subdivision_link", ""),
                 "Виробник": manufacturer,

@@ -1,6 +1,13 @@
 """
 Маппінг характеристик постачальника → портальні характеристики PROM
 Використовує словник правил з pattern matching (exact, contains, regex)
+
+ПІДТРИМКА rule_kind:
+- extract: основне правило (пріоритет по priority)
+- normalize: нормалізація формату (пріоритет по priority)
+- derive: логічний вивід (НЕ перезаписує extract/normalize)
+- fallback: використовується тільки якщо значення відсутнє
+- skip: пропустити цю характеристику
 """
 import re
 import csv
@@ -33,7 +40,7 @@ class AttributeMapper:
                         continue
                     
                     rule = {
-                        'supplier_name_substring': row.get('supplier_name_substring', '').strip(),  # ПЕРША колонка!
+                        'supplier_name_substring': row.get('supplier_name_substring', '').strip(),
                         'supplier_attribute': row['supplier_attribute'].strip(),
                         'supplier_value_pattern': row['supplier_value_pattern'].strip(),
                         'pattern_type': row['pattern_type'].strip(),
@@ -41,6 +48,7 @@ class AttributeMapper:
                         'prom_value_template': row['prom_value_template'].strip(),
                         'priority': int(row.get('priority', 100)),
                         'category_id': row.get('category_id', '').strip(),
+                        'rule_kind': row.get('rule_kind', 'extract').strip(),  # НОВЕ ПОЛЕ
                         'notes': row.get('notes', '').strip()
                     }
                     
@@ -78,15 +86,20 @@ class AttributeMapper:
             self.rules.sort(key=lambda x: x['priority'])
             
             if self.logger:
-                # Підрахуємо category_id
+                # Підрахуємо category_id та rule_kind
                 category_counts = {}
+                kind_counts = {}
                 for rule in self.rules:
                     cat = rule.get('category_id', '').strip()
                     cat_key = cat if cat else 'universal'
                     category_counts[cat_key] = category_counts.get(cat_key, 0) + 1
+                    
+                    kind = rule.get('rule_kind', 'extract')
+                    kind_counts[kind] = kind_counts.get(kind, 0) + 1
                 
                 self.logger.info(f"✅ Завантажено {len(self.rules)} правил маппінгу")
                 self.logger.info(f"   Категорії: {category_counts}")
+                self.logger.info(f"   Типи правил: {kind_counts}")
         
         except Exception as e:
             if self.logger:
@@ -143,19 +156,62 @@ class AttributeMapper:
         
         return None
     
+    def _should_apply_rule(self, rule: Dict, current_value: Optional[str], current_kind: Optional[str], 
+                          current_priority: int) -> bool:
+        """
+        Визначає чи треба застосовувати правило з урахуванням rule_kind
+        
+        Args:
+            rule: Правило що застосовується
+            current_value: Поточне значення атрибута (None якщо відсутнє)
+            current_kind: Тип поточного правила ('extract', 'derive', тощо)
+            current_priority: Пріоритет поточного правила
+        
+        Returns:
+            True якщо правило треба застосувати, False якщо пропустити
+        """
+        rule_kind = rule.get('rule_kind', 'extract')
+        rule_priority = rule['priority']
+        
+        # skip - завжди пропускаємо
+        if rule_kind == 'skip':
+            return False
+        
+        # fallback - тільки якщо значення відсутнє
+        if rule_kind == 'fallback':
+            return current_value is None or current_value == ''
+        
+        # derive - НЕ перезаписує extract/normalize
+        if rule_kind == 'derive':
+            # Застосовуємо тільки якщо:
+            # 1. Значення відсутнє АБО
+            # 2. Поточне теж derive І новий пріоритет вищий
+            if current_value is None or current_value == '':
+                return True
+            if current_kind == 'derive' and rule_priority < current_priority:
+                return True
+            return False
+        
+        # extract/normalize - основна логіка
+        # Застосовуємо якщо:
+        # 1. Значення відсутнє АБО
+        # 2. Новий пріоритет вищий (менше число)
+        if current_value is None or current_value == '':
+            return True
+        if rule_priority < current_priority:
+            return True
+        
+        return False
+    
     def map_single_attribute(self, spec: Dict, category_id: Optional[str] = None) -> List[Dict]:
         """
-        Мапить одну характеристику
+        Мапить одну характеристику з урахуванням rule_kind
         
         Args:
             spec: {'name': 'Тип', 'unit': '', 'value': 'UTP CAT5e'}
         
         Returns:
-            Список змаплених характеристик (може бути більше однієї!)
-            [
-                {'name': 'Категорія витої пари', 'unit': '', 'value': 'САТ5е'},
-                {'name': 'Тип витої пари', 'unit': '', 'value': 'UTP'}
-            ]
+            Список змаплених характеристик
         """
         supplier_name = spec.get('name', '').strip()
         supplier_value = spec.get('value', '').strip()
@@ -166,29 +222,20 @@ class AttributeMapper:
         
         normalized_name = self._normalize_attribute_name(supplier_name)
         mapped_attributes = []
-        seen_attributes = {}  # Дедуплікація: ім'я атрибута → найкращий пріоритет
+        seen_attributes = {}  # Дедуплікація: ім'я атрибута → {value, unit, priority, kind}
         
         # Шукаємо підходящі правила
         for rule in self.rules:
-            # Фільтр по категорії (СТРОГА перевірка!)
+            # Фільтр по категорії
             rule_category = rule.get('category_id', '').strip()
-            
-            # Якщо в правилі вказано category_id - перевіряємо строгий збіг
             if rule_category:
-                # Строга перевірка: тільки точний збіг
                 if not category_id or str(rule_category) != str(category_id):
-                    if self.logger:
-                        self.logger.debug(
-                            f"⏭️ Пропускаю правило: rule_category='{rule_category}' != category_id='{category_id}' | "
-                            f"Атрибут: {rule['supplier_attribute']} → {rule['prom_attribute']}"
-                        )
-                    continue  # Правило для іншої категорії
-            # Якщо category_id порожній - правило універсальне (для всіх категорій)
+                    continue
             
             rule_name_normalized = self._normalize_attribute_name(rule['supplier_attribute'])
             
             # Перевіряємо чи правило підходить до цього атрибута
-            if not rule_name_normalized:  # Порожнє ім'я = будь-який атрибут
+            if not rule_name_normalized:
                 pass
             elif rule_name_normalized not in normalized_name:
                 continue
@@ -198,82 +245,93 @@ class AttributeMapper:
             
             if mapped_value:
                 prom_attribute = rule['prom_attribute']
+                rule_kind = rule.get('rule_kind', 'extract')
                 
                 # Спеціальний маркер "Пропустити"
-                if prom_attribute == 'Пропустити':
+                if prom_attribute == 'Пропустити' or rule_kind == 'skip':
                     if self.logger:
                         self.logger.debug(f"⏭️ Пропускаю: {supplier_name} = {supplier_value}")
-                    return []  # Не додаємо цю характеристику взагалі
+                    return []
                 
-                # ДЕДУПЛІКАЦІЯ: Перевіряємо чи цей атрибут вже є
+                # Перевіряємо чи цей атрибут вже є
                 attr_key = prom_attribute.lower().strip()
+                
                 if attr_key in seen_attributes:
-                    # Атрибут вже існує - порівнюємо пріоритети
-                    existing_priority = seen_attributes[attr_key]['rule_priority']
-                    current_priority = rule['priority']
+                    current_data = seen_attributes[attr_key]
+                    current_value = current_data['value']
+                    current_kind = current_data.get('kind', 'extract')
+                    current_priority = current_data['priority']
                     
-                    if current_priority < existing_priority:
-                        # Поточне правило має вищий пріоритет (менше число) - оновлюємо
+                    # Перевіряємо чи треба застосувати це правило
+                    if self._should_apply_rule(rule, current_value, current_kind, current_priority):
                         if self.logger:
-                            self.logger.warning(
-                                f"⚠️ ДУБЛЮВАННЯ: '{prom_attribute}' вже є з priority={existing_priority}, "
-                                f"оновлюю на priority={current_priority}: {supplier_name}={supplier_value} → {mapped_value}"
+                            self.logger.debug(
+                                f"🔄 Оновлюю '{prom_attribute}': {current_kind}[{current_priority}] → "
+                                f"{rule_kind}[{rule['priority']}]: {mapped_value}"
                             )
-                        # Знаходимо і оновлюємо існуючий запис
+                        # Оновлюємо існуючий запис
                         for attr in mapped_attributes:
                             if attr['name'].lower().strip() == attr_key:
                                 attr['value'] = mapped_value
                                 attr['unit'] = supplier_unit
-                                attr['rule_priority'] = current_priority
-                                seen_attributes[attr_key] = attr
+                                attr['rule_priority'] = rule['priority']
+                                attr['rule_kind'] = rule_kind
+                                seen_attributes[attr_key] = {
+                                    'value': mapped_value,
+                                    'priority': rule['priority'],
+                                    'kind': rule_kind
+                                }
                                 break
                     else:
-                        # Існуючий пріоритет кращий - пропускаємо
                         if self.logger:
                             self.logger.debug(
-                                f"⏭️ Пропускаю дублікат '{prom_attribute}': існуючий priority={existing_priority} кращий за {current_priority}"
+                                f"⏭️ Пропускаю '{prom_attribute}': rule_kind={rule_kind}, "
+                                f"current={current_kind}[{current_priority}], new=[{rule['priority']}]"
                             )
                     continue
                 
-                # Додаємо нову змаплену характеристику
+                # Додаємо нову характеристику
                 new_attr = {
                     'name': prom_attribute,
-                    'unit': supplier_unit,  # Зберігаємо одиницю виміру
+                    'unit': supplier_unit,
                     'value': mapped_value,
-                    'rule_priority': rule['priority']
+                    'rule_priority': rule['priority'],
+                    'rule_kind': rule_kind
                 }
                 mapped_attributes.append(new_attr)
-                seen_attributes[attr_key] = new_attr
+                seen_attributes[attr_key] = {
+                    'value': mapped_value,
+                    'priority': rule['priority'],
+                    'kind': rule_kind
+                }
                 
                 if self.logger:
                     rule_cat_info = f" [cat={rule['category_id']}]" if rule.get('category_id') else " [universal]"
                     self.logger.debug(
                         f"✅ Змапилось{rule_cat_info}: {supplier_name}={supplier_value} → "
-                        f"{prom_attribute}={mapped_value} (priority {rule['priority']})"
+                        f"{prom_attribute}={mapped_value} ({rule_kind}[{rule['priority']}])"
                     )
         
         return mapped_attributes
     
     def map_product_name(self, product_name: str, category_id: Optional[str] = None) -> List[Dict]:
         """
-        Мапить характеристики з назви товару
+        Мапить характеристики з назви товару з урахуванням rule_kind
         
         Args:
-            product_name: Назва товару (наприклад, "Hikvision DS-2CE16D0T-IT3F 2MP HD-TVI 2.8mm")
+            product_name: Назва товару
             category_id: ID категорії
         
         Returns:
-            Список змаплених характеристик (БЕЗ дублікатів)
+            Список змаплених характеристик
         """
         if not product_name:
             return []
         
         mapped_attributes = []
-        seen_attributes = {}  # Дедуплікація: ім'я атрибута → найкращий пріоритет
+        seen_attributes = {}
         
-        # Шукаємо правила з supplier_name_substring
         for rule in self.rules:
-            # Пропускаємо правила без name pattern
             name_pattern = rule.get('supplier_name_substring', '').strip()
             if not name_pattern:
                 continue
@@ -284,63 +342,72 @@ class AttributeMapper:
                 if not category_id or str(rule_category) != str(category_id):
                     continue
             
-            # Перевіряємо regex зі списку name
+            # Перевіряємо regex
             if rule['pattern_type'] == 'regex':
                 cache_key = f"name:{name_pattern}"
                 regex = self.regex_cache.get(cache_key)
                 
                 if regex and regex.search(product_name):
                     prom_attribute = rule['prom_attribute']
-                    prom_value = rule['prom_value_template']
+                    prom_value_template = rule['prom_value_template']
+                    rule_kind = rule.get('rule_kind', 'extract')
                     
-                    # Спеціальний маркер "Пропустити"
-                    if prom_attribute == 'Пропустити':
+                    # Замінюємо $1, $2 на capture groups якщо є
+                    match = regex.search(product_name)
+                    prom_value = prom_value_template
+                    if match:
+                        for i, group in enumerate(match.groups(), start=1):
+                            if group:
+                                prom_value = prom_value.replace(f'${i}', group)
+                    
+                    if prom_attribute == 'Пропустити' or rule_kind == 'skip':
                         continue
                     
-                    # ДЕДУПЛІКАЦІЯ: Перевіряємо чи цей атрибут вже є
                     attr_key = prom_attribute.lower().strip()
+                    
                     if attr_key in seen_attributes:
-                        # Атрибут вже існує - порівнюємо пріоритети
-                        existing_priority = seen_attributes[attr_key]['rule_priority']
-                        current_priority = rule['priority']
+                        current_data = seen_attributes[attr_key]
+                        current_value = current_data['value']
+                        current_kind = current_data.get('kind', 'extract')
+                        current_priority = current_data['priority']
                         
-                        if current_priority < existing_priority:
-                            # Поточне правило має вищий пріоритет - оновлюємо
+                        if self._should_apply_rule(rule, current_value, current_kind, current_priority):
                             if self.logger:
-                                self.logger.warning(
-                                    f"⚠️ ДУБЛЮВАННЯ в назві: '{prom_attribute}' вже є з priority={existing_priority}, "
-                                    f"оновлюю на priority={current_priority}: '{product_name}' → {prom_value}"
+                                self.logger.debug(
+                                    f"🔄 Оновлюю з назви '{prom_attribute}': {current_kind}[{current_priority}] → "
+                                    f"{rule_kind}[{rule['priority']}]"
                                 )
-                            # Знаходимо і оновлюємо існуючий запис
                             for attr in mapped_attributes:
                                 if attr['name'].lower().strip() == attr_key:
                                     attr['value'] = prom_value
-                                    attr['rule_priority'] = current_priority
-                                    seen_attributes[attr_key] = attr
+                                    attr['rule_priority'] = rule['priority']
+                                    attr['rule_kind'] = rule_kind
+                                    seen_attributes[attr_key] = {
+                                        'value': prom_value,
+                                        'priority': rule['priority'],
+                                        'kind': rule_kind
+                                    }
                                     break
-                        else:
-                            # Існуючий пріоритет кращий - пропускаємо
-                            if self.logger:
-                                self.logger.debug(
-                                    f"⏭️ Пропускаю дублікат з назви '{prom_attribute}': "
-                                    f"існуючий priority={existing_priority} кращий за {current_priority}"
-                                )
                         continue
                     
-                    # Додаємо нову характеристику
                     new_attr = {
                         'name': prom_attribute,
                         'unit': '',
                         'value': prom_value,
                         'rule_priority': rule['priority'],
-                        'source': 'product_name'  # Позначаємо джерело
+                        'rule_kind': rule_kind,
+                        'source': 'product_name'
                     }
                     mapped_attributes.append(new_attr)
-                    seen_attributes[attr_key] = new_attr
+                    seen_attributes[attr_key] = {
+                        'value': prom_value,
+                        'priority': rule['priority'],
+                        'kind': rule_kind
+                    }
                     
                     if self.logger:
                         self.logger.debug(
-                            f"✅ Змаплено з назви: '{product_name}' → {prom_attribute} = {prom_value} [priority={rule['priority']}]"
+                            f"✅ З назви: '{product_name}' → {prom_attribute}={prom_value} ({rule_kind}[{rule['priority']}])"
                         )
         
         return mapped_attributes
@@ -349,18 +416,11 @@ class AttributeMapper:
         """
         Мапить список характеристик
         
-        Args:
-            specifications_list: [
-                {'name': 'Тип', 'unit': '', 'value': 'UTP CAT5e'},
-                {'name': 'Довжина кабеля', 'unit': '', 'value': '305 м'},
-                ...
-            ]
-        
         Returns:
             {
-                'supplier': [...],  # Оригінальні характеристики
-                'mapped': [...],    # Портальні характеристики
-                'unmapped': [...]   # Що не змапилось
+                'supplier': [...],
+                'mapped': [...],
+                'unmapped': [...]
             }
         """
         result = {
@@ -373,10 +433,8 @@ class AttributeMapper:
             mapped_list = self.map_single_attribute(spec, category_id)
             
             if mapped_list:
-                # Може бути декілька змаплених характеристик з одної
                 result['mapped'].extend(mapped_list)
             else:
-                # Не змапилось - додаємо в unmapped
                 if spec.get('name') and spec.get('value'):
                     result['unmapped'].append(spec)
                     if self.logger:
@@ -398,45 +456,31 @@ def test_mapper():
     """Тестування маппера"""
     import logging
     
-    # Створюємо простий logger
     logger = logging.getLogger('test')
     logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(message)s'))
     logger.addHandler(handler)
     
-    # Тестові дані
     test_specs = [
         {'name': 'Тип', 'unit': '', 'value': 'UTP CAT5e'},
-        {'name': 'Оболонка', 'unit': '', 'value': 'Полівінілхлорид (PVC)'},
         {'name': 'Довжина кабеля', 'unit': '', 'value': '305 м'},
-        {'name': 'Матеріал жили (провідника)', 'unit': '', 'value': 'мідь'},
-        {'name': 'Кількість жил', 'unit': '', 'value': '8'},
-        {'name': 'Переріз', 'unit': '', 'value': '0.5 мм'},
     ]
     
-    # Створюємо маппер
     rules_path = r"C:\FullStack\Scrapy\data\viatec\viatec_mapping_rules.csv"
     mapper = AttributeMapper(rules_path, logger)
     
-    # Мапимо
-    result = mapper.map_attributes(test_specs)
+    result = mapper.map_attributes(test_specs, category_id="301105")
     
     print("\n" + "="*80)
     print("РЕЗУЛЬТАТ МАППІНГУ:")
     print("="*80)
     
-    print(f"\n📥 Оригінальні ({len(result['supplier'])}):")
-    for spec in result['supplier']:
-        print(f"  • {spec['name']}: {spec['value']}")
-    
     print(f"\n✅ Змаплені ({len(result['mapped'])}):")
     for spec in result['mapped']:
-        print(f"  • {spec['name']}: {spec['value']}")
-    
-    print(f"\n❌ Не змаплені ({len(result['unmapped'])}):")
-    for spec in result['unmapped']:
-        print(f"  • {spec['name']}: {spec['value']}")
+        kind = spec.get('rule_kind', 'extract')
+        priority = spec.get('rule_priority', 999)
+        print(f"  • {spec['name']}: {spec['value']} [{kind}, priority={priority}]")
 
 
 if __name__ == '__main__':

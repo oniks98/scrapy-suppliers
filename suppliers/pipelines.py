@@ -8,9 +8,15 @@
 - "В наличии" → "+"
 - "В наличии 5 шт" → Наявність: "+", Кількість: "5"
 
-ХАРАКТЕРИСТИКИ:
-- Формат PROM: повторювані триплети БЕЗ нумерації
-- Назва_Характеристики;Одиниця_виміру_Характеристики;Значення_Характеристики (x60 разів)
+ХАРАКТЕРИСТИКИ з підтримкою rule_kind:
+- extract: основне правило витягування (пріоритет по priority)
+- normalize: нормалізація формату (пріоритет по priority)
+- derive: логічний вивід (НЕ перезаписує extract/normalize)
+- fallback: використовується тільки якщо значення відсутнє
+- skip: пропустити цю характеристику
+
+Формат PROM: повторювані триплети БЕЗ нумерації
+- Назва_Характеристики;Одиниця_виміру_Характеристики;Значення_Характеристики (x160 разів)
 """
 import re
 import csv
@@ -21,14 +27,14 @@ from suppliers.attribute_mapper import AttributeMapper
 
 
 class SuppliersPipeline:
-    """Один pipeline для всіх постачальників"""
+    """Один pipeline для всіх постачальників з підтримкою rule_kind"""
     
     def __init__(self):
         self.files = {}
         self.writers = {}
         self.viatec_dealer_coefficient = None
         self.personal_notes_mapping = {}
-        self.attribute_mapper = None  # Буде ініціалізовано в open_spider
+        self.attribute_mapper = None
         
         # Базові поля CSV згідно формату PROM
         self.fieldnames_base = [
@@ -83,7 +89,7 @@ class SuppliersPipeline:
             "Де_знаходиться_товар",
         ]
         
-        # Директорія для вихідних файлів (абсолютний шлях)
+        # Директорія для вихідних файлів
         self.output_dir = Path(r"C:\FullStack\Scrapy\output")
         
         # Лічильники для послідовної нумерації продуктів
@@ -98,7 +104,7 @@ class SuppliersPipeline:
         spider.logger.info(f"✅ Pipeline відкрито для {spider.name}")
         spider.logger.info(f"📁 Вихідна директорія: {self.output_dir}")
 
-        # --- Завантаження коефіцієнту (тільки для viatec_dealer) ---
+        # Завантаження коефіцієнту (тільки для viatec_dealer)
         if spider.name == 'viatec_dealer':
             coefficient_path = r"C:\FullStack\Scrapy\data\viatec\viatec_coefficient_dealer.csv"
             try:
@@ -106,15 +112,12 @@ class SuppliersPipeline:
                     content = f.read().strip()
                     spider.logger.debug(f"Вміст файлу коефіцієнту: '{content}'")
                     
-                    # Спробуємо різні формати
                     coefficient_str = None
                     
-                    # Варіант 1: Файл містить тільки число (наприклад: "1,2" або "1.2")
                     if ';' not in content and '\n' not in content:
                         coefficient_str = content.strip('"').strip()
                         spider.logger.debug(f"Формат 1: просте число '{coefficient_str}'")
                     else:
-                        # Варіант 2: CSV з роздільником ; (наприклад: "coefficient;1,2")
                         f.seek(0)
                         reader = csv.reader(f, delimiter=';')
                         row = next(reader)
@@ -128,7 +131,6 @@ class SuppliersPipeline:
                             raise ValueError(f"Некоректний формат CSV: {row}")
                     
                     if coefficient_str:
-                        # Конвертуємо кому на крапку для float
                         self.viatec_dealer_coefficient = float(coefficient_str.replace(',', '.'))
                         spider.logger.info(f"✅ Коефіцієнт для viatec_dealer завантажено: {self.viatec_dealer_coefficient}")
                     else:
@@ -140,12 +142,12 @@ class SuppliersPipeline:
                 spider.logger.error(f"❌ Помилка завантаження коефіцієнту для viatec_dealer: {e}")
                 spider.logger.error(f"   Перевірте формат файлу {coefficient_path}")
 
-        # --- Універсальне завантаження особистих нотаток ---
+        # Завантаження особистих нотаток
         supplier_name = spider.name.split('_')[0]
         personal_notes_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_personal_notes.csv"
         
         try:
-            with open(personal_notes_path, 'r', encoding='utf-8-sig') as f:  # utf-8-sig видаляє BOM
+            with open(personal_notes_path, 'r', encoding='utf-8-sig') as f:
                 reader = csv.reader(f, delimiter=';')
                 next(reader)  # Skip header
                 for row in reader:
@@ -159,12 +161,12 @@ class SuppliersPipeline:
         except Exception as e:
             spider.logger.error(f"❌ Помилка завантаження мапінгу особистих нотаток для {spider.name}: {e}")
 
-        # --- Ініціалізація маппера характеристик ---
+        # Ініціалізація маппера характеристик з підтримкою rule_kind
         rules_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_mapping_rules.csv"
         if rules_path.exists():
             try:
                 self.attribute_mapper = AttributeMapper(str(rules_path), spider.logger)
-                spider.logger.info(f"✅ AttributeMapper ініціалізовано для {spider.name}")
+                spider.logger.info(f"✅ AttributeMapper ініціалізовано для {spider.name} з підтримкою rule_kind")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка ініціалізації AttributeMapper: {e}")
                 self.attribute_mapper = None
@@ -179,7 +181,6 @@ class SuppliersPipeline:
         
         # Перевіряємо чи файл не відкритий в іншій програмі
         try:
-            # Спочатку пробуємо відкрити у режимі read-write для перевірки
             test_file = open(filepath, "a", encoding="utf-8")
             test_file.close()
         except PermissionError:
@@ -190,7 +191,7 @@ class SuppliersPipeline:
                 f"Файл відкритий в іншій програмі. Закрийте його і спробуйте знову."
             )
         
-        # Створюємо файл і пишемо заголовок ВІДРАЗУ
+        # Створюємо файл і пишемо заголовок
         try:
             self.files[output_file] = open(filepath, "w", encoding="utf-8", newline="", buffering=1)
             self._write_header(self.files[output_file])
@@ -208,14 +209,14 @@ class SuppliersPipeline:
         }
     
     def process_item(self, item, spider):
-        """Обробляємо кожен item з ФІЛЬТРАЦІЄЮ"""
+        """Обробляємо кожен item з ФІЛЬТРАЦІЄЮ та підтримкою rule_kind"""
         adapter = ItemAdapter(item)
         
         # Отримуємо ідентифікатор файлу
         output_file = adapter.get("output_file") or f"{adapter.get('supplier_id', 'unknown')}.csv"
         filepath = self.output_dir / output_file
         
-        # ========== ФІЛЬТР 1: Перевірка ціни ==========
+        # ФІЛЬТР 1: Перевірка ціни
         price = adapter.get("Ціна", "")
         if not price or not self._is_valid_price(price):
             self._increment_stat(output_file, "filtered_no_price")
@@ -224,7 +225,7 @@ class SuppliersPipeline:
             spider.logger.warning(f"❌ Товар без ціни: {product_name}... | {product_url}")
             raise DropItem(f"Товар без ціни")
         
-        # ========== ФІЛЬТР 2: Перевірка наявності ==========
+        # ФІЛЬТР 2: Перевірка наявності
         availability_raw = adapter.get("Наявність", "")
         product_name_short = adapter.get('Назва_позиції', 'Невідомий')[:50]
         spider.logger.info(f"🔍 ПРОВЕРКА НАЯВНОСТІ: {product_name_short}... | RAW: '{availability_raw}'")
@@ -241,7 +242,7 @@ class SuppliersPipeline:
         # Очищення та нормалізація даних
         cleaned_item = self._clean_item(adapter, spider)
         
-        # ========== РОЗРАХУНОК ЦІНИ З КОЕФІЦІЄНТОМ (ЯКЩО ПОТРІБНО) ==========
+        # РОЗРАХУНОК ЦІНИ З КОЕФІЦІЄНТОМ (ЯКЩО ПОТРІБНО)
         if spider.name == 'viatec_dealer' and self.viatec_dealer_coefficient:
             try:
                 price_float = float(cleaned_item["Ціна"].replace(',', '.'))
@@ -254,61 +255,47 @@ class SuppliersPipeline:
         # Оновлюємо поля наявності
         cleaned_item["Наявність"] = "+"
         quantity = adapter.get("Кількість", "")
-        # Якщо кількість не вказана постачальником, ставимо 100 за замовчуванням
         cleaned_item["Кількість"] = quantity if quantity else "100"
         
-        # ========== ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ТОВАРУ ==========
-        # Отримуємо артикул з item (павуки передають його в Ідентифікатор_товару)
+        # ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ТОВАРУ
         supplier_sku = adapter.get("Ідентифікатор_товару", "").strip()
         
-        # Ініціалізуємо лічильник якщо потрібно
         if output_file not in self.product_counters:
             self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
         
-        # Використовуємо послідовну нумерацію для всіх товарів
         cleaned_item["Код_товару"] = str(self.product_counters[output_file])
         self.product_counters[output_file] += 1
         
         spider.logger.info(f"🔢 Код товару: {cleaned_item['Код_товару']} | Артикул: '{supplier_sku}'")
         
-        # Зберігаємо артикул в Ідентифікатор_товару (він уже там, просто переносимо в cleaned_item)
         cleaned_item["Ідентифікатор_товару"] = supplier_sku
         
-        # Встановлюємо Особисті_нотатки БЕЗ артикулу
+        # Встановлюємо Особисті_нотатки
         group_number = adapter.get("Номер_групи", "")
         personal_note = self.personal_notes_mapping.get(group_number, "PROM")
         
         spider.logger.debug(f"📝 Особисті нотатки: '{personal_note}'")
         cleaned_item["Особисті_нотатки"] = personal_note
         
-        # ========== ОБРОБКА ОПИСУ ==========
+        # ОБРОБКА ОПИСУ
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))
         cleaned_item["Опис_укр"] = self._clean_description(cleaned_item.get("Опис_укр", ""))
         
-        # ========== САНІТИЗАЦІЯ URL ЗОБРАЖЕНЬ ==========
-        # Зображення можуть бути через кому і пробіл: "url1, url2, url3"
-        # НЕ замінюємо коми між URL, бо вони є роздільниками
-        # Замінюємо тільки коми ВСЕРЕДИНІ кожного URL на %2C
+        # САНІТИЗАЦІЯ URL ЗОБРАЖЕНЬ
         image_url = cleaned_item.get("Посилання_зображення", "")
         if image_url:
-            # Розділяємо на окремі URL за патерном ", " (кома + пробіл)
             urls = [u.strip() for u in image_url.split(", ") if u.strip()]
-            # Санітизуємо кожен URL окремо (замінюємо коми всередині URL на %2C)
             sanitized_urls = []
             for url in urls:
-                # Якщо в URL є кома (що рідко, але можливо), замінюємо на %2C
                 if ',' in url:
                     url = url.replace(",", "%2C")
                 sanitized_urls.append(url)
-            # З'єднуємо назад через ", "
             cleaned_item["Посилання_зображення"] = ", ".join(sanitized_urls)
         
-        # ========== ОБРОБКА ХАРАКТЕРИСТИК ==========
+        # ОБРОБКА ХАРАКТЕРИСТИК з підтримкою rule_kind
         specs_list_original = adapter.get("specifications_list", [])
         
-        # Мапимо характеристики якщо маппер доступний
         if self.attribute_mapper:
-            # Отримуємо category_id з item
             category_id = adapter.get("Ідентифікатор_підрозділу", "")
             product_name = cleaned_item.get('Назва_позиції', '')
             
@@ -321,7 +308,7 @@ class SuppliersPipeline:
                 if name_mapped:
                     spider.logger.info(
                         f"🎯 З назви товару ({len(name_mapped)}): " +
-                        ", ".join([f"{s['name']}={s['value']}" for s in name_mapped[:5]])
+                        ", ".join([f"{s['name']}={s['value']} [{s.get('rule_kind', 'extract')}]" for s in name_mapped[:5]])
                     )
             
             # 2. Мапимо з характеристик (нижчий пріоритет: 10+)
@@ -329,39 +316,69 @@ class SuppliersPipeline:
             if specs_list_original:
                 mapping_result = self.attribute_mapper.map_attributes(specs_list_original, category_id)
             
-            # 3. ОБ'ЄДНУЄМО З ДЕДУПЛІКАЦІЄЮ: оригінальні + з назви + з характеристик
-            # Використовуємо словник для дедуплікації: ім'я атрибута → найкращий запис
+            # 3. ОБ'ЄДНУЄМО З ДЕДУПЛІКАЦІЄЮ з урахуванням rule_kind
             specs_dict = {}
             
             # Спочатку додаємо оригінальні (найнижчий пріоритет)
             for spec in mapping_result['supplier']:
                 key = spec['name'].lower().strip()
                 if key not in specs_dict:
-                    specs_dict[key] = spec
+                    specs_dict[key] = {
+                        **spec,
+                        'rule_priority': 9999,
+                        'rule_kind': 'supplier'
+                    }
             
             # Потім з характеристик (середній пріоритет: 10+)
             for spec in mapping_result['mapped']:
                 key = spec['name'].lower().strip()
+                rule_kind = spec.get('rule_kind', 'extract')
+                rule_priority = spec.get('rule_priority', 999)
+                
                 if key not in specs_dict:
                     specs_dict[key] = spec
-                elif spec.get('rule_priority', 999) < specs_dict[key].get('rule_priority', 999):
-                    # Оновлюємо якщо пріоритет кращий
-                    spider.logger.debug(
-                        f"⚠️ Заміна дубліката '{spec['name']}': priority {specs_dict[key].get('rule_priority', 999)} → {spec.get('rule_priority', 999)}"
+                else:
+                    current = specs_dict[key]
+                    current_kind = current.get('rule_kind', 'extract')
+                    current_priority = current.get('rule_priority', 999)
+                    
+                    # Застосовуємо логіку rule_kind
+                    should_replace = self._should_replace_attribute(
+                        rule_kind, rule_priority, 
+                        current_kind, current_priority
                     )
-                    specs_dict[key] = spec
+                    
+                    if should_replace:
+                        spider.logger.debug(
+                            f"⚠️ Заміна '{spec['name']}': "
+                            f"{current_kind}[{current_priority}] → {rule_kind}[{rule_priority}]"
+                        )
+                        specs_dict[key] = spec
             
-            # І нарешті з назви (найвищий пріоритет: 1-9) - перезаписують все
+            # І нарешті з назви (найвищий пріоритет: 1-9)
             for spec in name_mapped:
                 key = spec['name'].lower().strip()
+                rule_kind = spec.get('rule_kind', 'extract')
+                rule_priority = spec.get('rule_priority', 999)
+                
                 if key not in specs_dict:
                     specs_dict[key] = spec
-                elif spec.get('rule_priority', 999) < specs_dict[key].get('rule_priority', 999):
-                    # Оновлюємо якщо пріоритет кращий
-                    spider.logger.debug(
-                        f"⚠️ Заміна з назви '{spec['name']}': priority {specs_dict[key].get('rule_priority', 999)} → {spec.get('rule_priority', 999)}"
+                else:
+                    current = specs_dict[key]
+                    current_kind = current.get('rule_kind', 'extract')
+                    current_priority = current.get('rule_priority', 999)
+                    
+                    should_replace = self._should_replace_attribute(
+                        rule_kind, rule_priority,
+                        current_kind, current_priority
                     )
-                    specs_dict[key] = spec
+                    
+                    if should_replace:
+                        spider.logger.debug(
+                            f"⚠️ Заміна з назви '{spec['name']}': "
+                            f"{current_kind}[{current_priority}] → {rule_kind}[{rule_priority}]"
+                        )
+                        specs_dict[key] = spec
             
             # Конвертуємо назад у список
             specs_list = list(specs_dict.values())
@@ -371,7 +388,7 @@ class SuppliersPipeline:
                 f"{len(mapping_result['supplier'])} користувацьких + "
                 f"{len(name_mapped)} з назви + "
                 f"{len(mapping_result['mapped'])} з характеристик = "
-                f"{len(specs_list)} фінально (після дедуплікації)"
+                f"{len(specs_list)} фінально (після дедуплікації з rule_kind)"
             )
             
             if mapping_result['unmapped']:
@@ -380,17 +397,18 @@ class SuppliersPipeline:
                     ", ".join([f"{s['name']}={s['value']}" for s in mapping_result['unmapped'][:3]])
                 )
             
-            # Логуємо які саме портальні характеристики створено
             if mapping_result['mapped']:
                 spider.logger.info(
                     f"✅ Портальні ({len(mapping_result['mapped'])}): " +
-                    ", ".join([f"{s['name']}={s['value']}" for s in mapping_result['mapped'][:10]])
+                    ", ".join([
+                        f"{s['name']}={s['value']} [{s.get('rule_kind', 'extract')}]" 
+                        for s in mapping_result['mapped'][:10]
+                    ])
                 )
         else:
-            # Маппер недоступний - використовуємо тільки оригінальні
             specs_list = specs_list_original
         
-        # Файл вже створений в open_spider(), просто використовуємо
+        # Файл вже створений в open_spider()
         if output_file not in self.files:
             spider.logger.error(f"❌ Файл {output_file} не знайдено! Це помилка.")
             raise ValueError(f"File {output_file} was not initialized in open_spider")
@@ -401,7 +419,6 @@ class SuppliersPipeline:
         # Базові поля
         for field in self.fieldnames_base:
             value = cleaned_item.get(field, "")
-            # Екрануємо ; на кому, " на подвійні лапки, \n та \r на <br> для збереження форматування
             value_str = str(value).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
             row_parts.append(value_str)
         
@@ -409,7 +426,6 @@ class SuppliersPipeline:
         for i in range(160):
             if i < len(specs_list):
                 spec = specs_list[i]
-                # Замінюємо ; на кому, " на подвійні лапки, \n та \r на <br> для збереження форматування
                 name = str(spec.get("name", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
                 unit = str(spec.get("unit", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
                 value = str(spec.get("value", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
@@ -417,7 +433,6 @@ class SuppliersPipeline:
                 row_parts.append(unit)
                 row_parts.append(value)
             else:
-                # Порожні триплети
                 row_parts.extend(["", "", ""])
         
         # Записуємо рядок у файл
@@ -432,6 +447,42 @@ class SuppliersPipeline:
         )
         
         return item
+    
+    def _should_replace_attribute(self, new_kind, new_priority, current_kind, current_priority):
+        """
+        Визначає чи треба замінити поточну характеристику новою з урахуванням rule_kind
+        
+        Args:
+            new_kind: rule_kind нового правила
+            new_priority: пріоритет нового правила
+            current_kind: rule_kind поточного значення
+            current_priority: пріоритет поточного значення
+        
+        Returns:
+            True якщо треба замінити, False якщо ні
+        """
+        # skip - ніколи не заміняємо
+        if new_kind == 'skip':
+            return False
+        
+        # fallback - тільки якщо значення відсутнє (але тут значення вже є)
+        if new_kind == 'fallback':
+            return False
+        
+        # derive - НЕ заміняє extract/normalize
+        if new_kind == 'derive':
+            # Замінюємо тільки інші derive з кращим пріоритетом
+            if current_kind == 'derive' and new_priority < current_priority:
+                return True
+            # НЕ замінюємо extract/normalize/supplier
+            return False
+        
+        # extract/normalize - основна логіка
+        # Замінюємо якщо пріоритет кращий (менше число)
+        if new_priority < current_priority:
+            return True
+        
+        return False
     
     def close_spider(self, spider):
         """Закриваємо файли та виводимо статистику"""
@@ -455,7 +506,6 @@ class SuppliersPipeline:
         """Пише заголовок з повторюваними триплетами (БЕЗ нумерації)"""
         header_parts = self.fieldnames_base.copy()
         
-        # Додаємо 160 повторюваних триплетів характеристик
         for _ in range(160):
             header_parts.extend([
                 "Назва_Характеристики",
@@ -481,15 +531,15 @@ class SuppliersPipeline:
         Перевірка наявності товару
         Повертає True якщо товар В НАЯВНОСТІ, False якщо немає
         
-        ВАЖЛИВО: За замовчуванням вважаємо товар В НАЯВНОСТІ,
+        За замовчуванням вважаємо товар В НАЯВНОСТІ,
         якщо явно не вказано що його немає
         """
         if not availability_str:
-            return True  # Змінено з False на True - за замовчуванням В НАЯВНОСТІ
+            return True
         
         availability_lower = str(availability_str).lower().strip()
         
-        # Спочатку перевіряємо на відсутність (явні негативні маркери)
+        # Перевіряємо на відсутність (явні негативні маркери)
         out_of_stock_keywords = [
             "немає",
             "немає в наявності",
@@ -544,9 +594,7 @@ class SuppliersPipeline:
         for pattern in patterns_to_remove:
             description = re.sub(pattern, "", description, flags=re.IGNORECASE)
         
-        # Замінюємо \n на <br> для збереження переносів рядків
         description = description.replace("\n", "<br>")
-        # Видаляємо зайві пробіли, але зберігаємо <br>
         description = re.sub(r' +', ' ', description)
         
         return description.strip()
@@ -607,13 +655,7 @@ class SuppliersPipeline:
         Завантажує початковий код товару з CSV файлу.
         Формат файлу: один рядок, одне число.
         """
-        # Визначаємо шлях до файлу лічильника на основі імені павука
-        # Приклад: C:\FullStack\Scrapy\data\viatec\viatec_counter_product_code.csv
-        # Приклад: C:\FullStack\Scrapy\data\eserver\eserver_counter_product_code.csv
-        
-        # Розділяємо ім'я павука, щоб отримати назву постачальника (наприклад, 'viatec' з 'viatec_retail' або 'viatec_dealer')
         supplier_prefix = spider_name.split('_')[0]
-        
         counter_file_path = Path(r"C:\FullStack\Scrapy\data") / supplier_prefix / f"{supplier_prefix}_counter_product_code.csv"
         
         try:
@@ -622,7 +664,6 @@ class SuppliersPipeline:
                 for row in reader:
                     if row:
                         try:
-                            # Використовуємо регулярний вираз для пошуку першого числа в рядку
                             match = re.search(r'(\d+)', row[0])
                             if match:
                                 initial_code = int(match.group(1))
