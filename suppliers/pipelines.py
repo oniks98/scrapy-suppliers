@@ -331,8 +331,14 @@ class SuppliersPipeline:
             
             # Потім з характеристик (середній пріоритет: 10+)
             for spec in mapping_result['mapped']:
-                key = spec['name'].lower().strip()
                 rule_kind = spec.get('rule_kind', 'extract')
+                
+                # ✅ КРИТИЧНО: skip НЕ додаємо взагалі
+                if rule_kind == 'skip':
+                    spider.logger.debug(f"⏭️ SKIP правило проігноровано: {spec['name']}")
+                    continue  # Пропускаємо цю характеристику
+                
+                key = spec['name'].lower().strip()
                 rule_priority = spec.get('rule_priority', 999)
                 
                 if key not in specs_dict:
@@ -357,8 +363,14 @@ class SuppliersPipeline:
             
             # І нарешті з назви (найвищий пріоритет: 1-9)
             for spec in name_mapped:
-                key = spec['name'].lower().strip()
                 rule_kind = spec.get('rule_kind', 'extract')
+                
+                # ✅ КРИТИЧНО: skip НЕ додаємо взагалі
+                if rule_kind == 'skip':
+                    spider.logger.debug(f"⏭️ SKIP правило (з назви) проігноровано: {spec['name']}")
+                    continue
+                
+                key = spec['name'].lower().strip()
                 rule_priority = spec.get('rule_priority', 999)
                 
                 if key not in specs_dict:
