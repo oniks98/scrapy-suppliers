@@ -1,66 +1,66 @@
-﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_value_template;priority;is_active;category_id;rule_kind;notes;;;;;;;;;;
-.*\bHQHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HQHI series;;;;;;;;;;
-.*\bHGHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HGHI series;;;;;;;;;;
-.*\bHUHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HUHI series;;;;;;;;;;
-.*\bHTHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HTHI series;;;;;;;;;;
-.*\bXVR\b.*;;;regex;Тип відеореєстратора;HD-CVI;2;TRUE;301101;extract;DVR type XVR series;;;;;;;;;;
-.*\bNI\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type NI series;;;;;;;;;;
-.*\bNXI\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type NXI series;;;;;;;;;;
-.*\bNVR\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type generic NVR;;;;;;;;;;
-\b4[-\s]?кан\.?\b;;;regex;Кількість каналів;4;5;TRUE;301101;extract;4 channels from name;;;;;;;;;;
-\b8[-\s]?кан\.?\b;;;regex;Кількість каналів;8;5;TRUE;301101;extract;8 channels from name;;;;;;;;;;
-\b16[-\s]?кан\.?\b;;;regex;Кількість каналів;16;5;TRUE;301101;extract;16 channels from name;;;;;;;;;;
-\b32[-\s]?кан\.?\b;;;regex;Кількість каналів;32;5;TRUE;301101;extract;32 channels from name;;;;;;;;;;
-\b64[-\s]?кан\.?\b;;;regex;Кількість каналів;64;5;TRUE;301101;extract;64 channels from name;;;;;;;;;;
-.*\bPoE\b.*;;;regex;Підтримка PoE;Так;6;TRUE;301101;extract;PoE support from name;;;;;;;;;;
-;IP камери;^([0-9]+)\s*(?:кан|канал)?;regex;Кількість каналів;$1 ;10;TRUE;301101;extract;Channels from IP cameras field;;;;;;;;;;
-;Аналогові входи;^([0-9]+)\s*(?:BNC|кан)?;regex;Кількість каналів;$1 ;11;TRUE;301101;extract;Channels from analog inputs;;;;;;;;;;
-;HDCVI камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;HD-CVI;20;TRUE;301101;derive;HDCVI type from camera spec;;;;;;;;;;
-;AHD камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;AHD;21;TRUE;301101;derive;AHD type from camera spec;;;;;;;;;;
-;TVI камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;HD-TVI;22;TRUE;301101;derive;TVI type from camera spec;;;;;;;;;;
-;Функціональність;Pentaplex;contains;Функціональність;Pentaplex;30;TRUE;301101;extract;Pentaplex functionality;;;;;;;;;;
-;Функціональність;Hexaplex;contains;Функціональність;Hexaplex;31;TRUE;301101;extract;Hexaplex functionality;;;;;;;;;;
-;Функціональність;Triplex;contains;Функціональність;Triplex;32;TRUE;301101;extract;Triplex functionality;;;;;;;;;;
-;Функціональність;Duplex;contains;Функціональність;Duplex;33;TRUE;301101;extract;Duplex functionality;;;;;;;;;;
-;Відео компресія;H\.265;contains;Формат стиснення;H. 265;40;TRUE;301101;extract;H.265 compression DVR;;;;;;;;;;
-;Відео компресія;H\.264;contains;Формат стиснення;H. 264;41;TRUE;301101;extract;H.264 compression DVR;;;;;;;;;;
-;Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;42;TRUE;301101;extract;MJPEG compression DVR;;;;;;;;;;
-;Відео компресія;MPEG-4;contains;Формат стиснення;MPEG-4;43;TRUE;301101;extract;MPEG-4 compression DVR;;;;;;;;;;
-;Відео компресія;H\.\s*265\+;regex;Формат стиснення;H. 265+;44;TRUE;301101;extract;H.265+ compression DVR;;;;;;;;;;
-;Відео компресія;H\.\s*264\+;regex;Формат стиснення;H. 264+;45;TRUE;301101;extract;H.264+ compression DVR;;;;;;;;;;
-;Дозвіл запису;.*([0-9]+)\s*[×x]\s*([0-9]+);regex;Дозвіл запису;$1x$2;50;TRUE;301101;extract;Recording resolution;;;;;;;;;;
-;Інтерфейси відео виходу;HDMI;contains;HDMI відеовихід;Так;60;TRUE;301101;extract;HDMI output present;;;;;;;;;;
-;Інтерфейси відео виходу;VGA;contains;VGA відеовихід;Так;61;TRUE;301101;extract;VGA output present;;;;;;;;;;
-;Внутрішні HDD;([0-9]+)\s*SATA;regex;Количество HDD;$1 ;70;TRUE;301101;extract;Number of HDDs;;;;;;;;;;
-;Внутрішні HDD;до\s*([0-9]+)\s*[ТТ]б;regex;Суммарная емкость HDD (GB);$1 ;71;TRUE;301101;extract;Max HDD capacity in TB;;;;;;;;;;
-;PoE порти;([0-9]+)\s*[×x]?;regex;Кількість вбудованих портів POE;$1 ;80;TRUE;301101;extract;Number of PoE ports;;;;;;;;;;
-;Живлення;(?:12\s*В\s*DC|DC\s*12В);regex;Живлення;Мережа 12В;90;TRUE;301101;extract;12V DC power DVR;;;;;;;;;;
-;Живлення;(?:48\s*В\s*DC|DC\s*48В);regex;Живлення;Мережа 12В;91;TRUE;301101;extract;48V DC power DVR (mapped to 12V);;;;;;;;;;
-;Живлення;(?:220|100-240).*[ВV]\s*A[CС];regex;Живлення;Мережа 220В;92;TRUE;301101;extract;220V AC power DVR;;;;;;;;;;
-;Тривожні входи;^([0-9]+)$;regex;Тривожні входи/виходи;$1-Jan;100;TRUE;301101;extract;Alarm inputs only;;;;;;;;;;
-;Релейні виходи;^([0-9]+)$;regex;Тривожні входи/виходи;1-$1;101;TRUE;301101;extract;Relay outputs (assuming 1 input);;;;;;;;;;
-;USB;([0-9]+)\s*[×x]?\s*USB;regex;Кількість USB-портів;$1 ;110;TRUE;301101;extract;Number of USB ports;;;;;;;;;;
-;RS485;(?:1|Так|Підтримує);regex;RS-485;Так;120;TRUE;301101;extract;RS-485 present;;;;;;;;;;
-;RS232;(?:1|Так|Підтримує);regex;RS-232;Так;121;TRUE;301101;extract;RS-232 present;;;;;;;;;;
-;Бездротовий інтерфейс;(?:Wi-Fi|Так);regex;Бездротовий інтерфейс;Так;130;TRUE;301101;extract;Wireless interface;;;;;;;;;;
-;Підтримка RAID;(?:Так|Підтримує);regex;Підтримка RAID;Так;140;TRUE;301101;extract;RAID support;;;;;;;;;;
-;Підтримка PoE;Так;exact;Підтримка PoE;Так;150;TRUE;301101;extract;PoE support explicit;;;;;;;;;;
-;Режим постійного запису;.*;regex;Режим постійного запису;Так;160;TRUE;301101;derive;Continuous recording (assumed);;;;;;;;;;
-;Режим запису за розкладом;.*;regex;Режим запису за розкладом;Так;161;TRUE;301101;derive;Schedule recording (assumed);;;;;;;;;;
-;Режим запису за рухом;.*;regex;Режим запису за рухом;Так;162;TRUE;301101;derive;Motion recording (assumed);;;;;;;;;;
-;Кількість в ящику;;exact;;Пропустити;2000;TRUE;301101;skip;Skip box quantity DVR;;;;;;;;;;
-;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301101;skip;Skip package dimensions DVR;;;;;;;;;;
-;Вага брутто;;exact;;Пропустити;2002;TRUE;301101;skip;Skip gross weight DVR;;;;;;;;;;
-;Потужність споживання;;exact;;Пропустити;2003;TRUE;301101;skip;Skip power consumption DVR;;;;;;;;;;
-;Сумісність;;exact;;Пропустити;2004;TRUE;301101;skip;Skip compatibility DVR;;;;;;;;;;
-;Макс\. кількість користувачів;;exact;;Пропустити;2005;TRUE;301101;skip;Skip max users DVR;;;;;;;;;;
-;Частота кадрів.*;;regex;;Пропустити;2006;TRUE;301101;skip;Skip framerate DVR;;;;;;;;;;
-;Роздільна здатність відеовиходу;;exact;;Пропустити;2007;TRUE;301101;skip;Skip video output resolution DVR;;;;;;;;;;
-;Вхідний потік;;exact;;Пропустити;2008;TRUE;301101;skip;Skip input bandwidth DVR;;;;;;;;;;
-;Декодування;;exact;;Пропустити;2009;TRUE;301101;skip;Skip decoding DVR;;;;;;;;;;
-;Аналітика.*;;regex;;Пропустити;2010;TRUE;301101;skip;Skip analytics DVR;;;;;;;;;;
-;Захист периметра.*;.*;regex;;Пропустити;2011;TRUE;301101;skip;Skip perimeter protection;;;;;;;;;;
-;Розпізнавання облич.*;.*;regex;;Пропустити;2012;TRUE;301101;skip;Skip face recognition;;;;;;;;;;
-;Режим розпізнавання обличч;.*;regex;;Пропустити;2013;TRUE;301101;skip;Skip face recognition mode;;;;;;;;;;
-;Класифікація об'єктів;.*;regex;;Пропустити;2014;TRUE;301101;skip;Skip object classification;;;;;;;;;;
-;Двостороння розмова;.*;regex;;Пропустити;2015;TRUE;301101;skip;Skip two-way audio;;;;;;;;;;
+﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_value_template;priority;is_active;category_id;rule_kind;notes
+.*\bHQHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HQHI series
+.*\bHGHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HGHI series
+.*\bHUHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HUHI series
+.*\bHTHI\b.*;;;regex;Тип відеореєстратора;HD-TVI;1;TRUE;301101;extract;DVR type HTHI series
+.*\bXVR\b.*;;;regex;Тип відеореєстратора;HD-CVI;2;TRUE;301101;extract;DVR type XVR series
+.*\bNI\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type NI series
+.*\bNXI\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type NXI series
+.*\bNVR\b.*;;;regex;Тип відеореєстратора;NVR;3;TRUE;301101;extract;DVR type generic NVR
+\b4[-\s]?кан\.?\b;;;regex;Кількість каналів;4;5;TRUE;301101;extract;4 channels from name
+\b8[-\s]?кан\.?\b;;;regex;Кількість каналів;8;5;TRUE;301101;extract;8 channels from name
+\b16[-\s]?кан\.?\b;;;regex;Кількість каналів;16;5;TRUE;301101;extract;16 channels from name
+\b32[-\s]?кан\.?\b;;;regex;Кількість каналів;32;5;TRUE;301101;extract;32 channels from name
+\b64[-\s]?кан\.?\b;;;regex;Кількість каналів;64;5;TRUE;301101;extract;64 channels from name
+.*\bPoE\b.*;;;regex;Підтримка PoE;Так;6;TRUE;301101;extract;PoE support from name
+;IP камери;^([0-9]+)\s*(?:кан|канал)?;regex;Кількість каналів;$1 ;10;TRUE;301101;extract;Channels from IP cameras field
+;Аналогові входи;^([0-9]+)\s*(?:BNC|кан)?;regex;Кількість каналів;$1 ;11;TRUE;301101;extract;Channels from analog inputs
+;HDCVI камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;HD-CVI;20;TRUE;301101;derive;HDCVI type from camera spec
+;AHD камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;AHD;21;TRUE;301101;derive;AHD type from camera spec
+;TVI камери;.*(?:5MP|5МП|5\s*MP).*;regex;Тип відеореєстратора;HD-TVI;22;TRUE;301101;derive;TVI type from camera spec
+;Функціональність;Pentaplex;contains;Функціональність;Pentaplex;30;TRUE;301101;extract;Pentaplex functionality
+;Функціональність;Hexaplex;contains;Функціональність;Hexaplex;31;TRUE;301101;extract;Hexaplex functionality
+;Функціональність;Triplex;contains;Функціональність;Triplex;32;TRUE;301101;extract;Triplex functionality
+;Функціональність;Duplex;contains;Функціональність;Duplex;33;TRUE;301101;extract;Duplex functionality
+;Відео компресія;H\.265;contains;Формат стиснення;H. 265;40;TRUE;301101;extract;H.265 compression DVR
+;Відео компресія;H\.264;contains;Формат стиснення;H. 264;41;TRUE;301101;extract;H.264 compression DVR
+;Відео компресія;MJPEG;contains;Формат стиснення;MJPEG;42;TRUE;301101;extract;MJPEG compression DVR
+;Відео компресія;MPEG-4;contains;Формат стиснення;MPEG-4;43;TRUE;301101;extract;MPEG-4 compression DVR
+;Відео компресія;H\.\s*265\+;regex;Формат стиснення;H. 265+;44;TRUE;301101;extract;H.265+ compression DVR
+;Відео компресія;H\.\s*264\+;regex;Формат стиснення;H. 264+;45;TRUE;301101;extract;H.264+ compression DVR
+;Дозвіл запису;.*([0-9]+)\s*[×x]\s*([0-9]+);regex;Дозвіл запису;$1x$2;50;TRUE;301101;extract;Recording resolution
+;Інтерфейси відео виходу;HDMI;contains;HDMI відеовихід;Так;60;TRUE;301101;extract;HDMI output present
+;Інтерфейси відео виходу;VGA;contains;VGA відеовихід;Так;61;TRUE;301101;extract;VGA output present
+;Внутрішні HDD;([0-9]+)\s*SATA;regex;Количество HDD;$1 ;70;TRUE;301101;extract;Number of HDDs
+;Внутрішні HDD;до\s*([0-9]+)\s*[ТТ]б;regex;Суммарная емкость HDD (GB);$1 ;71;TRUE;301101;extract;Max HDD capacity in TB
+;PoE порти;([0-9]+)\s*[×x]?;regex;Кількість вбудованих портів POE;$1 ;80;TRUE;301101;extract;Number of PoE ports
+;Живлення;(?:12\s*В\s*DC|DC\s*12В);regex;Живлення;Мережа 12В;90;TRUE;301101;extract;12V DC power DVR
+;Живлення;(?:48\s*В\s*DC|DC\s*48В);regex;Живлення;Мережа 12В;91;TRUE;301101;extract;48V DC power DVR (mapped to 12V)
+;Живлення;(?:220|100-240).*[ВV]\s*A[CС];regex;Живлення;Мережа 220В;92;TRUE;301101;extract;220V AC power DVR
+;Тривожні входи;^([0-9]+)$;regex;Тривожні входи/виходи;$1-Jan;100;TRUE;301101;extract;Alarm inputs only
+;Релейні виходи;^([0-9]+)$;regex;Тривожні входи/виходи;1-$1;101;TRUE;301101;extract;Relay outputs (assuming 1 input)
+;USB;([0-9]+)\s*[×x]?\s*USB;regex;Кількість USB-портів;$1 ;110;TRUE;301101;extract;Number of USB ports
+;RS485;(?:1|Так|Підтримує);regex;RS-485;Так;120;TRUE;301101;extract;RS-485 present
+;RS232;(?:1|Так|Підтримує);regex;RS-232;Так;121;TRUE;301101;extract;RS-232 present
+;Бездротовий інтерфейс;(?:Wi-Fi|Так);regex;Бездротовий інтерфейс;Так;130;TRUE;301101;extract;Wireless interface
+;Підтримка RAID;(?:Так|Підтримує);regex;Підтримка RAID;Так;140;TRUE;301101;extract;RAID support
+;Підтримка PoE;Так;exact;Підтримка PoE;Так;150;TRUE;301101;extract;PoE support explicit
+;Режим постійного запису;.*;regex;Режим постійного запису;Так;160;TRUE;301101;derive;Continuous recording (assumed)
+;Режим запису за розкладом;.*;regex;Режим запису за розкладом;Так;161;TRUE;301101;derive;Schedule recording (assumed)
+;Режим запису за рухом;.*;regex;Режим запису за рухом;Так;162;TRUE;301101;derive;Motion recording (assumed)
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;301101;skip;Skip box quantity DVR
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301101;skip;Skip package dimensions DVR
+;Вага брутто;;exact;;Пропустити;2002;TRUE;301101;skip;Skip gross weight DVR
+;Потужність споживання;;exact;;Пропустити;2003;TRUE;301101;skip;Skip power consumption DVR
+;Сумісність;;exact;;Пропустити;2004;TRUE;301101;skip;Skip compatibility DVR
+;Макс\. кількість користувачів;;exact;;Пропустити;2005;TRUE;301101;skip;Skip max users DVR
+;Частота кадрів.*;;regex;;Пропустити;2006;TRUE;301101;skip;Skip framerate DVR
+;Роздільна здатність відеовиходу;;exact;;Пропустити;2007;TRUE;301101;skip;Skip video output resolution DVR
+;Вхідний потік;;exact;;Пропустити;2008;TRUE;301101;skip;Skip input bandwidth DVR
+;Декодування;;exact;;Пропустити;2009;TRUE;301101;skip;Skip decoding DVR
+;Аналітика.*;;regex;;Пропустити;2010;TRUE;301101;skip;Skip analytics DVR
+;Захист периметра.*;.*;regex;;Пропустити;2011;TRUE;301101;skip;Skip perimeter protection
+;Розпізнавання облич.*;.*;regex;;Пропустити;2012;TRUE;301101;skip;Skip face recognition
+;Режим розпізнавання обличч;.*;regex;;Пропустити;2013;TRUE;301101;skip;Skip face recognition mode
+;Класифікація об'єктів;.*;regex;;Пропустити;2014;TRUE;301101;skip;Skip object classification
+;Двостороння розмова;.*;regex;;Пропустити;2015;TRUE;301101;skip;Skip two-way audio
