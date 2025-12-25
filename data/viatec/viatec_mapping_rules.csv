@@ -247,3 +247,756 @@
 ;Вологість;;exact;;Пропустити;2003;TRUE;301112;skip;Skip humidity
 ;Колір;;exact;;Пропустити;2004;TRUE;301112;skip;Skip color
 ;Кріплення;;exact;;Пропустити;2005;TRUE;301112;skip;Skip mounting details
+.*\bдинам[іи]чн.*;;;regex;Тип;Динамічний;1;TRUE;6371204;extract;Dynamic microphone type from name
+.*\bконденсаторн.*;;;regex;Тип;Конденсаторний;2;TRUE;6371204;extract;Condenser microphone type from name
+.*\bелектретн.*;;;regex;Тип;Електретний;3;TRUE;6371204;extract;Electret microphone type from name
+.*\bп'єзо.*;;;regex;Тип;П'єзомікрофон;4;TRUE;6371204;extract;Piezo microphone type from name
+.*\bвугільн.*;;;regex;Тип;Вугільний мікрофон;5;TRUE;6371204;extract;Carbon microphone type from name
+.*\bручн[ий].*;;;regex;Спосіб установки/кріплення;Ручний;10;TRUE;6371204;extract;Handheld mounting from name
+.*\bпетлич.*;;;regex;Спосіб установки/кріплення;Петличний;11;TRUE;6371204;extract;Lavalier mounting from name
+.*\bнастільн.*;;;regex;Спосіб установки/кріплення;Настільний;12;TRUE;6371204;extract;Desktop mounting from name
+.*\bголовн.*;;;regex;Спосіб установки/кріплення;Головний;13;TRUE;6371204;extract;Headset mounting from name
+.*\bпідвісн.*;;;regex;Спосіб установки/кріплення;Підвісний;14;TRUE;6371204;extract;Hanging mounting from name
+.*\bвмонтован.*;;;regex;Спосіб установки/кріплення;Вмонтований;15;TRUE;6371204;extract;Built-in mounting from name
+.*\bпідлогов.*;;;regex;Спосіб установки/кріплення;Підлоговий;16;TRUE;6371204;extract;Floor mounting from name
+.*\bкардіо[ії]дн.*;;;regex;Спрямованість;Кардіоїдна;20;TRUE;6371204;extract;Cardioid pattern from name
+.*\bгіперкардіо[ії]дн.*;;;regex;Спрямованість;Гіперкардіоїдна;21;TRUE;6371204;extract;Hypercardioid pattern from name
+.*\bсуперкардіо[ії]дн.*;;;regex;Спрямованість;Суперкардіоїдна;22;TRUE;6371204;extract;Supercardioid pattern from name
+.*\bвсеспрямован.*;;;regex;Спрямованість;Всеспрямований;23;TRUE;6371204;extract;Omnidirectional pattern from name
+.*\bненаправлен.*;;;regex;Спрямованість;Ненаправлений;24;TRUE;6371204;extract;Non-directional pattern from name
+.*\bодноспрямован.*;;;regex;Спрямованість;Односпрямований;25;TRUE;6371204;extract;Unidirectional pattern from name
+.*\bдвонаправлен.*;;;regex;Спрямованість;Двонаправлений;26;TRUE;6371204;extract;Bidirectional pattern from name
+.*\bбездротов.*;;;regex;Підключення пристрою;Бездротове;30;TRUE;6371204;extract;Wireless connection from name
+.*\bдротов.*;;;regex;Підключення пристрою;Дротове;31;TRUE;6371204;extract;Wired connection from name
+.*\bUSB.*;;;regex;Тип роз'єму;USB;40;TRUE;6371204;extract;USB connector from name
+.*\bXLR.*;;;regex;Тип роз'єму;XLR;41;TRUE;6371204;extract;XLR connector from name
+.*\bjack.*;;;regex;Тип роз'єму;jack 6.3 мм;42;TRUE;6371204;extract;Jack connector from name
+.*\b3\.5\s*мм.*;;;regex;Тип роз'єму;3.5 мм;43;TRUE;6371204;extract;3.5mm connector from name
+.*\bmini\s*jack.*;;;regex;Тип роз'єму;mini jack 3.5 мм;44;TRUE;6371204;extract;Mini jack connector from name
+.*\bType[-\s]?C.*;;;regex;Тип роз'єму;Type-C;45;TRUE;6371204;extract;Type-C connector from name
+.*\bUSB[-\s]?C.*;;;regex;Тип роз'єму;USB Type-C;46;TRUE;6371204;extract;USB Type-C connector from name
+.*\bLightning.*;;;regex;Тип роз'єму;Lightning;47;TRUE;6371204;extract;Lightning connector from name
+.*\bLEMO.*;;;regex;Тип роз'єму;LEMO;48;TRUE;6371204;extract;LEMO connector from name
+.*\bTA4F.*;;;regex;Тип роз'єму;TA4F;49;TRUE;6371204;extract;TA4F connector from name
+.*\bчорн[ий].*;;;regex;Колір;Чорний;50;TRUE;6371204;extract;Black color from name
+.*\bбіл[ий].*;;;regex;Колір;Білий;51;TRUE;6371204;extract;White color from name
+.*\bсір[ий].*;;;regex;Колір;Сірий;52;TRUE;6371204;extract;Gray color from name
+.*\bсрібл[яи].*;;;regex;Колір;Сріблястий;53;TRUE;6371204;extract;Silver color from name
+.*\bзолот.*;;;regex;Колір;Золотистий;54;TRUE;6371204;extract;Gold color from name
+.*\bчервон.*;;;regex;Колір;Червоний;55;TRUE;6371204;extract;Red color from name
+.*\bсин[ій].*;;;regex;Колір;Синій;56;TRUE;6371204;extract;Blue color from name
+.*\bзелен.*;;;regex;Колір;Зелений;57;TRUE;6371204;extract;Green color from name
+;Напрямок;.*всеспрямован.*;regex;Спрямованість;Всеспрямований;100;TRUE;6371204;extract;Direction from supplier attribute
+;Напрямок;.*кардіо[ії]дн.*;regex;Спрямованість;Кардіоїдна;101;TRUE;6371204;extract;Cardioid from supplier attribute
+;Напрямок;.*гіперкардіо.*;regex;Спрямованість;Гіперкардіоїдна;102;TRUE;6371204;extract;Hypercardioid from supplier attribute
+;Напрямок;.*суперкардіо.*;regex;Спрямованість;Суперкардіоїдна;103;TRUE;6371204;extract;Supercardioid from supplier attribute
+;Напрямок;.*двонаправ.*;regex;Спрямованість;Двонаправлений;104;TRUE;6371204;extract;Bidirectional from supplier attribute
+;Чутливість мікрофона;^(-?[0-9]+(?:\.[0-9]+)?)\s*d[Bb];regex;Чутливість (дБ);$1 ;110;TRUE;6371204;extract;Sensitivity in dB from supplier attribute
+;Частотна характеристика;([0-9]+)\s*[Hh][Zz]\s*[~\-]\s*([0-9]+)\s*[kK]?[Hh][Zz];regex;Частота (Гц);$2 ;111;TRUE;6371204;extract;Max frequency from range
+;Частотна характеристика;([0-9]+)\s*[~\-]\s*([0-9]+)\s*[Hh][Zz];regex;Частота (Гц);$2 ;112;TRUE;6371204;extract;Max frequency from Hz range
+;Вихідний опір;^([0-9]+)\s*Ом;regex;Опір (Ом);$1 ;120;TRUE;6371204;extract;Output impedance from supplier attribute
+;Потужність споживання;^([0-9]+)\s*мА;regex;Споживаний струм (А);$1 ;121;TRUE;6371204;extract;Current consumption from supplier attribute
+;Розміри;Ф([0-9]+)\s*х\s*([0-9]+)\s*мм;regex;Діаметр (мм);$1 ;130;TRUE;6371204;extract;Diameter from dimensions (cylindrical)
+;Розміри;([0-9]+)\s*х\s*([0-9]+)\s*х\s*([0-9]+)\s*мм;regex;Довжина (мм);$1 ;131;TRUE;6371204;extract;Length from dimensions (LxWxH)
+;Розміри;([0-9]+)\s*х\s*([0-9]+)\s*х\s*([0-9]+)\s*мм;regex;Ширина (мм);$2 ;132;TRUE;6371204;extract;Width from dimensions (LxWxH)
+;Вага;^([0-9]+(?:\.[0-9]+)?)\s*[гk]г?;regex;Вага (г);$1 ;140;TRUE;6371204;extract;Weight from supplier attribute
+;Строк гарантії;^([0-9]+)\s*міс;regex;Гарантійний термін (міс);$1 ;150;TRUE;6371204;extract;Warranty period in months
+;SNR;^([0-9]+)\s*д[Бб];regex;Чутливість (дБ);$1 ;160;TRUE;6371204;derive;SNR as sensitivity approximation
+;Динамічний діапазон;^([0-9]+)\s*Д[бБ];regex;Чутливість (дБ);$1 ;161;TRUE;6371204;derive;Dynamic range as sensitivity
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;6371204;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;6371204;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;6371204;skip;Skip gross weight
+;Стан;;exact;;Пропустити;2003;TRUE;6371204;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2004;TRUE;6371204;skip;Skip country of origin
+;Матеріал корпусу;;exact;;Пропустити;2005;TRUE;6371204;skip;Skip body material
+;Комплектація;;exact;;Пропустити;2006;TRUE;6371204;skip;Skip package contents
+;Сертифікати;;exact;;Пропустити;2007;TRUE;6371204;skip;Skip certificates
+.*\bDVR.*;;;regex;Тип керованих пристроїв;DVR відеореєстратори;1;TRUE;301110;extract;DVR device type from name
+.*\bNVR.*;;;regex;Тип керованих пристроїв;NVR відеореєстратори;2;TRUE;301110;extract;NVR device type from name
+.*\bHDVR.*;;;regex;Тип керованих пристроїв;HDVR відеореєстратори;3;TRUE;301110;extract;HDVR device type from name
+.*\bPTZ.*;;;regex;Тип керованих пристроїв;Поворотні камери відеоспостереження;4;TRUE;301110;extract;PTZ camera type from name
+.*\bкамер.*;;;regex;Тип керованих пристроїв;Камери відеоспостереження;5;TRUE;301110;extract;Camera device type from name
+.*\bмонітор.*;;;regex;Тип керованих пристроїв;Монітори;6;TRUE;301110;extract;Monitor device type from name
+.*\bбездрот.*;;;regex;Інтерфейс;Бездротовий;10;TRUE;301110;extract;Wireless interface from name
+.*\bдротов.*;;;regex;Інтерфейс;Провідний;11;TRUE;301110;extract;Wired interface from name
+.*\bWi-Fi.*;;;regex;Протокол зв'язку;Wi-Fi;15;TRUE;301110;extract;Wi-Fi protocol from name
+.*\bUSB.*;;;regex;Протокол зв'язку;USB 2.0;16;TRUE;301110;extract;USB protocol from name
+.*\bRS-485.*;;;regex;Протокол зв'язку;RS-485;17;TRUE;301110;extract;RS-485 protocol from name
+.*\bRS-422.*;;;regex;Протокол зв'язку;RS-422;18;TRUE;301110;extract;RS-422 protocol from name
+.*\bRS-232.*;;;regex;Протокол зв'язку;RS-232;19;TRUE;301110;extract;RS-232 protocol from name
+.*\bPelco[-\s]?D.*;;;regex;Протокол управління;Pelco-D;20;TRUE;301110;extract;Pelco-D control protocol from name
+.*\bPelco[-\s]?P.*;;;regex;Протокол управління;Pelco-P;21;TRUE;301110;extract;Pelco-P control protocol from name
+.*\bPelco.*;;;regex;Протокол управління;Pelco;22;TRUE;301110;extract;Pelco control protocol from name
+.*\bSamsung.*;;;regex;Протокол управління;Samsung;23;TRUE;301110;extract;Samsung control protocol from name
+.*\bBosch.*;;;regex;Протокол управління;Bosch;24;TRUE;301110;extract;Bosch control protocol from name
+.*\bPanasonic.*;;;regex;Протокол управління;Panasonic;25;TRUE;301110;extract;Panasonic control protocol from name
+.*\bSony.*;;;regex;Протокол управління;Sony;26;TRUE;301110;extract;Sony control protocol from name
+.*\bLCD.*;;;regex;Монітор;LCD;30;TRUE;301110;extract;LCD monitor from name
+.*\bTFT.*;;;regex;Монітор;TFT;31;TRUE;301110;extract;TFT monitor from name
+.*\bLED.*;;;regex;Монітор;LED;32;TRUE;301110;extract;LED monitor from name
+.*\b2D.*;;;regex;Джойстик;2D;35;TRUE;301110;extract;2D joystick from name
+.*\b3D.*;;;regex;Джойстик;3D;36;TRUE;301110;extract;3D joystick from name
+.*\b4D.*;;;regex;Джойstick;4D;37;TRUE;301110;extract;4D joystick from name
+.*\bOSD.*;;;regex;OSD-меню;Так;40;TRUE;301110;extract;OSD menu from name
+.*\bSD.*;;;regex;Слот для SD-карти;Так;41;TRUE;301110;extract;SD card slot from name
+.*\b220В.*;;;regex;Живлення;Мережа 220В;45;TRUE;301110;extract;220V power from name
+.*\b12В.*;;;regex;Живлення;Мережа 12В;46;TRUE;301110;extract;12V power from name
+.*\b110В.*;;;regex;Живлення;Мережа 110В;47;TRUE;301110;extract;110V power from name
+.*\bбатарей.*;;;regex;Живлення;Батарейки одноразові;48;TRUE;301110;extract;Battery power from name
+.*\bакумулятор.*;;;regex;Живлення;Батарейки акумуляторного типу;49;TRUE;301110;extract;Rechargeable battery from name
+;Операційна система;.*Linux.*;regex;Ключові опції;Централізований моніторинг обладнання;100;TRUE;301110;derive;Linux OS indicates advanced features
+;Операційна система;.*Window.*;regex;Ключові опції;Спільна робота з клавіатурою ПК;101;TRUE;301110;derive;Windows OS indicates PC keyboard support
+;Роздільна здатність дисплея;([0-9]+)\s*[×x]\s*([0-9]+);regex;Розмір монітора (дюйм);0;102;TRUE;301110;extract;Display resolution (converted separately)
+;Джойстик;.*4[-\s]?осьов.*;regex;Джойстик;4D;110;TRUE;301110;extract;4-axis joystick from supplier attribute
+;Джойстик;.*3[-\s]?осьов.*;regex;Джойстик;3D;111;TRUE;301110;extract;3-axis joystick from supplier attribute
+;Джойстик;.*2[-\s]?осьов.*;regex;Джойstick;2D;112;TRUE;301110;extract;2-axis joystick from supplier attribute
+;Джойстик;.*кнопков.*;regex;Джойstick;Кнопковий;113;TRUE;301110;extract;Button joystick from supplier attribute
+;Джойстик;.*є.*;regex;Джойstick;3D;114;TRUE;301110;extract;Joystick exists (default 3D)
+;Інтерфейси керування;.*RS-485.*;regex;Протокол зв'язку;RS-485;120;TRUE;301110;extract;RS-485 from control interfaces
+;Інтерфейси керування;.*RS-422.*;regex;Протокол зв'язку;RS-422;121;TRUE;301110;extract;RS-422 from control interfaces
+;Інтерфейси керування;.*RS-232.*;regex;Протокол зв'язку;RS-232;122;TRUE;301110;extract;RS-232 from control interfaces
+;Інтерфейси керування;.*USB.*;regex;Протокол зв'язку;USB 2.0;123;TRUE;301110;extract;USB from control interfaces
+;Мережеві інтерфейси;.*RJ45.*;regex;Протокол зв'язку;TCP;130;TRUE;301110;extract;RJ45 implies TCP protocol
+;Мережеві інтерфейси;.*10\s*M/100\s*M.*;regex;Швидкість передачі даних (Біт/сек);100000;131;TRUE;301110;extract;Network speed 100M
+;Мережеві інтерфейси;.*1\s*Gb.*;regex;Швидкість передачі даних (Біт/сек);1000000;132;TRUE;301110;extract;Network speed 1Gb
+;USB;.*USB\s*2\.0.*;regex;Протокол зв'язку;USB 2.0;140;TRUE;301110;extract;USB 2.0 protocol
+;USB;.*USB\s*3\.0.*;regex;Протокол зв'язку;USB 3.0;141;TRUE;301110;extract;USB 3.0 protocol
+;Живлення;.*12\s*VDC.*;regex;Живлення;Мережа 12В;150;TRUE;301110;extract;12V DC power supply
+;Живлення;.*12\s*В.*;regex;Живлення;Мережа 12В;151;TRUE;301110;extract;12V power supply
+;Живлення;.*100~240.*В.*;regex;Живлення;Мережа 220В;152;TRUE;301110;extract;Universal 100-240V power
+;Живлення;.*220.*В.*;regex;Живлення;Мережа 220В;153;TRUE;301110;extract;220V power supply
+;Живлення;.*110.*В.*;regex;Живлення;Мережа 110В;154;TRUE;301110;extract;110V power supply
+;Живлення;.*DC\s*5В.*;regex;Живлення;Мережа 12В;155;TRUE;301110;extract;5V DC power (USB standard)
+;Живлення;.*AAA.*;regex;Живлення;Батарейки одноразові;156;TRUE;301110;extract;AAA batteries
+;Живлення;.*AA\b.*;regex;Живлення;Батарейки одноразові;157;TRUE;301110;extract;AA batteries
+;Потужність споживання;^([0-9]+(?:\.[0-9]+)?)\s*Вт;regex;Значення вихідного струму (А);$1 ;160;TRUE;301110;derive;Power consumption in Watts
+;Робоча температура;(-?[0-9]+)\s*℃\s*(?:до|~)\s*[+]?([0-9]+)\s*℃;regex;Мінімальна робоча температура (град.);$1 ;170;TRUE;301110;extract;Minimum operating temperature
+;Робоча температура;(-?[0-9]+)\s*℃\s*(?:до|~)\s*[+]?([0-9]+)\s*℃;regex;Максимальна робоча температура (град.);$2 ;171;TRUE;301110;extract;Maximum operating temperature
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Довжина (мм);$1 ;180;TRUE;301110;extract;Length from dimensions (LxWxH)
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Ширина (мм);$2 ;181;TRUE;301110;extract;Width from dimensions (LxWxH)
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Висота (мм);$3 ;182;TRUE;301110;extract;Height from dimensions (LxWxH)
+;Вага;^([0-9]+(?:\.[0-9]+)?)\s*г;regex;Вага (г);$1 ;190;TRUE;301110;extract;Weight in grams
+;Строк гарантії;^([0-9]+)\s*міс;regex;Гарантійний термін (міс);$1 ;200;TRUE;301110;extract;Warranty period in months
+;Дисплей;.*LCD.*;regex;Монітор;LCD;210;TRUE;301110;extract;LCD display type
+;Дисплей;.*TFT.*;regex;Монітор;TFT;211;TRUE;301110;extract;TFT display type
+;Дисплей;.*LED.*;regex;Монітор;LED;212;TRUE;301110;extract;LED display type
+;Дисплей;.*є.*;regex;Монітор;LCD;213;TRUE;301110;extract;Display exists (default LCD)
+;Дисплей;.*[0-9]+\s*[×x]\s*[0-9]+\s*мм.*;regex;OSD-меню;Так;214;TRUE;301110;derive;Display with size implies OSD menu
+;Особливості;.*dpi\s*([0-9]+);regex;Швидкість передачі даних (Біт/сек);$1 ;230;TRUE;301110;extract;DPI value from features
+;Особливості;.*[Рр]оздільна здатність.*;regex;OSD-меню;Так;231;TRUE;301110;derive;Resolution feature implies OSD menu
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;301110;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301110;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;301110;skip;Skip gross weight
+;Вага;^([0-9]+(?:\.[0-9]+)?)\s*кг;;Пропустити;2003;TRUE;301110;skip;Skip weight in kg (use grams only);
+;Стан;;exact;;Пропустити;2004;TRUE;301110;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2005;TRUE;301110;skip;Skip country of origin
+;Матеріал корпусу;;exact;;Пропустити;2006;TRUE;301110;skip;Skip body material
+;Сертифікати;;exact;;Пропустити;2007;TRUE;301110;skip;Skip certificates
+.*\bвідеодомофон.*;;;regex;Тип пристрою;Відеодомофон;1;TRUE;3029;extract;Video intercom from name
+.*\bаудіодомофон.*;;;regex;Тип пристрою;Аудіодомофон;2;TRUE;3029;extract;Audio intercom from name
+.*\bвідеопанел.*;;;regex;Тип пристрою;Відеопанель кольорова виклична;3;TRUE;3029;extract;Video panel from name
+.*\bаудіопанел.*;;;regex;Тип пристрою;Аудіопанель виклична;4;TRUE;3029;extract;Audio panel from name
+.*\bвідеовічко.*;;;regex;Тип пристрою;Відеовічко;5;TRUE;3029;extract;Video peephole from name
+.*\bбездротов.*;;;regex;Інтерфейс;Бездротовий;10;TRUE;3029;extract;Wireless interface from name
+.*\bдротов.*;;;regex;Інтерфейс;Провідний;11;TRUE;3029;extract;Wired interface from name
+.*\bWi-Fi.*;;;regex;Протокол зв'язку;Wi-Fi;15;TRUE;3029;extract;Wi-Fi protocol from name
+.*\bIP.*;;;regex;Протокол зв'язку;IP;16;TRUE;3029;extract;IP protocol from name
+.*\bRS-485.*;;;regex;Протокол зв'язку;RS-485;17;TRUE;3029;extract;RS-485 protocol from name
+.*\bRS-422.*;;;regex;Протокол зв'язку;RS-422;18;TRUE;3029;extract;RS-422 protocol from name
+.*\bRS-232.*;;;regex;Протокол зв'язку;RS-232;19;TRUE;3029;extract;RS-232 protocol from name
+.*\bUSB.*;;;regex;Протокол зв'язку;USB 2.0;20;TRUE;3029;extract;USB protocol from name
+.*\bнакладн.*;;;regex;Тип встановлення;Накладної;25;TRUE;3029;extract;Surface mount from name
+.*\bврізн.*;;;regex;Тип встановлення;Врізний;26;TRUE;3029;extract;Flush mount from name
+.*\bсенсорн.*;;;regex;Монітор;LCD TFT;30;TRUE;3029;extract;Touchscreen implies LCD TFT
+.*\b7".*;;;regex;Діагональ екрану (дюйм);7";35;TRUE;3029;extract;7 inch screen from name
+.*\b4\.3".*;;;regex;Діагональ екрану (дюйм);4.3";36;TRUE;3029;extract;4.3 inch screen from name
+.*\b10".*;;;regex;Діагональ екрану (дюйм);10.1";37;TRUE;3029;extract;10 inch screen from name
+.*\bIPS.*;;;regex;Тип матриці;TFT IPS;40;TRUE;3029;extract;IPS matrix from name
+.*\bTFT.*;;;regex;Тип матриці;TFT TN;41;TRUE;3029;extract;TFT matrix from name
+.*\bCMOS.*;;;regex;Тип матриці;CMOS;42;TRUE;3029;extract;CMOS matrix from name
+.*\b1080[pP].*;;;regex;Дозвіл запису;1920х1080;45;TRUE;3029;extract;1080p resolution from name
+.*\b720[pP].*;;;regex;Дозвіл запису;1280х720;46;TRUE;3029;extract;720p resolution from name
+.*\b2\s*[MМ][Пп].*;;;regex;Роздільна здатність камери (Мп);2;47;TRUE;3029;extract;2MP camera from name
+.*\bIP65.*;;;regex;Захист обладнання від води і пилу IP;IP65;50;TRUE;3029;extract;IP65 protection from name
+.*\bIP66.*;;;regex;Захист обладнання від води і пилу IP;IP66;51;TRUE;3029;extract;IP66 protection from name
+.*\bчорн.*;;;regex;Колір корпусу;Чорний;55;TRUE;3029;extract;Black color from name
+.*\bбіл.*;;;regex;Колір корпусу;Білий;56;TRUE;3029;extract;White color from name
+.*\bсрібл.*;;;regex;Колір корпусу;Сріблястий;57;TRUE;3029;extract;Silver color from name
+;Операційна система;.*Linux.*;regex;Ключові опції;Захист паролем;100;TRUE;3029;derive;Linux implies security features
+;Операційна система;.*Android.*;regex;Ключові опції;Захист паролем;101;TRUE;3029;derive;Android implies security features
+;Дисплей;([0-9]+(?:\.[0-9]+)?)".*;regex;Діагональ екрану (дюйм);$1";110;TRUE;3029;extract;Screen diagonal from display field
+;Роздільна здатність дисплея;([0-9]+)\s*[×x]\s*([0-9]+);regex;Роздільна здатність екрану;$1×$2;111;TRUE;3029;extract;Screen resolution from display resolution
+;Метод роботи;.*сенсорн.*;regex;Монітор;LCD TFT;115;TRUE;3029;derive;Touch screen implies LCD TFT
+;Метод роботи;.*кнопк.*;regex;Джойстик;Кнопковий;116;TRUE;3029;derive;Button control method
+;Камера;([0-9]+)\s*[MМ][Пп];regex;Роздільна здатність камери (Мп);$1 ;120;TRUE;3029;extract;Camera megapixels from camera field
+;Роздільна здатність;([0-9]+)\s*[MМ][Пп];regex;Роздільна здатність камери (Мп);$1 ;121;TRUE;3029;extract;Resolution megapixels
+;Роздільна здатність;1920\s*[×x]\s*1080;regex;Дозвіл запису;1920х1080;122;TRUE;3029;extract;1920x1080 resolution mapping
+;Роздільна здатність;1280\s*[×x]\s*720;regex;Дозвіл запису;1280х720;123;TRUE;3029;extract;1280x720 resolution mapping
+;Роздільна здатність камери;([0-9]+)\s*[×x]\s*([0-9]+);regex;Дозвіл запису;$1x$2;124;TRUE;3029;extract;Camera resolution as recording resolution
+;Кути огляду;([0-9]+)°;regex;Кут огляду камери (град.);$1 ;130;TRUE;3029;extract;Camera viewing angle
+;Тип матриці;.*IPS.*;regex;Тип матриці;TFT IPS;135;TRUE;3029;extract;IPS matrix type
+;Тип матриці;.*TFT.*;regex;Тип матриці;TFT TN;136;TRUE;3029;extract;TFT matrix type
+;Тип матриці;.*CMOS.*;regex;Тип матриці;CMOS;137;TRUE;3029;extract;CMOS matrix type
+;Тип підсвічування;.*ІЧ.*;regex;Дальність ІЧ-підсвічування (м);3;140;TRUE;3029;extract;IR illumination implies 3m range
+;Зчитувач карт;.*Mifare.*;regex;Реєстрація подій;Фото та інформація про подію;145;TRUE;3029;derive;Card reader implies event registration
+;Зчитувач карт;.*EM-Marin.*;regex;Реєстрація подій;Фото та інформація про подію;146;TRUE;3029;derive;Card reader implies event registration
+;Аудіо вхід;.*мікрофон.*;regex;Зв'язок з абонентом;Гучний зв'язок;150;TRUE;3029;derive;Built-in microphone implies hands-free
+;Аудіо вихід;.*динамік.*;regex;Зв'язок з абонентом;Гучний зв'язок;151;TRUE;3029;derive;Built-in speaker implies hands-free
+;Ethernet;.*RJ-45.*;regex;Протокол зв'язку;RJ-45;160;TRUE;3029;extract;RJ-45 ethernet connection
+;Ethernet;.*10/100.*;regex;Протокол зв'язку;TCP;161;TRUE;3029;derive;Ethernet implies TCP protocol
+;Wi-Fi;.*802\.11.*;regex;Протокол зв'язку;Wi-Fi;165;TRUE;3029;extract;Wi-Fi 802.11 protocol
+;Wi-Fi;.*IEEE802\.11.*;regex;Інтерфейс;Провідний/Бездротовий;166;TRUE;3029;derive;Wi-Fi support implies hybrid interface
+;Мережеві протоколи;.*TCP/IP.*;regex;Протокол зв'язку;TCP;170;TRUE;3029;extract;TCP/IP protocol
+;Мережеві протоколи;.*SIP.*;regex;Протокол зв'язку;IP;171;TRUE;3029;derive;SIP protocol implies IP
+;PoE;.*802\.3af.*;regex;Живлення;Мережа 12В;175;TRUE;3029;derive;PoE 802.3af implies 12V network
+;PoE;.*Підтримує.*;regex;Додаткове джерело живлення;Мережа 12В;176;TRUE;3029;derive;PoE support as additional power
+;Живлення;.*12\s*В.*;regex;Живлення;Мережа 12В;180;TRUE;3029;extract;12V power supply
+;Живлення;.*220\s*В.*;regex;Живлення;Мережа 220В;181;TRUE;3029;extract;220V power supply
+;Живлення;.*24\s*В.*;regex;Живлення;Мережа 24В;182;TRUE;3029;extract;24V power supply
+;Живлення;.*батарей.*;regex;Живлення;Батарейки одноразові;183;TRUE;3029;extract;Battery power supply
+;Живлення;.*акумулятор.*;regex;Живлення;Батарейки акумуляторного типу;184;TRUE;3029;extract;Rechargeable battery power
+;Потужність споживання;^([0-9]+(?:\.[0-9]+)?)\s*Вт;regex;Значення вихідного струму (А);$1 ;190;TRUE;3029;derive;Power consumption in Watts
+;Робоча температура;(-?[0-9]+)\s*°?[CС]\s*[-~]\s*\+?([0-9]+)\s*°?[CС];regex;Мінімальна робоча температура (град.);$1 ;200;TRUE;3029;extract;Minimum operating temperature
+;Робоча температура;(-?[0-9]+)\s*°?[CС]\s*[-~]\s*\+?([0-9]+)\s*°?[CС];regex;Максимальна робоча температура (град.);$2 ;201;TRUE;3029;extract;Maximum operating temperature
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Довжина (мм);$1 ;210;TRUE;3029;extract;Length from dimensions (LxWxH)
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Ширина (мм);$2 ;211;TRUE;3029;extract;Width from dimensions (LxWxH)
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*[×x]\s*([0-9]+(?:\.[0-9]+)?)\s*мм;regex;Висота (мм);$3 ;212;TRUE;3029;extract;Height from dimensions (LxWxH)
+;Вага;^([0-9]+(?:\.[0-9]+)?)\s*кг;regex;Вага (г);$1 ;220;TRUE;3029;extract;Weight in kg (value as is)
+;Вага;^([0-9]+(?:\.[0-9]+)?)\s*г;regex;Вага (г);$1 ;221;TRUE;3029;extract;Weight in grams
+;Строк гарантії;^([0-9]+)\s*міс;regex;Гарантійний термін (міс);$1 ;230;TRUE;3029;extract;Warranty period in months
+;Ступінь захисту;IP([0-9]{2});regex;Захист обладнання від води і пилу IP;IP$1;240;TRUE;3029;extract;IP protection rating
+;Монтаж;.*накладн.*;regex;Тип встановлення;Накладної;245;TRUE;3029;extract;Surface mount from mounting field
+;Монтаж;.*врізн.*;regex;Тип встановлення;Врізний;246;TRUE;3029;extract;Flush mount from mounting field
+;Монтаж;.*настінн.*;regex;Тип встановлення;Накладної;247;TRUE;3029;derive;Wall mount implies surface mount
+;Кількість абонентів;^([0-9]+);regex;Кількість абонентів;$1 ;250;TRUE;3029;extract;Number of subscribers
+;Кількість абонентів;.*([0-9]+)\s*квартир.*;regex;Кількість абонентів;$1 ;251;TRUE;3029;extract;Number of apartments as subscribers
+;Тривожні входи;^([0-9]+);regex;Входи для підключення;$1 ;255;TRUE;3029;derive;Alarm inputs as connection inputs
+;Тривожні виходи;^([0-9]+);regex;Підключення додаткового монітора;Так;256;TRUE;3029;derive;Alarm outputs imply monitor connection
+;Релейні виходи;^([0-9]+);regex;Живлення замку від пристрою;Так;257;TRUE;3029;derive;Relay outputs imply lock power
+;Керування замком;.*Підтримує.*;regex;Живлення замку від пристрою;Так;260;TRUE;3029;extract;Lock control support
+;RS485;.*1.*;regex;Протокол зв'язку;RS-485;265;TRUE;3029;extract;RS485 port presence
+;Датчик руху;.*Так.*;regex;Реєстрація подій;Відео;270;TRUE;3029;derive;Motion sensor implies video registration
+;Локальна пам'ять;.*SD.*;regex;Порт для SD-карти;Так;275;TRUE;3029;derive;SD memory implies SD port
+;Локальна пам'ять;.*TF.*;regex;Порт для SD-карти;Так;276;TRUE;3029;derive;TF card implies SD port
+;Локальна пам'ять;.*[Mm]icro\s*SD.*;regex;Порт для SD-карти;Так;277;TRUE;3029;derive;MicroSD implies SD port
+;Тип сигналу;.*PAL.*;regex;Формат відео;PAL;280;TRUE;3029;extract;PAL video format
+;Тип сигналу;.*NTSC.*;regex;Формат відео;NTSC;281;TRUE;3029;extract;NTSC video format
+;Тип сигналу;.*AHD.*;regex;Реєстрація подій;Відео та інформація про подію;282;TRUE;3029;derive;AHD signal implies advanced recording
+;Особливості;.*детекц[іи].*рух.*;regex;Датчик руху;Так;290;TRUE;3029;extract;Motion detection feature
+;Особливості;.*інтерком.*;regex;Підключення интерфона;Так;291;TRUE;3029;extract;Intercom feature
+;Особливості;.*фоторамк.*;regex;Реєстрація подій;Фото;292;TRUE;3029;derive;Photo frame implies photo registration
+;Підключення;.*панел.*([0-9]+).*;regex;Входи для підключення;$1 ;295;TRUE;3029;extract;Number of panels as inputs
+;Підключення;.*камер.*([0-9]+).*;regex;Підключення додаткової камери;Так;296;TRUE;3029;extract;Additional camera connections
+;Підключення;.*монітор.*;regex;Підключення додаткового монітора;Так;297;TRUE;3029;extract;Additional monitor connections
+;Колір корпусу;.*чорн.*;regex;Колір корпусу;Чорний;300;TRUE;3029;extract;Black body color
+;Колір корпусу;.*біл.*;regex;Колір корпусу;Білий;301;TRUE;3029;extract;White body color
+;Колір корпусу;.*срібл.*;regex;Колір корпусу;Сріблястий;302;TRUE;3029;extract;Silver body color
+;Колір корпусу;.*метал.*;regex;Колір корпусу;Металік;303;TRUE;3029;extract;Metallic body color
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;3029;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;3029;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;3029;skip;Skip gross weight
+;Кількість підтримуваних панелей;;exact;;Пропустити;2003;TRUE;3029;skip;Skip supported panels count
+;Схема підключення;;exact;;Пропустити;2004;TRUE;3029;skip;Skip connection scheme
+;Матеріал корпусу;;exact;;Пропустити;2005;TRUE;3029;skip;Skip body material
+;Країна виробник;;exact;;Пропустити;2006;TRUE;3029;skip;Skip country of origin
+;Стан;;exact;;Пропустити;2007;TRUE;3029;skip;Skip condition
+;У комплекті;;exact;;Пропустити;2008;TRUE;3029;skip;Skip kit contents
+;Тип упаковки;;exact;;Пропустити;2009;TRUE;3029;skip;Skip packaging type
+;Сертифікати;;exact;;Пропустити;2010;TRUE;3029;skip;Skip certificates
+.*\bAGM.*;;;regex;Тип акумулятора;AGM;1;TRUE;5280501;extract;AGM type from name
+.*\bGEL.*;;;regex;Тип акумулятора;GEL;2;TRUE;5280501;extract;GEL type from name
+.*\bгелев.*;;;regex;Тип акумулятора;GEL;3;TRUE;5280501;extract;Gel type Ukrainian from name
+.*\bLiFePO4.*;;;regex;Тип акумулятора;LiFePO4;4;TRUE;5280501;extract;LiFePO4 type from name
+.*\bLi-Ion.*;;;regex;Тип акумулятора;Li-Ion;5;TRUE;5280501;extract;Li-Ion type from name
+.*\bLi-Pol.*;;;regex;Тип акумулятора;Li-Pol;6;TRUE;5280501;extract;Li-Pol type from name
+.*\bNi-MH.*;;;regex;Тип акумулятора;Ni-MH;7;TRUE;5280501;extract;Ni-MH type from name
+.*\bNi-Cd.*;;;regex;Тип акумулятора;Ni-Cd;8;TRUE;5280501;extract;Ni-Cd type from name
+.*\bOPzS.*;;;regex;Тип акумулятора;OPzS;9;TRUE;5280501;extract;OPzS type from name
+.*\bOPzV.*;;;regex;Тип акумулятора;OPzV;10;TRUE;5280501;extract;OPzV type from name
+.*\bсвинцев.*кислотн.*;;;regex;Тип акумулятора;Свинцево-кислотні (SLA);11;TRUE;5280501;extract;Lead-acid type from name
+.*\b([0-9]+)\s*А[•·]?г.*;;;regex;Ємність акумулятору (А·г);$1 ;12;TRUE;5280501;extract;Capacity in Ah from name
+.*\b([0-9.]+)\s*кВт[•·]?г.*;;;regex;Ємність акумулятору (кВт·г);$1 ;13;TRUE;5280501;extract;Capacity in kWh from name
+.*\b([0-9]+)\s*В\b.*;;;regex;Напруга (В);$1 ;14;TRUE;5280501;extract;Voltage from name
+.*\b([0-9]+)V\b.*;;;regex;Напруга (В);$1 ;15;TRUE;5280501;extract;Voltage V format from name
+.*\b([0-9]+)\s*Ah\b.*;;;regex;Ємність акумулятору (А·г);$1 ;16;TRUE;5280501;extract;Capacity Ah English from name
+.*\b([0-9.]+)\s*kWh\b.*;;;regex;Ємність акумулятору (кВт·г);$1 ;17;TRUE;5280501;extract;Capacity kWh English from name
+.*\b12V.*([0-9]+)Ah.*;;;regex;Напруга (В);12;18;TRUE;5280501;extract;12V from 12V-Ah format
+.*\b12V.*([0-9]+)Ah.*;;;regex;Ємність акумулятору (А·г);$1 ;19;TRUE;5280501;extract;Capacity from 12V-Ah format
+.*\b24V.*([0-9]+)Ah.*;;;regex;Напруга (В);24;20;TRUE;5280501;extract;24V from 24V-Ah format
+.*\b24V.*([0-9]+)Ah.*;;;regex;Ємність акумулятору (А·г);$1 ;21;TRUE;5280501;extract;Capacity from 24V-Ah format
+.*\b48V.*([0-9]+)Ah.*;;;regex;Напруга (В);48;22;TRUE;5280501;extract;48V from 48V-Ah format
+.*\b48V.*([0-9]+)Ah.*;;;regex;Ємність акумулятору (А·г);$1 ;23;TRUE;5280501;extract;Capacity from 48V-Ah format
+.*\bIP65.*;;;regex;Ступінь захисту;IP65;24;TRUE;5280501;extract;IP65 from name
+.*\bIP66.*;;;regex;Ступінь захисту;IP66;25;TRUE;5280501;extract;IP66 from name
+.*\bIP67.*;;;regex;Ступінь захисту;IP67;26;TRUE;5280501;extract;IP67 from name
+.*\bчорн.*;;;regex;Колір корпусу;Чорний;27;TRUE;5280501;extract;Black color from name
+.*\bбіл.*;;;regex;Колір корпусу;Білий;28;TRUE;5280501;extract;White color from name
+.*\bсір.*;;;regex;Колір корпусу;Сірий;29;TRUE;5280501;extract;Gray color from name
+.*\bчервон.*;;;regex;Колір корпусу;Червоний;30;TRUE;5280501;extract;Red color from name
+.*\bсині.*;;;regex;Колір корпусу;Синій;31;TRUE;5280501;extract;Blue color from name
+.*\bзелен.*;;;regex;Колір корпусу;Зелений;32;TRUE;5280501;extract;Green color from name
+.*\bжовт.*;;;regex;Колір корпусу;Жовтий;33;TRUE;5280501;extract;Yellow color from name
+;Тип пристрою;.*AGM.*;regex;Тип акумулятора;AGM;40;TRUE;5280501;extract;AGM from device type
+;Тип пристрою;.*GEL.*;regex;Тип акумулятора;GEL;41;TRUE;5280501;extract;GEL from device type
+;Тип пристрою;.*[Гг]елев.*;regex;Тип акумулятора;GEL;42;TRUE;5280501;extract;Gel Ukrainian from device type
+;Тип пристрою;.*LiFePo4.*;regex;Тип акумулятора;LiFePO4;43;TRUE;5280501;extract;LiFePO4 from device type
+;Тип пристрою;.*літій-залізо-фосфатн.*;regex;Тип акумулятора;LiFePO4;44;TRUE;5280501;extract;LiFePO4 Ukrainian from device type
+;Тип пристрою;.*Li-Ion.*;regex;Тип акумулятора;Li-Ion;45;TRUE;5280501;extract;Li-Ion from device type
+;Тип пристрою;.*Li-Pol.*;regex;Тип акумулятора;Li-Pol;46;TRUE;5280501;extract;Li-Pol from device type
+;Ємність;([0-9.]+)\s*А[•·]?г;regex;Ємність акумулятору (А·г);$1 ;50;TRUE;5280501;extract;Capacity in Ah from field
+;Ємність;([0-9.]+)\s*Aг;regex;Ємність акумулятору (А·г);$1 ;51;TRUE;5280501;extract;Capacity Ah variant from field
+;Ємність;([0-9.]+)\s*кВт[•·]?г;regex;Ємність акумулятору (кВт·г);$1 ;52;TRUE;5280501;extract;Capacity in kWh from field
+;Вихідна напруга;([0-9.]+)\s*В.*;regex;Напруга (В);$1 ;60;TRUE;5280501;extract;Output voltage extraction
+;Живлення;([0-9.]+)\s*В.*;regex;Напруга (В);$1 ;61;TRUE;5280501;extract;Voltage from power field
+;Роз'єм;.*F([0-9]+).*;regex;Тип струмовивіду;F$1;70;TRUE;5280501;extract;F-type terminal
+;Роз'єм;.*T([0-9]+).*;regex;Тип струмовивіду;T$1;71;TRUE;5280501;extract;T-type terminal
+;Роз'єм;.*Y([0-9]+).*;regex;Тип струмовивіду;Y$1;72;TRUE;5280501;extract;Y-type terminal
+;Роз'єм;.*M([0-9]+).*;regex;Тип струмовивіду;F$1 (M$1);73;TRUE;5280501;extract;M-type terminal as F-type
+;Додаткові характеристики;.*клем.*F([0-9]+).*;regex;Тип струмовивіду;F$1;80;TRUE;5280501;extract;Terminal from additional info
+;Додаткові характеристики;.*клем.*T([0-9]+).*;regex;Тип струмовивіду;T$1;81;TRUE;5280501;extract;T-terminal from additional
+;Додаткові характеристики;.*клем.*М([0-9]+).*;regex;Тип струмовивіду;Кольцевой наконечник М$1;82;TRUE;5280501;extract;Ring terminal from additional
+;Додаткові характеристики;.*IP([0-9]+).*;regex;Ступінь захисту;IP$1;90;TRUE;5280501;extract;IP rating from additional
+;Додаткові характеристики;.*цикл.*життя.*([0-9]+).*;regex;Напрацювання (циклів заряду);$1 ;100;TRUE;5280501;extract;Life cycle count
+;Додаткові характеристики;.*CAN.*;regex;Протокол зв'язку;CAN;110;TRUE;5280501;derive;CAN protocol support
+;Додаткові характеристики;.*RS485.*;regex;Протокол зв'язку;RS-485;111;TRUE;5280501;derive;RS-485 protocol support
+;Розміри;([0-9.]+)\s*[хx×]\s*([0-9.]+)\s*[хx×]\s*([0-9.]+).*;regex;Довжина (мм);$1 ;120;TRUE;5280501;extract;Length from dimensions
+;Розміри;([0-9.]+)\s*[хx×]\s*([0-9.]+)\s*[хx×]\s*([0-9.]+).*;regex;Ширина (мм);$2 ;121;TRUE;5280501;extract;Width from dimensions
+;Розміри;([0-9.]+)\s*[хx×]\s*([0-9.]+)\s*[хx×]\s*([0-9.]+).*;regex;Висота (мм);$3 ;122;TRUE;5280501;extract;Height from dimensions
+;Вага;([0-9.]+)\s*кг;regex;Вага (кг);$1 ;130;TRUE;5280501;extract;Weight in kg
+;Вага;([0-9.]+)\s*г;regex;Вага (кг);$1 ;131;TRUE;5280501;extract;Weight in grams (as is)
+;Строк гарантії;([0-9]+)\s*міс.*;regex;Гарантійний термін (міс);$1 ;140;TRUE;5280501;extract;Warranty in months
+;Строк гарантії;([0-9]+)\s*рок.*;regex;Гарантійний термін (міс);$1 ;141;TRUE;5280501;extract;Warranty in years (value as is)
+;Особливості;.*[Нн]еобслуговуван.*;regex;Особливості;Необслуговуваний;150;TRUE;5280501;derive;Maintenance-free feature
+;Особливості;.*Bluetooth.*;regex;Особливості;Наявність Bluetooth;151;TRUE;5280501;derive;Bluetooth feature
+;Особливості;.*бездротов.*заряд.*;regex;Особливості;Бездротова зарядка;152;TRUE;5280501;derive;Wireless charging feature
+;Особливості;.*максимальн.*струм.*заряд.*([0-9.]+)\s*А.*;regex;Струм заряду (А);$1 ;160;TRUE;5280501;extract;Max charging current
+;Особливості;.*максимальн.*струм.*розряд.*([0-9.]+)\s*А.*;regex;Максимальний струм розряду (А);$1 ;161;TRUE;5280501;extract;Max discharge current
+;Особливості;.*[Нн]омінальн.*струм.*заряд.*([0-9.]+)\s*А.*;regex;Номінальний струм заряду (А);$1 ;162;TRUE;5280501;extract;Nominal charging current
+;Потужність;([0-9.]+)\s*Вт;regex;Потужність (Вт);$1 ;170;TRUE;5280501;extract;Power in watts
+;Матеріал виготовлення корпусу;.*пластик.*;regex;Матеріал виготовлення корпусу;Пластик ABS;180;TRUE;5280501;extract;Plastic material
+;Матеріал виготовлення корпусу;.*поліпропілен.*;regex;Матеріал виготовлення корпусу;Поліпропілен;181;TRUE;5280501;extract;Polypropylene material
+;Матеріал виготовлення корпусу;.*поліетилен.*;regex;Матеріал виготовлення корпусу;Поліетилен;182;TRUE;5280501;extract;Polyethylene material
+;Матеріал виготовлення корпусу;.*метал.*;regex;Матеріал виготовлення корпусу;Метал;183;TRUE;5280501;extract;Metal material
+;Матеріал виготовлення корпусу;.*сталь.*;regex;Матеріал виготовлення корпусу;Сталь;184;TRUE;5280501;extract;Steel material
+;Матеріал виготовлення корпусу;.*дерев.*;regex;Матеріал виготовлення корпусу;Натуральне дерево;185;TRUE;5280501;extract;Wood material
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;5280501;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;5280501;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;5280501;skip;Skip gross weight
+;Кількість в ящику;.*шт.*;regex;;Пропустити;2003;TRUE;5280501;skip;Skip package quantity
+;Стан;;exact;;Пропустити;2004;TRUE;5280501;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2005;TRUE;5280501;skip;Skip country of origin
+;Комплектація;;exact;;Пропустити;2006;TRUE;5280501;skip;Skip package contents
+;Сертифікати;;exact;;Пропустити;2007;TRUE;5280501;skip;Skip certificates
+;Частотна характеристика;868.*;regex;Робоча частота (МГц);868;10;TRUE;302306;extract;868 MHz frequency
+;Частотна характеристика;433.*;regex;Робоча частота (МГц);433;11;TRUE;302306;extract;433 MHz frequency
+;Частотна характеристика;315.*;regex;Робоча частота (МГц);315;12;TRUE;302306;extract;315 MHz frequency
+;Частотна характеристика;"(\d+)[\.,]?(\d*)\s*(?:МГц|MHz)";regex;Робоча частота (МГц);$1.$2;15;TRUE;302306;extract;Frequency with unit
+;Відстань передачі;до\s*(\d+)\s*м;regex;Протяжність (м);$1 ;20;TRUE;302306;extract;Transmission distance in meters
+;Відстань передачі;(\d+)\s*(?:м|метр);regex;Протяжність (м);$1 ;21;TRUE;302306;extract;Distance in meters
+;Бездротові зони;(\d+);regex;"Кількість зон, що захищаються";$1 ;30;TRUE;302306;extract;Number of wireless zones
+;Бездротовий брелок;(\d+);regex;Кількість підтримуваних пристроїв;$1 ;31;TRUE;302306;extract;Number of wireless remotes
+;Бездротові сирени;(\d+);regex;Кількість підтримуваних пристроїв;$1 ;32;TRUE;302306;extract;Number of wireless sirens
+;Зчитувач карт;до\s*(\d+);regex;Кількість підтримуваних пристроїв;$1 ;33;TRUE;302306;extract;Number of card readers
+.*\bWi-Fi\b.*;;;regex;Інтерфейс;Провідний/Бездротовий;40;TRUE;302306;extract;Wi-Fi support from name
+.*\bGPRS\b.*;;;regex;Протокол зв'язку;Закритий протокол;41;TRUE;302306;extract;GPRS support from name
+.*\b(?:3G|4G|LTE)\b.*;;;regex;Протокол зв'язку;Закритий протокол;42;TRUE;302306;extract;3G/4G/LTE support from name
+;Wi-Fi;(?:підтримується|так|є|2\.4\s*G);regex;Інтерфейс;Провідний/Бездротовий;50;TRUE;302306;extract;Wi-Fi interface present
+;GPRS;(?:підтримується|так|є|GSM);regex;Управління;Локальне/Мережеве;51;TRUE;302306;extract;GPRS network management
+;3G/4G;(?:LTE|підтримується|так);regex;Управління;Мережне;52;TRUE;302306;extract;3G/4G network management
+;Ethernet;(?:RJ-45|10\s*Mbps|100\s*Mbps);regex;Інтерфейс;Провідний;60;TRUE;302306;extract;Ethernet wired interface
+;Ethernet;(\d+)\s*(?:RJ-45|портів);regex;Кількість ліній;$1 ;61;TRUE;302306;extract;Number of Ethernet ports
+;Метод роботи;(?:адресн|addressable);regex;Тип системи/сигналізації;Адресна;70;TRUE;302306;extract;Addressable system type
+;Метод роботи;(?:аналогов|analog);regex;Тип системи/сигналізації;Адресно-аналогова;71;TRUE;302306;extract;Addressable-analog type
+;Метод роботи;(?:цифров|digital);regex;Тип системи/сигналізації;Адресно-цифрова;72;TRUE;302306;extract;Addressable-digital type
+;Метод роботи;(?:неадресн|бездротов|wireless);regex;Тип системи/сигналізації;Неадресна;73;TRUE;302306;extract;Non-addressable wireless
+;Резервна батарея;.*(?:літієв|Li-ion|вбудован).*;regex;Можливість розширення;Так;80;TRUE;302306;derive;Backup battery indicates expandability
+;Питание;(?:100[-–]\s*240|220|12)\s*(?:VAC|В);regex;Управління;Локальне;90;TRUE;302306;derive;Power supply indicates local control
+;USB;(\d+).*USB;regex;Протокол зв'язку;USB 2.0;100;TRUE;302306;extract;USB support
+;USB;USB\s*3\.;regex;Протокол зв'язку;USB 3.0;101;TRUE;302306;extract;USB 3.0 support
+;RS485;(?:підтримується|так|є);regex;Протокол зв'язку;RS-485;110;TRUE;302306;extract;RS-485 protocol
+;RS422;(?:підтримується|так|є);regex;Протокол зв'язку;RS-422;111;TRUE;302306;extract;RS-422 protocol
+;RS232;(?:підтримується|так|є);regex;Протокол зв'язку;RS-232;112;TRUE;302306;extract;RS-232 protocol
+.*\bRS[-\s]?485\b.*;;;regex;Протокол зв'язку;RS-485;120;TRUE;302306;extract;RS-485 from product name
+.*\bRS[-\s]?422\b.*;;;regex;Протокол зв'язку;RS-422;121;TRUE;302306;extract;RS-422 from product name
+.*\bRS[-\s]?232\b.*;;;regex;Протокол зв'язку;RS-232;122;TRUE;302306;extract;RS-232 from product name
+;Індикація;(?:так|підтримується|LED|світлодіод);regex;Індикація режиму роботи;Так;130;TRUE;302306;extract;Operation mode indication
+;Індикація;(?:ні|немає|відсутня);regex;Індикація режиму роботи;Ні;131;TRUE;302306;extract;No indication
+;Журнал подій;(\d+)\s*(?:подій|записів);regex;Обсяг журналу реєстрацій (подій);$1 ;140;TRUE;302306;extract;Event log capacity
+;Шлейфи;(\d+)\s*(?:шлейф|loop);regex;Кількість шлейфів;$1 ;150;TRUE;302306;extract;Number of loops
+;Лінії;(\d+)\s*(?:лін|line);regex;Кількість ліній;$1 ;151;TRUE;302306;extract;Number of lines
+;Довжина лінії;(?:до\s*)?(\d+)\s*(?:м|метр);regex;Max довжина лінії (м);$1 ;152;TRUE;302306;extract;Maximum line length
+;Зони;(\d+)\s*(?:зон|zone);regex;"Кількість зон, що захищаються";$1 ;160;TRUE;302306;extract;Number of zones
+;Розширення;(?:так|підтримується|модул);regex;Можливість розширення;Так;170;TRUE;302306;extract;Expansion capability yes
+;Розширення;(?:ні|немає|відсутня);regex;Можливість розширення;Ні;171;TRUE;302306;extract;Expansion capability no
+;Інтеграція;(?:так|підтримується|API);regex;Можливість для інтеграції;Так;180;TRUE;302306;extract;Integration capability yes
+;Інтеграція;(?:ні|немає|відсутня);regex;Можливість для інтеграції;Ні;181;TRUE;302306;extract;Integration capability no
+;Кількість повідомлень;(\d+)\s*(?:видів|типів);regex;Кількість видів видаваних повідомлень;$1 ;190;TRUE;302306;extract;Number of message types
+;Протокол;(?:Contact\s*ID|SIA);regex;Можливість для інтеграції;Так;200;TRUE;302306;derive;Protocol indicates integration
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;302306;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;302306;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;302306;skip;Skip gross weight
+;Потужність споживання;;exact;;Пропустити;2003;TRUE;302306;skip;Skip power consumption
+;Строк гарантії;;exact;;Пропустити;2004;TRUE;302306;skip;Skip warranty period
+;Цвет;;exact;;Пропустити;2005;TRUE;302306;skip;Skip color
+;Стан;;exact;;Пропустити;2006;TRUE;302306;skip;Skip condition
+;У комплекті;;exact;;Пропустити;2007;TRUE;302306;skip;Skip kit contents
+;Рабочая температура;;exact;;Пропустити;2008;TRUE;302306;skip;Skip operating temperature
+;Розміри;;exact;;Пропустити;2009;TRUE;302306;skip;Skip dimensions
+.*\bбездротов.*;;;regex;Інтерфейс;Бездротовий;1;TRUE;302302;extract;Wireless from name
+.*\bпровідн.*;;;regex;Інтерфейс;Провідний;2;TRUE;302302;extract;Wired from name
+.*\bPIR.*;;;regex;Принцип роботи сповіщувача;Оптико-електронний (пасивний);3;TRUE;302302;extract;PIR sensor from name
+.*\bмікрохвил.*;;;regex;Принцип роботи сповіщувача;Радіохвильовий;4;TRUE;302302;extract;Microwave sensor from name
+.*\bгеркон.*;;;regex;Принцип роботи сповіщувача;Магнітоконтактний;5;TRUE;302302;extract;Reed switch from name
+.*\bвібраці.*;;;regex;Принцип роботи сповіщувача;Вібраційний;6;TRUE;302302;extract;Vibration sensor from name
+.*\bакселерометр.*;;;regex;Принцип роботи сповіщувача;П'єзоелектричний;7;TRUE;302302;extract;Accelerometer from name
+.*\bзатоплен.*;;;regex;Тип сповіщувача;Точковий;8;TRUE;302302;extract;Flood detector type
+.*\bрозбитт.*скл.*;;;regex;Принцип роботи сповіщувача;Акустичний (звукової);9;TRUE;302302;extract;Glass break detector
+.*\bконтактн.*;;;regex;Принцип роботи сповіщувача;Магнітоконтактний;10;TRUE;302302;extract;Contact sensor from name
+.*\bруху.*;;;regex;Тип сповіщувача;Об'ємний;11;TRUE;302302;extract;Motion detector type
+.*\bдатчик.*;;;regex;Приведення в дію;Автоматичне;12;TRUE;302302;extract;Auto activation for sensor
+.*\bвідеоверифікаці.*;;;regex;Додаткові функції;Відеоверифікація;13;TRUE;302302;extract;Video verification from name
+.*\bфотоверифікаці.*;;;regex;Додаткові функції;Фотоверифікація;14;TRUE;302302;extract;Photo verification from name
+.*\bIP66.*;;;regex;Ступінь захисту;IP66;15;TRUE;302302;extract;IP66 from name
+.*\bIP65.*;;;regex;Ступінь захисту;IP65;16;TRUE;302302;extract;IP65 from name
+.*\bвулич.*;;;regex;Застосування;Зовнішнє;17;TRUE;302302;extract;Outdoor from name
+.*\bвнутріш.*;;;regex;Застосування;Внутрішнє;18;TRUE;302302;extract;Indoor from name
+;Метод роботи;.*PIR.*;regex;Принцип роботи сповіщувача;Оптико-електронний (пасивний);20;TRUE;302302;extract;PIR from method field
+;Метод роботи;.*геркон.*;regex;Принцип роботи сповіщувача;Магнітоконтактний;21;TRUE;302302;extract;Reed switch from method
+;Метод роботи;.*мікрохвил.*;regex;Принцип роботи сповіщувача;Радіохвильовий;22;TRUE;302302;extract;Microwave from method
+;Метод роботи;.*акселерометр.*;regex;Принцип роботи сповіщувача;П'єзоелектричний;23;TRUE;302302;extract;Accelerometer from method
+;Метод роботи;.*затоплен.*;regex;Тип сповіщувача;Точковий;24;TRUE;302302;derive;Flood detector type
+;Метод роботи;.*розбитт.*скл.*;regex;Принцип роботи сповіщувача;Акустичний (звукової);25;TRUE;302302;extract;Glass break from method
+;Метод роботи;.*контактн.*;regex;Принцип роботи сповіщувача;Магнітоконтактний;26;TRUE;302302;extract;Contact from method
+;Метод роботи;.*руху.*;regex;Тип сповіщувача;Об'ємний;27;TRUE;302302;derive;Motion type from method
+;Метод роботи;.*бездротов.*;regex;Інтерфейс;Бездротовий;28;TRUE;302302;extract;Wireless from method
+;Метод роботи;.*PIR.*мікрохвил.*;regex;Тип сповіщувача;Об'ємний;29;TRUE;302302;derive;Combined PIR+MW detector
+;Метод роботи;.*PIR.*\+.*мікрохвил.*;regex;Принцип роботи сповіщувача;Комбінований (PIR+MW);30;TRUE;302302;derive;Combined PIR+MW principle
+;Метод роботи;.*відео.*;regex;Додаткові функції;Відеоверифікація;31;TRUE;302302;derive;Video verification feature
+;Питание;.*CR123A.*;regex;Живлення;Батарейки одноразові;40;TRUE;302302;derive;CR123A battery power
+;Питание;.*CR2450.*;regex;Живлення;Батарейки одноразові;41;TRUE;302302;derive;CR2450 battery power
+;Питание;.*акумулятор.*;regex;Живлення;Батарейки акумуляторного типу;42;TRUE;302302;derive;Accumulator power
+;Питание;.*12.*В.*;regex;Живлення;Мережа 12В;43;TRUE;302302;derive;12V network power
+;Питание;.*220.*В.*;regex;Живлення;Мережа 220В;44;TRUE;302302;derive;220V network power
+;Питание;.*24.*В.*;regex;Живлення;Мережа 24В;45;TRUE;302302;derive;24V network power
+;Питание;.*9-16.*В.*;regex;Живлення;Мережа 12В;46;TRUE;302302;derive;9-16V range as 12V
+;Частотна характеристика;.*868.*МГц.*;regex;Протокол зв'язку;Закритий протокол;50;TRUE;302302;derive;868MHz wireless protocol
+;Частотна характеристика;.*433.*МГц.*;regex;Протокол зв'язку;Закритий протокол;51;TRUE;302302;derive;433MHz wireless protocol
+;Частотна характеристика;.*Wi-Fi.*;regex;Протокол зв'язку;Wi-Fi;52;TRUE;302302;derive;WiFi protocol
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Мінімальна робоча температура;-$1 °C;60;TRUE;302302;extract;Min temperature
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Максимальна робоча температура;+$2 °C;61;TRUE;302302;extract;Max temperature
+;Антісаботаж;.*[Пп]ідтримує.*;regex;Антисаботаж;Так;70;TRUE;302302;derive;Tamper protection support
+;Антісаботаж;.*[Пп]ідтрим.*;regex;Антисаботаж;Так;71;TRUE;302302;derive;Tamper support variant
+;Термін роботи батареї;([0-9]+)\s*рок.*;regex;Термін роботи батареї;$1 років;80;TRUE;302302;extract;Battery life in years
+;Термін роботи батареї;([0-9]+)\s*год.*;regex;Термін роботи батареї;$1 годин;81;TRUE;302302;extract;Battery life in hours
+;Імунітет до тварин;.*до\s*([0-9]+)\s*кг.*;regex;Імунітет до тварин;до $1 кг;90;TRUE;302302;extract;Pet immunity weight
+;Імунітет до тварин;([0-9]+)\s*кг.*;regex;Імунітет до тварин;$1 кг;91;TRUE;302302;extract;Pet immunity exact
+;Покрытие;.*([0-9]+)\s*м.*;regex;Дальність виявлення;$1 м;100;TRUE;302302;extract;Detection range in meters
+;Покрытие;.*([0-9]+)°.*;regex;Кут огляду;$1°;101;TRUE;302302;extract;Viewing angle
+;Высота установки;.*([0-9.]+)\s*-\s*([0-9.]+)\s*м.*;regex;Висота установки;$1-$2 м;110;TRUE;302302;extract;Installation height range
+;Высота установки;.*([0-9.]+)\s*м.*;regex;Висота установки;$1 м;111;TRUE;302302;extract;Installation height single
+;Степень защиты;.*IP([0-9]+).*;regex;Ступінь захисту;IP$1;120;TRUE;302302;extract;IP rating extraction
+;Степень защиты;.*усередині.*;regex;Застосування;Внутрішнє;121;TRUE;302302;derive;Indoor application
+;Відстань передачі;.*до\s*([0-9]+)\s*м.*;regex;Відстань передачі;до $1 м;130;TRUE;302302;extract;Transmission distance up to
+;Відстань передачі;([0-9]+)\s*м.*;regex;Відстань передачі;$1 м;131;TRUE;302302;extract;Transmission distance exact
+;Відстань передачі;([0-9.]+)\s*км.*;regex;Відстань передачі;$1 км;132;TRUE;302302;extract;Transmission distance km
+;Швидкість детекції;([0-9.]+)\s*м/с.*;regex;Швидкість детекції;від $1 м/с;140;TRUE;302302;extract;Detection speed from
+;Швидкість детекції;([0-9.]+)\s*-\s*([0-9.]+)\s*м/с.*;regex;Швидкість детекції;$1-$2 м/с;141;TRUE;302302;extract;Detection speed range
+;Вес;([0-9.]+)\s*г;regex;Вага нетто;$1 г;150;TRUE;302302;extract;Net weight in grams
+;Розміри;([0-9.]+)\s*[×x]\s*([0-9.]+)\s*[×x]\s*([0-9.]+).*;regex;Розміри;$1 × $2 × $3 мм;160;TRUE;302302;extract;Dimensions 3D
+;Розміри;φ([0-9.]+)\s*x\s*([0-9.]+).*;regex;Розміри;φ$1 × $2 мм;161;TRUE;302302;extract;Dimensions cylindrical
+;Цифрова температурна компенсація;.*[Пп]ідтримує.*;regex;Температурна компенсація;Так;170;TRUE;302302;derive;Digital temp compensation
+;Автоматична чутливість;.*[Пп]ідтримує.*;regex;Автоматична чутливість;Так;180;TRUE;302302;derive;Auto sensitivity support
+;Індикатор рівня сигналу;.*[Пп]ідтримує.*;regex;Індикація рівня сигналу;Так;190;TRUE;302302;derive;Signal level indicator
+;Строк гарантії;([0-9]+)\s*міс.*;regex;Гарантія;$1 міс.;200;TRUE;302302;extract;Warranty period months
+;Камера;.*([0-9]+)\s*[×x]\s*([0-9]+).*;regex;Роздільна здатність камери;$1×$2;210;TRUE;302302;extract;Camera resolution
+;Разрешение;.*([0-9]+)\*([0-9]+).*;regex;Роздільна здатність;$1×$2;211;TRUE;302302;extract;Resolution extraction
+;Нижня зона виявлення;.*[Пп]ідтримує.*;regex;Нижня зона виявлення;Так;220;TRUE;302302;derive;Lower zone detection
+;Можливості використання;.*стіні.*стелі.*;regex;Спосіб монтажу;Універсальний;230;TRUE;302302;derive;Wall/ceiling mounting
+;Можливості використання;.*стіні.*;regex;Спосіб монтажу;Настінний;231;TRUE;302302;derive;Wall mounting only
+;Можливості використання;.*стелі.*;regex;Спосіб монтажу;Стельовий;232;TRUE;302302;derive;Ceiling mounting only
+;Виходи тривоги;([0-9]+).*;regex;Кількість виходів;$1 ;240;TRUE;302302;extract;Alarm outputs count
+;Особенности;.*контактн.*вхід.*;regex;Додаткові входи;Так;250;TRUE;302302;derive;Contact input feature
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;302302;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;302302;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;302302;skip;Skip gross weight
+;Кількість в ящику;.*шт.*;regex;;Пропустити;2003;TRUE;302302;skip;Skip package quantity
+;Стан;;exact;;Пропустити;2004;TRUE;302302;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2005;TRUE;302302;skip;Skip country of origin
+;Матеріал корпусу;;exact;;Пропустити;2006;TRUE;302302;skip;Skip body material
+;Комплектація;;exact;;Пропустити;2007;TRUE;302302;skip;Skip package contents
+.*\bбездротов.*;;;regex;Інтерфейс;Бездротовий;1;TRUE;301305;extract;Wireless from name
+.*\bпровідн.*;;;regex;Інтерфейс;Провідний;2;TRUE;301305;extract;Wired from name
+.*\bмеханічн.*;;;regex;Тип клавіатури;Механічна;3;TRUE;301305;extract;Mechanical keyboard from name
+.*\bсенсорн.*;;;regex;Тип клавіатури;Сенсорна;4;TRUE;301305;extract;Touch keyboard from name
+.*\bLCD.*;;;regex;Монітор;LCD;5;TRUE;301305;extract;LCD monitor from name
+.*\bOLED.*;;;regex;Монітор;OLED;6;TRUE;301305;extract;OLED monitor from name
+.*\bLED.*;;;regex;Монітор;LED;7;TRUE;301305;extract;LED monitor from name
+.*\bWi-Fi.*;;;regex;Протокол зв'язку;Wi-Fi;8;TRUE;301305;extract;WiFi protocol from name
+.*\bUSB.*;;;regex;Протокол зв'язку;USB 2.0;9;TRUE;301305;extract;USB protocol from name
+.*\bPoE.*;;;regex;Живлення;PoE;10;TRUE;301305;extract;PoE power from name
+.*\bбіл.*;;;regex;Колір;Білий;11;TRUE;301305;extract;White color from name
+.*\bчорн.*;;;regex;Колір;Чорний;12;TRUE;301305;extract;Black color from name
+.*\bсір.*;;;regex;Колір;Сірий;13;TRUE;301305;extract;Gray color from name
+.*\bклавіатур.*;Метод роботи;.*мобільн.*;regex;Інтерфейс;Бездротовий;14;TRUE;301305;derive;Mobile keyboard is wireless
+;Метод роботи;.*бездротов.*;regex;Інтерфейс;Бездротовий;20;TRUE;301305;extract;Wireless from method field
+;Метод роботи;.*провідн.*;regex;Інтерфейс;Провідний;21;TRUE;301305;extract;Wired from method field
+;Метод роботи;.*клавіатур.*;regex;Тип клавіатури;Механічна;22;TRUE;301305;extract;Keyboard type from method
+;Метод роботи;.*кнопк.*;regex;Тип клавіатури;Механічна;23;TRUE;301305;extract;Button type keyboard
+;Метод роботи;.*LCD.*екран.*;regex;Монітор;LCD;24;TRUE;301305;derive;LCD screen from method
+;Метод роботи;.*OLED.*;regex;Монітор;OLED;25;TRUE;301305;derive;OLED screen from method
+;Метод роботи;.*аварійний.*термінал.*;regex;Тип клавіатури;Спеціалізована;26;TRUE;301305;derive;Emergency terminal type
+;Количество кнопок;^([0-9]+).*;regex;Кількість кнопок (шт.);$1 ;30;TRUE;301305;extract;Number of buttons
+;Питание;.*батаре.*AA.*;regex;Живлення;Батарейки одноразові;40;TRUE;301305;derive;AA batteries power
+;Питание;.*акумулятор.*;regex;Живлення;Акумулятор;41;TRUE;301305;derive;Accumulator power
+;Питание;.*12V.*;regex;Живлення;Мережа 12В;42;TRUE;301305;derive;12V network power
+;Питание;.*220V.*;regex;Живлення;Мережа 220В;43;TRUE;301305;derive;220V network power
+;Питание;.*24V.*;regex;Живлення;Мережа 24В;44;TRUE;301305;derive;24V network power
+;Питание;.*PoE.*;regex;Живлення;PoE;45;TRUE;301305;derive;PoE power from field
+;Питание;.*USB.*;regex;Живлення;USB;46;TRUE;301305;derive;USB power
+;Частотна характеристика;.*868.*МГц.*;regex;Протокол зв'язку;Закритий протокол;50;TRUE;301305;derive;868MHz wireless protocol
+;Частотна характеристика;.*433.*МГц.*;regex;Протокол зв'язку;Закритий протокол;51;TRUE;301305;derive;433MHz wireless protocol
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Мінімальна робоча температура;-$1 °C;60;TRUE;301305;extract;Min temperature extraction
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Максимальна робоча температура;+$2 °C;61;TRUE;301305;extract;Max temperature extraction
+;Індикація станів;.*[Пп]ідтримує.*;regex;Індикація режиму роботи;Так;70;TRUE;301305;derive;Status indication support
+;Антісаботаж;.*[Пп]ідтримує.*;regex;Вандалозахист;Так;80;TRUE;301305;derive;Tamper protection support
+;Колір;.*[Бб]іл.*;regex;Колір;Білий;90;TRUE;301305;extract;White color from field
+;Колір;.*[Чч]орн.*;regex;Колір;Чорний;91;TRUE;301305;extract;Black color from field
+;Колір;.*[Сс]ір.*;regex;Колір;Сірий;92;TRUE;301305;extract;Gray color from field
+;Колір;.*[Чч]ервон.*;regex;Колір;Червоний;93;TRUE;301305;extract;Red color from field
+;Колір;.*[Зз]елен.*;regex;Колір;Зелений;94;TRUE;301305;extract;Green color from field
+;Колір;.*[Сс]ині.*;regex;Колір;Синій;95;TRUE;301305;extract;Blue color from field
+;Монтаж;.*врізн.*;regex;Спосіб монтажу;Врізний;100;TRUE;301305;extract;Flush mounting
+;Монтаж;.*накладн.*;regex;Спосіб монтажу;Накладний;101;TRUE;301305;extract;Surface mounting
+;Вес;([0-9.]+)\s*г;regex;Вага нетто;$1 г;110;TRUE;301305;extract;Net weight in grams
+;Розміри;([0-9.]+)\s*[×x]\s*([0-9.]+)\s*[×x]\s*([0-9.]+).*;regex;Розміри;$1 × $2 × $3 мм;120;TRUE;301305;extract;Dimensions extraction
+;Відстань передачі;.*до\s*([0-9]+)\s*м.*;regex;Відстань передачі;до $1 м;130;TRUE;301305;extract;Transmission distance
+;Влажность;.*до\s*([0-9]+)%;regex;Максимальна вологість;$1 %;140;TRUE;301305;extract;Max humidity percentage
+;Влажность;.*від\s*([0-9]+)%.*до\s*([0-9]+)%;regex;Робоча вологість;від $1% до $2%;141;TRUE;301305;extract;Operating humidity range
+;Строк гарантії;([0-9]+)\s*міс.*;regex;Гарантія;$1 міс.;150;TRUE;301305;extract;Warranty period in months
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;301305;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;301305;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;301305;skip;Skip gross weight
+;Стан;;exact;;Пропустити;2003;TRUE;301305;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2004;TRUE;301305;skip;Skip country of origin
+;Матеріал корпусу;;exact;;Пропустити;2005;TRUE;301305;skip;Skip body material
+;Комплектація;;exact;;Пропустити;2006;TRUE;301305;skip;Skip package contents
+;Сертифікати;;exact;;Пропустити;2007;TRUE;301305;skip;Skip certificates
+;Кількість підтримуваних панелей;;exact;;Пропустити;2008;TRUE;301305;skip;Skip supported panels count
+.*\bсирен.*;;;regex;Тип;Сирена;1;TRUE;300402;extract;Siren type from name
+.*\bмаяч.*;;;regex;Тип;Проблисковий маячок;2;TRUE;300402;extract;Beacon type from name
+.*\bпроблиск.*;;;regex;Тип;Проблисковий маячок;3;TRUE;300402;extract;Flashing beacon from name
+.*\bсвітлов.*панел.*;;;regex;Тип;Світлова панель;4;TRUE;300402;extract;Light panel from name
+.*\bLED.*;;;regex;Джерело світла;Діоди;5;TRUE;300402;extract;LED light source from name
+.*\bдіод.*;;;regex;Джерело світла;Діоди;6;TRUE;300402;extract;Diode light source from name
+.*\bбездротов.*;;;regex;Інтерфейс;Бездротовий;7;TRUE;300402;extract;Wireless from name
+.*\bпровідн.*;;;regex;Інтерфейс;Провідний;8;TRUE;300402;extract;Wired from name
+.*\bчервон.*;;;regex;Колір ковпака;Червоний;9;TRUE;300402;extract;Red color from name
+.*\bсині.*;;;regex;Колір ковпака;Синій;10;TRUE;300402;extract;Blue color from name
+.*\bжовт.*;;;regex;Колір ковпака;Жовтий;11;TRUE;300402;extract;Yellow color from name
+.*\bпомаранч.*;;;regex;Колір ковпака;Помаранчевий;12;TRUE;300402;extract;Orange color from name
+.*\bстробоскоп.*;;;regex;Тип;Проблисковий маячок;13;TRUE;300402;extract;Strobe light type
+.*\bIP65.*;;;regex;Ступінь захисту;IP65;14;TRUE;300402;extract;IP65 from name
+.*\bIP66.*;;;regex;Ступінь захисту;IP66;15;TRUE;300402;extract;IP66 from name
+.*\bвулич.*;;;regex;Застосування;Зовнішнє;16;TRUE;300402;extract;Outdoor from name
+.*\bвнутріш.*;;;regex;Застосування;Внутрішнє;17;TRUE;300402;extract;Indoor from name
+.*\b([0-9]+)\s*діод.*;;;regex;Кількість діодів (шт.);$1 ;18;TRUE;300402;extract;LED count from name
+.*\b([0-9]+)\s*LED.*;;;regex;Кількість діодів (шт.);$1 ;19;TRUE;300402;extract;LED count variant from name
+.*\b([0-9]+)\s*дБ.*;;;regex;Рівень звуку;$1 дБ;20;TRUE;300402;extract;Sound level from name
+;Метод роботи;.*бездротов.*;regex;Інтерфейс;Бездротовий;30;TRUE;300402;extract;Wireless from method field
+;Метод роботи;.*провідн.*;regex;Інтерфейс;Провідний;31;TRUE;300402;extract;Wired from method field
+;Метод роботи;.*868.*МГц.*;regex;Протокол зв'язку;Закритий протокол;32;TRUE;300402;derive;868MHz wireless protocol
+;Метод роботи;.*433.*МГц.*;regex;Протокол зв'язку;Закритий протокол;33;TRUE;300402;derive;433MHz wireless protocol
+;Метод роботи;.*двосторонн.*зв'язок.*;regex;Додаткові функції;Двосторонній зв'язок;34;TRUE;300402;derive;Two-way communication
+;Питание;.*CR123A.*;regex;Живлення;Батарейки одноразові;40;TRUE;300402;derive;CR123A battery power
+;Питание;.*CR2450.*;regex;Живлення;Батарейки одноразові;41;TRUE;300402;derive;CR2450 battery power
+;Питание;.*акумулятор.*;regex;Живлення;Акумулятор;42;TRUE;300402;derive;Accumulator power
+;Питание;.*12.*В.*;regex;Живлення;Мережа 12В;43;TRUE;300402;derive;12V network power
+;Питание;.*24.*В.*;regex;Живлення;Мережа 24В;44;TRUE;300402;derive;24V network power
+;Питание;.*PoE.*;regex;Живлення;PoE;45;TRUE;300402;derive;PoE power
+;Питание;.*USB.*;regex;Живлення;USB;46;TRUE;300402;derive;USB power
+;Питание;.*сонячн.*;regex;Живлення;Сонячні батареї;47;TRUE;300402;derive;Solar battery power
+;Питание;([0-9]+).*В.*;regex;Напруга (В);$1 ;48;TRUE;300402;extract;Voltage extraction
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Мінімальна робоча температура;-$1 °C;50;TRUE;300402;extract;Min temperature
+;Рабочая температура;.*-([0-9]+).*\+([0-9]+).*;regex;Максимальна робоча температура;+$2 °C;51;TRUE;300402;extract;Max temperature
+;Антісаботаж;.*[Пп]ідтримує.*;regex;Антисаботаж;Так;60;TRUE;300402;derive;Tamper protection support
+;Антісаботаж;.*[Тт]ампер.*;regex;Антисаботаж;Так;61;TRUE;300402;derive;Tamper variant
+;Рівень гучності звуку;.*≥?\s*([0-9]+).*dB.*;regex;Рівень звуку;≥$1 дБ;70;TRUE;300402;extract;Sound level greater or equal
+;Рівень гучності звуку;([0-9]+)\s*-\s*([0-9]+).*дБ.*;regex;Рівень звуку;$1-$2 дБ;71;TRUE;300402;extract;Sound level range
+;Рівень гучності звуку;([0-9]+).*дБ.*;regex;Рівень звуку;$1 дБ;72;TRUE;300402;extract;Sound level exact
+;Тип сповіщення;.*звук.*;regex;Тип сигналізації;Звуковий;80;TRUE;300402;derive;Sound notification
+;Тип сповіщення;.*світл.*;regex;Тип сигналізації;Світловий;81;TRUE;300402;derive;Light notification
+;Тип сповіщення;.*світло.*звук.*;regex;Тип сигналізації;Світлозвуковий;82;TRUE;300402;derive;Light and sound notification
+;Тип сповіщення;.*індикатор.*;regex;Тип сигналізації;Світловий;83;TRUE;300402;derive;Indicator as light notification
+;Час звучання тривоги;([0-9]+).*с.*;regex;Тривалість сигналу;$1 с;90;TRUE;300402;extract;Alarm duration seconds
+;Час звучання тривоги;([0-9]+).*хв.*;regex;Тривалість сигналу;$1 хв;91;TRUE;300402;extract;Alarm duration minutes
+;Індикація станів;.*[Пп]ідтримує.*;regex;Індикація стану;Так;100;TRUE;300402;derive;Status indication support
+;Індикація станів;.*індикатор.*;regex;Індикація стану;Так;101;TRUE;300402;derive;Indicator presence
+;Індикація станів;.*зелен.*індикатор.*;regex;Колір діодів;Зелений;102;TRUE;300402;derive;Green LED color
+;Індикація станів;.*червон.*індикатор.*;regex;Колір діодів;Червоний;103;TRUE;300402;derive;Red LED color
+;Індикація станів;.*син.*індикатор.*;regex;Колір діодів;Синій;104;TRUE;300402;derive;Blue LED color
+;Віддалене налаштування і тестування;.*[Пп]ідтримує.*;regex;Віддалене налаштування;Так;110;TRUE;300402;derive;Remote configuration support
+;Температурный сенсор;.*-([0-9]+).*\+([0-9]+).*;regex;Діапазон температурного сенсора;-$1 до +$2 °C;120;TRUE;300402;extract;Temperature sensor range
+;Класс защиты;.*IP([0-9]+).*;regex;Ступінь захисту;IP$1;130;TRUE;300402;extract;IP rating extraction
+;Монтаж;.*[Нн]астенн.*;regex;Спосіб монтажу;Настінний;140;TRUE;300402;derive;Wall mounting
+;Монтаж;.*[Сс]тельов.*;regex;Спосіб монтажу;Стельовий;141;TRUE;300402;derive;Ceiling mounting
+;Монтаж;.*[Мм]агніт.*;regex;Кріплення;Магнітне;142;TRUE;300402;derive;Magnetic mounting
+;Монтаж;.*[Сс]таціонарн.*;regex;Кріплення;Стаціонарне;143;TRUE;300402;derive;Stationary mounting
+;Вес;([0-9.]+)\s*г;regex;Вага нетто;$1 г;150;TRUE;300402;extract;Net weight in grams
+;Розміри;([0-9.]+)\s*[×x]\s*([0-9.]+)\s*[×x]\s*([0-9.]+).*;regex;Розміри;$1 × $2 × $3 мм;160;TRUE;300402;extract;Dimensions 3D
+;Розміри;φ([0-9.]+)\s*x\s*([0-9.]+).*;regex;Розміри;φ$1 × $2 мм;161;TRUE;300402;extract;Dimensions cylindrical
+;Строк гарантії;([0-9]+)\s*міс.*;regex;Гарантія;$1 міс.;170;TRUE;300402;extract;Warranty period months
+;Строк гарантії;([0-9]+)\s*рок.*;regex;Гарантія;$1 років;171;TRUE;300402;extract;Warranty period years
+;Джерело світла;.*галоген.*;regex;Джерело світла;Галогенна лампа;180;TRUE;300402;extract;Halogen lamp source
+;Джерело світла;.*діод.*;regex;Джерело світла;Діоди;181;TRUE;300402;extract;Diode source from field
+;Джерело світла;.*LED.*;regex;Джерело світла;Діоди;182;TRUE;300402;extract;LED source from field
+;Кількість діодів;([0-9]+).*;regex;Кількість діодів (шт.);$1 ;190;TRUE;300402;extract;Number of LEDs
+;Колір діодів;.*біл.*;regex;Колір діодів;Білий;200;TRUE;300402;extract;White LED color
+;Колір діодів;.*жовт.*;regex;Колір діодів;Жовтий;201;TRUE;300402;extract;Yellow LED color
+;Колір діодів;.*червон.*;regex;Колір діодів;Червоний;202;TRUE;300402;extract;Red LED color
+;Колір діодів;.*син.*;regex;Колір діодів;Синій;203;TRUE;300402;extract;Blue LED color
+;Колір діодів;.*зелен.*;regex;Колір діодів;Зелений;204;TRUE;300402;extract;Green LED color
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;300402;skip;Skip box quantity
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;300402;skip;Skip package dimensions
+;Вага брутто;;exact;;Пропустити;2002;TRUE;300402;skip;Skip gross weight
+;Кількість в ящику;.*шт.*;regex;;Пропустити;2003;TRUE;300402;skip;Skip package quantity
+;Стан;;exact;;Пропустити;2004;TRUE;300402;skip;Skip condition
+;Країна виробник;;exact;;Пропустити;2005;TRUE;300402;skip;Skip country of origin
+.*;Тип;.*\bUTP\b.*;regex;Тип витої пари;UTP;1;TRUE;7190605;extract;UTP twisted pair type
+.*;Тип;.*\bFTP\b.*;regex;Тип витої пари;FTP;2;TRUE;7190605;extract;FTP twisted pair type
+.*;Тип;.*\bF/UTP\b.*;regex;Тип витої пари;F/UTP;3;TRUE;7190605;extract;F/UTP twisted pair type
+.*;Тип;.*\bSTP\b.*;regex;Тип витої пари;STP;4;TRUE;7190605;extract;STP twisted pair type
+.*;Тип;.*\bS/FTP\b.*;regex;Тип витої пари;S/FTP;5;TRUE;7190605;extract;S/FTP twisted pair type
+.*;Тип;.*\bSF/UTP\b.*;regex;Тип витої пари;SF/UTP;6;TRUE;7190605;extract;SF/UTP twisted pair type
+.*;Тип;.*\bU/FTP\b.*;regex;Тип витої пари;U/FTP;7;TRUE;7190605;extract;U/FTP twisted pair type
+.*;Тип;.*\bU/STP\b.*;regex;Тип витої пари;U/STP;8;TRUE;7190605;extract;U/STP twisted pair type
+.*;Тип;.*\bF/FTP\b.*;regex;Тип витої пари;F/FTP;9;TRUE;7190605;extract;F/FTP twisted pair type
+.*;Тип;.*\b[Кк]оаксі[аі]льн.*;regex;Тип кабеля;Коаксіальний;10;TRUE;7190605;extract;Coaxial cable type
+.*;Тип;.*\b[Кк]омбін.*;regex;Тип кабеля;Комбінований;11;TRUE;7190605;extract;Combined cable type
+.*;Тип;.*\b[Сс]игнальн.*;regex;Тип кабеля;Сигнальний;12;TRUE;7190605;extract;Signal cable type
+.*;Тип;.*\b[Аа]кустичн.*;regex;Тип кабеля;Акустичний;13;TRUE;7190605;extract;Acoustic cable type
+.*;Тип;.*\b[Оо]птоволокн.*;regex;Тип кабеля;Оптоволокно;14;TRUE;7190605;extract;Fiber optic cable type
+.*;Тип;.*\bCAT\s*5[Ee]\b.*;regex;Категорія витої пари;САТ5е;20;TRUE;7190605;extract;CAT5e category from type
+.*;Тип;.*\bCAT\s*6[Aa]?\b.*;regex;Категорія витої пари;CAT6;21;TRUE;7190605;extract;CAT6/6a category from type
+.*;Тип;.*\bCAT\s*7[Aa]?\b.*;regex;Категорія витої пари;CAT7;22;TRUE;7190605;extract;CAT7/7a category from type
+;Стандарти;.*\bCAT\.?\s*5[Ee]\b.*;regex;Категорія витої пари;САТ5е;30;TRUE;7190605;extract;CAT5e from standards
+;Стандарти;.*\bCAT\.?\s*6[Aa]?\b.*;regex;Категорія витої пари;CAT6;31;TRUE;7190605;extract;CAT6/6a from standards
+;Категорія витої пари;САТ5е;exact;Категорія витої пари;САТ5е;40;TRUE;7190605;extract;CAT5e explicit
+;Категорія витої пари;CAT6;exact;Категорія витої пари;CAT6;41;TRUE;7190605;extract;CAT6 explicit
+;Категорія витої пари;CAT6a;exact;Категорія витої пари;CAT6a;42;TRUE;7190605;extract;CAT6a explicit
+;Категорія витої пари;CAT7;exact;Категорія витої пари;CAT7;43;TRUE;7190605;extract;CAT7 explicit
+;Категорія витої пари;CAT7a;exact;Категорія витої пари;CAT7a;44;TRUE;7190605;extract;CAT7a explicit
+;Тип витої пари;UTP;exact;Тип витої пари;UTP;50;TRUE;7190605;extract;UTP type explicit
+;Тип витої пари;FTP;exact;Тип витої пари;FTP;51;TRUE;7190605;extract;FTP type explicit
+;Тип витої пари;F/UTP;exact;Тип витої пари;F/UTP;52;TRUE;7190605;extract;F/UTP type explicit
+;Тип витої пари;S/FTP;exact;Тип витої пари;S/FTP;53;TRUE;7190605;extract;S/FTP type explicit
+;Тип витої пари;SF/UTP;exact;Тип витої пари;SF/UTP;54;TRUE;7190605;extract;SF/UTP type explicit
+;Тип витої пари;STP;exact;Тип витої пари;STP;55;TRUE;7190605;extract;STP type explicit
+;Центральний провідник;.*\b[Мм][іі]д[ьн].*;regex;Матеріал центральної жили;Мідь;60;TRUE;7190605;extract;Copper core material
+;Центральний провідник;.*\bCu\b.*;regex;Матеріал центральної жили;Мідь;61;TRUE;7190605;extract;Cu core material
+;Центральний провідник;.*\bCCA\b.*;regex;Матеріал центральної жили;CCA;62;TRUE;7190605;extract;CCA core material
+;Центральний провідник;.*\bCCS\b.*;regex;Матеріал центральної жили;CCS;63;TRUE;7190605;extract;CCS core material
+;Центральний провідник;.*\bSCCS\b.*;regex;Матеріал центральної жили;SCCS;64;TRUE;7190605;extract;SCCS core material
+;Центральний провідник;.*\b[Бб][іі]метал.*;regex;Матеріал центральної жили;Біметал;65;TRUE;7190605;extract;Bimetal core material
+;Центральний провідник;.*\b[Аа]люм[іі]н.*;regex;Матеріал центральної жили;Алюміній;66;TRUE;7190605;extract;Aluminum core material
+;Матеріал жили \(провідника\);.*\b[Мм][іі]д[ьн].*;regex;Матеріал жили;Мідь;70;TRUE;7190605;extract;Copper conductor material
+;Матеріал жили \(провідника\);.*\bCu\b.*;regex;Матеріал жили;Мідь;71;TRUE;7190605;extract;Cu conductor material
+;Матеріал жили \(провідника\);.*\bCCA\b.*;regex;Матеріал жили;CCA;72;TRUE;7190605;extract;CCA conductor material
+;Матеріал жили \(провідника\);.*\bCCS\b.*;regex;Матеріал жили;CCS;73;TRUE;7190605;extract;CCS conductor material
+;Матеріал жили \(провідника\);.*\b[Бб][іі]метал.*;regex;Матеріал жили;Біметал;74;TRUE;7190605;extract;Bimetal conductor material
+;Оболонка;.*\bPVC\b.*;regex;Материал оболочки;ПВХ;80;TRUE;7190605;extract;PVC sheath material
+;Оболонка;.*\bПВХ\b.*;regex;Материал оболочки;ПВХ;81;TRUE;7190605;extract;PVC sheath material (Cyrillic)
+;Оболонка;.*\b[Пп]ол[іі]в[іі]н[іі]лхлорид.*;regex;Материал оболочки;ПВХ;82;TRUE;7190605;extract;Polyvinyl chloride sheath
+;Оболонка;.*\bPE\b.*;regex;Материал оболочки;Поліетилен;83;TRUE;7190605;extract;PE sheath material
+;Оболонка;.*\b[Пп]ол[іі]етилен.*;regex;Материал оболочки;Поліетилен;84;TRUE;7190605;extract;Polyethylene sheath
+;Оболонка;.*\bLSZH\b.*;regex;Материал оболочки;LSZH;85;TRUE;7190605;extract;LSZH sheath material
+;Оболонка;.*\bLSOH\b.*;regex;Материал оболочки;LSZH;86;TRUE;7190605;extract;LSOH sheath material
+;Оболонка;.*\b[Бб]езгалоген.*;regex;Материал оболочки;LSZH;87;TRUE;7190605;extract;Halogen-free sheath
+;Оболонка;.*\b[Гг]ума\b.*;regex;Материал оболочки;Гума;88;TRUE;7190605;extract;Rubber sheath
+;Материал оболочки;ПВХ;exact;Материал оболочки;ПВХ;90;TRUE;7190605;extract;PVC sheath explicit
+;Материал оболочки;Поліетилен;exact;Материал оболочки;Поліетилен;91;TRUE;7190605;extract;Polyethylene sheath explicit
+;Материал оболочки;LSZH;exact;Материал оболочки;LSZH;92;TRUE;7190605;extract;LSZH sheath explicit
+;Материал оболочки;PVC;exact;Материал оболочки;ПВХ;93;TRUE;7190605;extract;PVC sheath explicit (Latin)
+;Материал оболочки;PE;exact;Материал оболочки;Поліетилен;94;TRUE;7190605;extract;PE sheath explicit
+;Материал оболочки;Гума;exact;Материал оболочки;Гума;95;TRUE;7190605;extract;Rubber sheath explicit
+;Довжина кабеля;^([0-9]+)\s*[мmМM]\b.*;regex;Длина в упаковке (м);$1 ;100;TRUE;7190605;extract;Cable length in meters
+;Довжина кабеля;^([0-9]+)\b.*;regex;Длина в упаковке (м);$1 ;101;TRUE;7190605;extract;Cable length numeric
+;Розмір;".*([0-9]{2,3})\s*м.*";regex;Длина в упаковке (м);$1 ;102;TRUE;7190605;extract;Length from size field
+;Кількість жил;^([0-9]+)\b.*;regex;Кількість жил;$1 ;110;TRUE;7190605;extract;Number of cores
+;Кількість жил;.*\b([0-9]+)\s*жил.*;regex;Кількість жил;$1 ;111;TRUE;7190605;extract;Number of cores from text
+;Переріз;"^([0-9]+[.,]?[0-9]*)\s*мм.*";regex;Діаметр жили (мм);$1 ;120;TRUE;7190605;extract;Core diameter from cross-section
+;Переріз;".*([0-9]+[.,]?[0-9]*)\s*мм.*";regex;Діаметр жили (мм);$1 ;121;TRUE;7190605;extract;Diameter from cross-section text
+;Розмір;".*діаметр.*жили[^\d]*([0-9]+[.,]?[0-9]*)\s*мм.*";regex;Діаметр жили (мм);$1 ;122;TRUE;7190605;extract;Core diameter from size description
+;Розмір;".*\b([0-9]+)\s*жил.*\b([0-9]+[.,]?[0-9]*)\s*мм.*";regex;Діаметр жили (мм);$2 ;123;TRUE;7190605;extract;Diameter from cores and size
+;Переріз;"^([0-9]+[.,]?[0-9]*)\s*мм[²2].*";regex;Площа перетину (кв. мм);$1 ;130;TRUE;7190605;extract;Cross-section area
+;Вага брутто;"^([0-9]+[.,]?[0-9]*)\s*кг.*";regex;Маса (кг/м);$1 ;140;TRUE;7190605;extract;Weight from gross weight
+;Екранування;.*[Пп][іі]дтримує.*;regex;Наявність екрану;Так;150;TRUE;7190605;extract;Screen present
+;Екранування;.*в[іі]дсутн.*;regex;Наявність екрану;Ні;151;TRUE;7190605;extract;Screen absent
+;Екранування;.*алюмопол[іі]мерна.*стр[іі]чка.*;regex;Виконання 1 екрана;Стрічка;152;TRUE;7190605;extract;Aluminum-polymer tape screen
+;Екранування;.*фольг.*;regex;Виконання 1 екрана;Фольга;153;TRUE;7190605;extract;Foil screen
+;Екранування;.*оплетення.*;regex;Виконання 1 екрана;Дріт;154;TRUE;7190605;extract;Braided screen
+;Наявність екрану;Так;exact;Наявність екрану;Так;160;TRUE;7190605;extract;Screen explicit yes
+;Наявність екрану;Ні;exact;Наявність екрану;Ні;161;TRUE;7190605;extract;Screen explicit no
+;Виконання 1 екрана;Фольга;exact;Виконання 1 екрана;Фольга;162;TRUE;7190605;extract;Foil screen explicit
+;Виконання 1 екрана;Стрічка;exact;Виконання 1 екрана;Стрічка;163;TRUE;7190605;extract;Tape screen explicit
+;Виконання 1 екрана;Дріт;exact;Виконання 1 екрана;Дріт;164;TRUE;7190605;extract;Wire screen explicit
+;Монтаж;.*в.*прим[іі]щен.*;regex;Тип монтажу;Внутрішній;170;TRUE;7190605;extract;Indoor installation
+;Монтаж;.*поза.*прим[іі]щен.*;regex;Тип монтажу;Зовнішній;171;TRUE;7190605;extract;Outdoor installation
+;Монтаж;.*зовн[іі].*;regex;Тип монтажу;Зовнішній;172;TRUE;7190605;extract;Outdoor installation variant
+;Тип монтажу;Внутрішній;exact;Тип монтажу;Внутрішній;180;TRUE;7190605;extract;Indoor installation explicit
+;Тип монтажу;Зовнішній;exact;Тип монтажу;Зовнішній;181;TRUE;7190605;extract;Outdoor installation explicit
+;Тип монтажу;Універсальне;exact;Застосування;Універсальне;182;TRUE;7190605;extract;Universal application
+;Ізоляція;.*\bПВХ\b.*;regex;Матеріал ізоляції;ПВХ;190;TRUE;7190605;extract;PVC insulation
+;Ізоляція;.*\bпол[іі]етилен.*;regex;Матеріал ізоляції;Поліетилен;191;TRUE;7190605;extract;Polyethylene insulation
+;Ізоляція;.*\bPTFE\b.*;regex;Матеріал ізоляції;PTFE;192;TRUE;7190605;extract;PTFE insulation
+;Ізоляція;.*\b[Тт]ефлон.*;regex;Матеріал ізоляції;Тефлон;193;TRUE;7190605;extract;Teflon insulation
+;Ізоляція;.*\b[Гг]ума.*;regex;Матеріал ізоляції;Гума;194;TRUE;7190605;extract;Rubber insulation
+;Матеріал ізоляції;ПВХ;exact;Матеріал ізоляції;ПВХ;200;TRUE;7190605;extract;PVC insulation explicit
+;Матеріал ізоляції;Поліетилен;exact;Матеріал ізоляції;Поліетилен;201;TRUE;7190605;extract;Polyethylene insulation explicit
+;Матеріал ізоляції;Гума;exact;Матеріал ізоляції;Гума;202;TRUE;7190605;extract;Rubber insulation explicit
+;Матеріал ізоляції;PTFE;exact;Матеріал ізоляції;PTFE;203;TRUE;7190605;extract;PTFE insulation explicit
+;Матеріал ізоляції;Тефлон;exact;Матеріал ізоляції;Тефлон;204;TRUE;7190605;extract;Teflon insulation explicit
+;Частотна характеристика;^([0-9]+)\s*[мМ][гГ][цЦ].*;regex;Смуга частот (МГц);$1 ;210;TRUE;7190605;extract;Frequency band from characteristic
+;Смуга частот \(МГц\);^([0-9]+)\b.*;regex;Смуга частот (МГц);$1 ;211;TRUE;7190605;extract;Frequency band explicit
+;Опір;^([0-9]+)\s*[оО]м.*;regex;Хвильовий опір (Ом);$1 ;220;TRUE;7190605;extract;Wave impedance from resistance
+;Опір;.*([0-9]+)\s*[оО]м/км.*;regex;Опір (Ом/км);$1 ;221;TRUE;7190605;extract;Resistance per km
+;Хвильовий опір \(Ом\);^([0-9]+)\b.*;regex;Хвильовий опір (Ом);$1 ;222;TRUE;7190605;extract;Wave impedance explicit
+;Вхідна напруга;.*до.*([0-9]+)\s*[ВвVv].*;regex;Номінальна робоча напруга (В);$1 ;230;TRUE;7190605;extract;Voltage from input voltage
+;Робоча температура;^?-?([0-9]+)\s*[°℃]?\s*[CС].*;regex;Мінімальна робоча температура (град.);($1);240;TRUE;7190605;extract;Min operating temperature
+;Робоча температура;.*до\s+([0-9]+)\s*[°℃]?\s*[CС].*;regex;Максимальна робоча температура (град.);$1 ;241;TRUE;7190605;extract;Max operating temperature
+;Матеріал корпусу;.*\b[Сс]в[іі]тлостаб[іі]л[іі]зован.*;regex;Тип зовнішньої оболонки;Світлотермостійка;250;TRUE;7190605;extract;UV-resistant sheath
+;Оболонка;.*\b[Вв]огнест[іі]йк.*;regex;Тип зовнішньої оболонки;Вогнестійка;251;TRUE;7190605;extract;Fire-resistant sheath
+;Оболонка;.*\b[Вв]ологост[іі]йк.*;regex;Тип зовнішньої оболонки;Вологостійка;252;TRUE;7190605;extract;Moisture-resistant sheath
+;Кількість пар;^([0-9]+)\b.*;regex;Кількість пар;$1 ;260;TRUE;7190605;extract;Number of pairs
+.*;.*;.*\bвогнест[іі]йк.*;regex;Марка кабелю;НГ-FRLS;270;TRUE;7190605;extract;Fire-resistant cable mark
+.*;.*;.*\b[Нн][Гг][-\s]?FRLS\b.*;regex;Марка кабелю;НГ-FRLS;271;TRUE;7190605;extract;NG-FRLS cable mark
+.*;.*;.*\b[Нн][Гг][-\s]?HF\b.*;regex;Марка кабелю;НГ-HF;272;TRUE;7190605;extract;NG-HF cable mark
+.*;.*;.*\b[Нн][Гг][-\s]?LS\b.*;regex;Марка кабелю;НГ-LS;273;TRUE;7190605;extract;NG-LS cable mark
+.*;.*;.*\b[Нн]егор[юі]ч.*;regex;Тип кабеля;Негорючий;280;TRUE;7190605;extract;Non-combustible cable
+.*;.*;.*\b[Бб]езгалоген.*;regex;Тип кабеля;Безгалогенний;281;TRUE;7190605;extract;Halogen-free cable
+;Конструкція кабелю;Гнучка;exact;Конструкція кабелю;Гнучка;290;TRUE;7190605;extract;Flexible construction
+;Конструкція кабелю;Жорстка;exact;Конструкція кабелю;Жорстка;291;TRUE;7190605;extract;Rigid construction
+;Конструкція кабелю;Моноліт;exact;Конструкція кабелю;Моноліт;292;TRUE;7190605;extract;Solid construction
+.*;Упаковка;.*\b[Бб]ухта\b.*;regex;Упаковка;Бухта;300;TRUE;7190605;extract;Coil packaging
+.*;Упаковка;.*\b[Бб]арабан\b.*;regex;Упаковка;Барабан;301;TRUE;7190605;extract;Drum packaging
+.*;Упаковка;.*\b[Кк]отушка\b.*;regex;Упаковка;Котушка;302;TRUE;7190605;extract;Reel packaging
+.*;Упаковка;.*\b[Мм]оток\b.*;regex;Упаковка;Моток;303;TRUE;7190605;extract;Hank packaging
+.*;Упаковка;.*\b[Кк]оробка\b.*;regex;Упаковка;Коробка;304;TRUE;7190605;extract;Box packaging
+;Кількість в ящику;;exact;;Пропустити;2000;TRUE;7190605;skip;Skip box quantity cable
+;Розмір упаковки.*;;regex;;Пропустити;2001;TRUE;7190605;skip;Skip package dimensions cable
+;Вага брутто;;exact;;Пропустити;2002;TRUE;7190605;skip;Skip gross weight cable
+;Вага;;exact;;Пропустити;2003;TRUE;7190605;skip;Skip weight cable
+;Маса \(кг/м\);;exact;;Пропустити;2004;TRUE;7190605;skip;Skip weight per meter cable
+;Ізоляція дроту;;exact;;Пропустити;2005;TRUE;7190605;skip;Skip wire insulation details cable
+;Маркування кабелю;;exact;;Пропустити;2006;TRUE;7190605;skip;Skip cable marking cable
+;Колір проводу;;exact;;Пропустити;2007;TRUE;7190605;skip;Skip wire color cable
+;Зовнішній вигляд;;exact;;Пропустити;2008;TRUE;7190605;skip;Skip appearance cable
+;Налагодження;;exact;;Пропустити;2009;TRUE;7190605;skip;Skip adjustment cable
+;Незбалансований опір.*;;regex;;Пропустити;2010;TRUE;7190605;skip;Skip unbalanced resistance cable
+;Фізичні властивості.*;;regex;;Пропустити;2011;TRUE;7190605;skip;Skip physical properties cable
+;Знос;;exact;;Пропустити;2012;TRUE;7190605;skip;Skip wear cable
+;Холодний вигин;;exact;;Пропустити;2013;TRUE;7190605;skip;Skip cold bend cable
+;Ріпкорд;;exact;;Пропустити;2014;TRUE;7190605;skip;Skip ripcord cable
+;Діелектрик;;exact;;Пропустити;2015;TRUE;7190605;skip;Skip dielectric cable
+;Матеріал корпусу;;exact;;Пропустити;2016;TRUE;7190605;skip;Skip body material cable
+;Основний провідник;;exact;;Пропустити;2017;TRUE;7190605;skip;Skip main conductor details cable
+;Матеріал;;exact;;Пропустити;2018;TRUE;7190605;skip;Skip material generic cable
