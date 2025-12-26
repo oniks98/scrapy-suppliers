@@ -45,10 +45,11 @@ class AttributeMapper:
                         'supplier_value_pattern': row['supplier_value_pattern'].strip(),
                         'pattern_type': row['pattern_type'].strip(),
                         'prom_attribute': row['prom_attribute'].strip(),
+                        'prom_attribute_unit_template': row.get('prom_attribute_unit_template', '').strip(),  # НОВА КОЛОНКА
                         'prom_value_template': row['prom_value_template'].strip(),
                         'priority': int(row.get('priority', 100)),
                         'category_id': row.get('category_id', '').strip(),
-                        'rule_kind': row.get('rule_kind', 'extract').strip(),  # НОВЕ ПОЛЕ
+                        'rule_kind': row.get('rule_kind', 'extract').strip(),  # NOWE POLE
                         'notes': row.get('notes', '').strip()
                     }
                     
@@ -112,49 +113,59 @@ class AttributeMapper:
             return ""
         return name.lower().strip()
     
-    def _apply_rule(self, rule: Dict, value: str) -> Optional[str]:
+    def _apply_rule(self, rule: Dict, value: str) -> tuple[Optional[str], Optional[str]]:
         """
         Застосовує правило до значення
-        Повертає змапене значення або None якщо не підходить
+        Повертає (mapped_value, mapped_unit) або (None, None) якщо не підходить
         """
         if not value:
-            return None
+            return None, None
         
         pattern_type = rule['pattern_type']
         pattern = rule['supplier_value_pattern']
-        template = rule['prom_value_template']
+        value_template = rule['prom_value_template']
+        unit_template = rule.get('prom_attribute_unit_template', '')
         
         # Exact match
         if pattern_type == 'exact':
             if not pattern:  # Порожній паттерн = будь-яке значення
-                return template if template else value
-            return template if value.lower().strip() == pattern.lower().strip() else None
+                return (value_template if value_template else value, unit_template)
+            if value.lower().strip() == pattern.lower().strip():
+                return (value_template if value_template else value, unit_template)
+            return None, None
         
         # Contains
         elif pattern_type == 'contains':
             if pattern.lower() in value.lower():
-                return template if template else value
-            return None
+                return (value_template if value_template else value, unit_template)
+            return None, None
         
         # Regex
         elif pattern_type == 'regex':
             regex = self.regex_cache.get(pattern)
             if not regex:
-                return None
+                return None, None
             
             match = regex.search(value)
             if not match:
-                return None
+                return None, None
             
-            # Замінюємо $1, $2 тощо на capture groups
-            result = template
+            # Замінюємо $1, $2 тощо на capture groups для value
+            result_value = value_template
             for i, group in enumerate(match.groups(), start=1):
                 if group:
-                    result = result.replace(f'${i}', group)
+                    result_value = result_value.replace(f'${i}', group)
             
-            return result if result else value
+            # Замінюємо $1, $2 тощо на capture groups для unit
+            result_unit = unit_template
+            if result_unit:
+                for i, group in enumerate(match.groups(), start=1):
+                    if group:
+                        result_unit = result_unit.replace(f'${i}', group)
+            
+            return (result_value if result_value else value, result_unit)
         
-        return None
+        return None, None
     
     def _should_apply_rule(self, rule: Dict, current_value: Optional[str], current_kind: Optional[str], 
                           current_priority: int) -> bool:
@@ -241,7 +252,7 @@ class AttributeMapper:
                 continue
             
             # Застосовуємо правило
-            mapped_value = self._apply_rule(rule, supplier_value)
+            mapped_value, mapped_unit = self._apply_rule(rule, supplier_value)
             
             if mapped_value:
                 prom_attribute = rule['prom_attribute']
@@ -273,7 +284,8 @@ class AttributeMapper:
                         for attr in mapped_attributes:
                             if attr['name'].lower().strip() == attr_key:
                                 attr['value'] = mapped_value
-                                attr['unit'] = supplier_unit
+                                # Використовуємо mapped_unit, якщо є, інакше supplier_unit
+                                attr['unit'] = mapped_unit if mapped_unit else supplier_unit
                                 attr['rule_priority'] = rule['priority']
                                 attr['rule_kind'] = rule_kind
                                 seen_attributes[attr_key] = {
@@ -293,7 +305,8 @@ class AttributeMapper:
                 # Додаємо нову характеристику
                 new_attr = {
                     'name': prom_attribute,
-                    'unit': supplier_unit,
+                    # Використовуємо mapped_unit, якщо є, інакше supplier_unit
+                    'unit': mapped_unit if mapped_unit else supplier_unit,
                     'value': mapped_value,
                     'rule_priority': rule['priority'],
                     'rule_kind': rule_kind
@@ -350,15 +363,19 @@ class AttributeMapper:
                 if regex and regex.search(product_name):
                     prom_attribute = rule['prom_attribute']
                     prom_value_template = rule['prom_value_template']
+                    prom_unit_template = rule.get('prom_attribute_unit_template', '')
                     rule_kind = rule.get('rule_kind', 'extract')
                     
                     # Замінюємо $1, $2 на capture groups якщо є
                     match = regex.search(product_name)
                     prom_value = prom_value_template
+                    prom_unit = prom_unit_template
                     if match:
                         for i, group in enumerate(match.groups(), start=1):
                             if group:
                                 prom_value = prom_value.replace(f'${i}', group)
+                                if prom_unit:
+                                    prom_unit = prom_unit.replace(f'${i}', group)
                     
                     if prom_attribute == 'Пропустити' or rule_kind == 'skip':
                         continue
@@ -380,6 +397,7 @@ class AttributeMapper:
                             for attr in mapped_attributes:
                                 if attr['name'].lower().strip() == attr_key:
                                     attr['value'] = prom_value
+                                    attr['unit'] = prom_unit if prom_unit else attr.get('unit', '')
                                     attr['rule_priority'] = rule['priority']
                                     attr['rule_kind'] = rule_kind
                                     seen_attributes[attr_key] = {
@@ -392,7 +410,7 @@ class AttributeMapper:
                     
                     new_attr = {
                         'name': prom_attribute,
-                        'unit': '',
+                        'unit': prom_unit if prom_unit else '',
                         'value': prom_value,
                         'rule_priority': rule['priority'],
                         'rule_kind': rule_kind,
