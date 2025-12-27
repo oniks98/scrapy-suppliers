@@ -32,7 +32,7 @@ class SuppliersPipeline:
     def __init__(self):
         self.files = {}
         self.writers = {}
-        self.viatec_dealer_coefficient = None
+        self.viatec_dealer_coefficient_mapping = {}  # {url: coefficient}
         self.personal_notes_mapping = {}
         self.attribute_mapper = None
         
@@ -104,42 +104,35 @@ class SuppliersPipeline:
         spider.logger.info(f"✅ Pipeline відкрито для {spider.name}")
         spider.logger.info(f"📁 Вихідна директорія: {self.output_dir}")
 
-        # Завантаження коефіцієнту (тільки для viatec_dealer)
+        # Завантаження мапінгу коефіцієнтів (тільки для viatec_dealer)
         if spider.name == 'viatec_dealer':
             coefficient_path = r"C:\FullStack\Scrapy\data\viatec\viatec_coefficient_dealer.csv"
             try:
                 with open(coefficient_path, 'r', encoding='utf-8-sig') as f:
-                    content = f.read().strip()
-                    spider.logger.debug(f"Вміст файлу коефіцієнту: '{content}'")
+                    reader = csv.reader(f, delimiter=';')
+                    header = next(reader)  # Пропускаємо заголовок
                     
-                    coefficient_str = None
-                    
-                    if ';' not in content and '\n' not in content:
-                        coefficient_str = content.strip('"').strip()
-                        spider.logger.debug(f"Формат 1: просте число '{coefficient_str}'")
-                    else:
-                        f.seek(0)
-                        reader = csv.reader(f, delimiter=';')
-                        row = next(reader)
-                        spider.logger.debug(f"Формат 2: CSV рядок {row}")
-                        
-                        if len(row) >= 2:
-                            coefficient_str = row[1].strip('"').strip()
-                        elif len(row) == 1:
-                            coefficient_str = row[0].strip('"').strip()
-                        else:
-                            raise ValueError(f"Некоректний формат CSV: {row}")
-                    
-                    if coefficient_str:
-                        self.viatec_dealer_coefficient = float(coefficient_str.replace(',', '.'))
-                        spider.logger.info(f"✅ Коефіцієнт для viatec_dealer завантажено: {self.viatec_dealer_coefficient}")
-                    else:
-                        raise ValueError("Не вдалося визначити коефіцієнт")
+                    for row in reader:
+                        if len(row) >= 3:
+                            # row[0] = номер, row[1] = URL, row[2] = coefficient
+                            url = row[1].strip()
+                            coefficient_str = row[2].strip().replace(',', '.')
+                            try:
+                                coefficient = float(coefficient_str)
+                                self.viatec_dealer_coefficient_mapping[url] = coefficient
+                                spider.logger.debug(f"Мапінг: {url} → {coefficient}")
+                            except ValueError:
+                                spider.logger.warning(f"⚠️ Некоректний коефіцієнт для {url}: {coefficient_str}")
+                
+                spider.logger.info(
+                    f"✅ Мапінг коефіцієнтів для viatec_dealer завантажено: "
+                    f"{len(self.viatec_dealer_coefficient_mapping)} URL"
+                )
                         
             except FileNotFoundError:
                 spider.logger.error(f"❌ Файл коефіцієнту не знайдено: {coefficient_path}")
             except Exception as e:
-                spider.logger.error(f"❌ Помилка завантаження коефіцієнту для viatec_dealer: {e}")
+                spider.logger.error(f"❌ Помилка завантаження коефіцієнтів для viatec_dealer: {e}")
                 spider.logger.error(f"   Перевірте формат файлу {coefficient_path}")
 
         # Завантаження особистих нотаток
@@ -242,15 +235,29 @@ class SuppliersPipeline:
         # Очищення та нормалізація даних
         cleaned_item = self._clean_item(adapter, spider)
         
-        # РОЗРАХУНОК ЦІНИ З КОЕФІЦІЄНТОМ (ЯКЩО ПОТРІБНО)
-        if spider.name == 'viatec_dealer' and self.viatec_dealer_coefficient:
-            try:
-                price_float = float(cleaned_item["Ціна"].replace(',', '.'))
-                multiplied_price = price_float * self.viatec_dealer_coefficient
-                cleaned_item["Ціна"] = f"{multiplied_price:.2f}".replace('.', ',')
-                spider.logger.debug(f"Ціна для {cleaned_item['Назва_позиції']} помножена на {self.viatec_dealer_coefficient} -> {cleaned_item['Ціна']}")
-            except (ValueError, TypeError) as e:
-                spider.logger.error(f"❌ Помилка при множенні ціни для {cleaned_item['Назва_позиції']}: {e}")
+        # РОЗРАХУНОК ЦІНИ З КОЕФІЦІЄНТОМ (НА ОСНОВІ CATEGORY_URL)
+        if spider.name == 'viatec_dealer' and self.viatec_dealer_coefficient_mapping:
+            category_url = adapter.get('category_url', '')
+            
+            # Знаходимо відповідний коефіцієнт
+            coefficient = self.viatec_dealer_coefficient_mapping.get(category_url)
+            
+            if coefficient:
+                try:
+                    price_float = float(cleaned_item["Ціна"].replace(',', '.'))
+                    multiplied_price = price_float * coefficient
+                    cleaned_item["Ціна"] = f"{multiplied_price:.2f}".replace('.', ',')
+                    spider.logger.debug(
+                        f"Ціна для {cleaned_item['Назва_позиції'][:40]} помножена на {coefficient} "
+                        f"(категорія: {category_url[:60]}...) -> {cleaned_item['Ціна']}"
+                    )
+                except (ValueError, TypeError) as e:
+                    spider.logger.error(f"❌ Помилка при множенні ціни для {cleaned_item['Назва_позиції']}: {e}")
+            else:
+                spider.logger.warning(
+                    f"⚠️ Коефіцієнт не знайдено для категорії: {category_url[:80]}... "
+                    f"Ціна залишається без змін."
+                )
 
         # Оновлюємо поля наявності
         cleaned_item["Наявність"] = "+"

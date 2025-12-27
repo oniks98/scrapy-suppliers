@@ -345,6 +345,7 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
                 "supplier_id": self.supplier_id,
                 "output_file": self.output_filename,
                 "Продукт_на_сайті": response.meta.get("original_url", response.url),
+                "category_url": response.meta.get("category_url", ""),
                 "specifications_list": specs_list,
             }
             
