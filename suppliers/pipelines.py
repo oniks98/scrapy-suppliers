@@ -33,7 +33,8 @@ class SuppliersPipeline:
         self.files = {}
         self.writers = {}
         self.viatec_dealer_coefficient_mapping = {}  # {url: coefficient}
-        self.personal_notes_mapping = {}
+        self.personal_notes_mapping = {}  # {номер_групи: особисті_нотатки}
+        self.label_mapping = {}  # {номер_групи: ярлик}
         self.attribute_mapper = None
         
         # Базові поля CSV згідно формату PROM
@@ -135,7 +136,7 @@ class SuppliersPipeline:
                 spider.logger.error(f"❌ Помилка завантаження коефіцієнтів для viatec_dealer: {e}")
                 spider.logger.error(f"   Перевірте формат файлу {coefficient_path}")
 
-        # Завантаження особистих нотаток
+        # Завантаження особистих нотаток та ярликів
         supplier_name = spider.name.split('_')[0]
         personal_notes_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_personal_notes.csv"
         
@@ -145,14 +146,27 @@ class SuppliersPipeline:
                 next(reader)  # Skip header
                 for row in reader:
                     if len(row) >= 2:
-                        price_type_key = row[0].strip()
-                        personal_note_value = row[1].strip()
-                        self.personal_notes_mapping[price_type_key] = personal_note_value
-            spider.logger.info(f"✅ Мапінг особистих нотаток для {spider.name} завантажено: {self.personal_notes_mapping}")
+                        group_number = row[0].strip()  # Номер_групи
+                        personal_note_value = row[1].strip()  # Особисті нотатки
+                        label_value = row[2].strip() if len(row) >= 3 else ""  # Ярлик
+                        
+                        self.personal_notes_mapping[group_number] = personal_note_value
+                        self.label_mapping[group_number] = label_value
+            
+            spider.logger.info(
+                f"✅ Мапінг особистих нотаток для {spider.name} завантажено: "
+                f"{len(self.personal_notes_mapping)} записів"
+            )
+            spider.logger.info(
+                f"✅ Мапінг ярликів для {spider.name} завантажено: "
+                f"{len(self.label_mapping)} записів"
+            )
         except FileNotFoundError:
-            spider.logger.warning(f"⚠️  Файл особистих нотаток не знайдено для {spider.name} за шляхом: {personal_notes_path}")
+            spider.logger.warning(
+                f"⚠️  Файл особистих нотаток не знайдено для {spider.name} за шляхом: {personal_notes_path}"
+            )
         except Exception as e:
-            spider.logger.error(f"❌ Помилка завантаження мапінгу особистих нотаток для {spider.name}: {e}")
+            spider.logger.error(f"❌ Помилка завантаження мапінгу для {spider.name}: {e}")
 
         # Ініціалізація маппера характеристик з підтримкою rule_kind
         rules_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_mapping_rules.csv"
@@ -184,9 +198,9 @@ class SuppliersPipeline:
                 f"Файл відкритий в іншій програмі. Закрийте його і спробуйте знову."
             )
         
-        # Створюємо файл і пишемо заголовок
+        # Створюємо файл і пишемо заголовок з BOM для правильного відображення кирилиці
         try:
-            self.files[output_file] = open(filepath, "w", encoding="utf-8", newline="", buffering=1)
+            self.files[output_file] = open(filepath, "w", encoding="utf-8-sig", newline="", buffering=1)
             self._write_header(self.files[output_file])
             spider.logger.info(f"📝 Створено файл з заголовком: {filepath}")
         except Exception as e:
@@ -277,12 +291,14 @@ class SuppliersPipeline:
         
         cleaned_item["Ідентифікатор_товару"] = supplier_sku
         
-        # Встановлюємо Особисті_нотатки
+        # Встановлюємо Особисті_нотатки та Ярлик на основі Номер_групи
         group_number = adapter.get("Номер_групи", "")
         personal_note = self.personal_notes_mapping.get(group_number, "PROM")
+        label = self.label_mapping.get(group_number, "")
         
-        spider.logger.debug(f"📝 Особисті нотатки: '{personal_note}'")
+        spider.logger.debug(f"📝 Номер групи: '{group_number}' | Особисті нотатки: '{personal_note}' | Ярлик: '{label}'")
         cleaned_item["Особисті_нотатки"] = personal_note
+        cleaned_item["Ярлик"] = label
         
         # ОБРОБКА ОПИСУ
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))

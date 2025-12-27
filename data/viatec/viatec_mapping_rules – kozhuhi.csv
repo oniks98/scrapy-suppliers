@@ -1,0 +1,42 @@
+supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
+.*\bкожух\b.*;;;regex;Тип пристрою;;Кожух;1;TRUE;301112;extract;Extract housing type from name
+.*\bкронштейн\b.*;;;regex;Тип пристрою;;Кронштейн;2;TRUE;301112;extract;Extract bracket type from name
+.*\bнастен\b.*;;;regex;Тип кріплення кронштейна;;Настінне кріплення;3;TRUE;301112;extract;Wall mounting from name
+.*\bпотолоч\b.*;;;regex;Тип кріплення кронштейна;;Стельове кріплення;4;TRUE;301112;extract;Ceiling mounting from name
+.*\bстолб\b.*;;;regex;Тип кріплення кронштейна;;Кріплення для монтажу на стовп/балку;5;TRUE;301112;extract;Pole mounting from name
+.*\bугл\b.*;;;regex;Тип кріплення кронштейна;;Кріплення для монтажу камери відеоспостереження на кут;6;TRUE;301112;extract;Corner mounting from name
+.*\bкупол\b.*;;;regex;Тип кріплення кронштейна;;Стельове кріплення для купольних камер відеоспостереження;7;TRUE;301112;extract;Dome camera ceiling mount
+;Матеріал;.*алюміній.*;regex;Матеріал;;Алюміній;10;TRUE;301112;attribute;Aluminum material
+;Матеріал;.*алюмін.*;regex;Матеріал;;Алюмінієвий сплав;11;TRUE;301112;attribute;Aluminum alloy
+;Матеріал;.*сталь.*;regex;Матеріал;;Сталь;12;TRUE;301112;attribute;Steel material
+;Матеріал;.*нержав.*;regex;Матеріал;;Нержавіюча сталь;13;TRUE;301112;attribute;Stainless steel
+;Матеріал;.*пластик.*;regex;Матеріал;;Пластик;14;TRUE;301112;attribute;Plastic material
+;Матеріал;.*ABS.*;regex;Матеріал;;АБС-пластик;15;TRUE;301112;attribute;ABS plastic
+;Матеріал;.*PC.*;regex;Матеріал;;Пластмаса;16;TRUE;301112;attribute;PC plastic
+;Захист;IP\s*(\d{2});regex;Захист обладнання від води і пилу IP;;IP$1;20;TRUE;301112;attribute;IP protection rating
+;Клас захисту;IP\s*(\d{2});regex;Захист обладнання від води і пилу IP;;IP$1;21;TRUE;301112;attribute;IP protection class
+;Навантаження;(\d+(?:\.\d+)?)\s*[Кк]г;regex;Маx нагрузка на кронштейн;кг;$1 ;30;TRUE;301112;attribute;Max load in kg
+;Навантаження;(\d+)\s*р;regex;Маx нагрузка на кронштейн;кг;$1 ;31;TRUE;301112;attribute;Max load in grams converted
+;Робоча температура;[–-]\s*(\d+)\s*°?\s*[CС]\s*[-–—~]\s*\+?\s*(\d+)\s*°?\s*[CС];regex;Мінімальна робоча температура;град.;($1);40;TRUE;301112;attribute;Min operating temperature
+;Робоча температура;[–-]\s*(\d+)\s*°?\s*[CС]\s*[-–—~]\s*\+?\s*(\d+)\s*°?\s*[CС];regex;Максимальна робоча температура;град.;$2 ;41;TRUE;301112;attribute;Max operating temperature
+;Розміри;(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;50;TRUE;301112;attribute;Length from dimensions
+;Розміри;(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;51;TRUE;301112;attribute;Width from dimensions
+;Розміри;(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;52;TRUE;301112;attribute;Height from dimensions
+;Розміри;Φ\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;53;TRUE;301112;attribute;Diameter as length
+;Розміри;Φ\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$2 ;54;TRUE;301112;attribute;Height for cylindrical
+;Розміри;Ф\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;55;TRUE;301112;attribute;Diameter (Cyrillic Ф)
+;Розміри;Ф\s*(\d+(?:\.\d+)?)\s*[×xXх]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$2 ;56;TRUE;301112;attribute;Height (Cyrillic Ф)
+;Вага;(\d+(?:\.\d+)?)\s*кг;regex;Вага;кг;$1 ;60;TRUE;301112;attribute;Weight in kg
+;Вага;(\d+(?:\.\d+)?)\s*г;regex;Вага;кг;$1 ;61;TRUE;301112;attribute;Weight in grams
+;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;70;TRUE;301112;attribute;Warranty period in months
+;Колір;.*біл.*;regex;;;Пропустити;100;TRUE;301112;skip;Color not in prom attributes
+;Колір;.*чорн.*;regex;;;Пропустити;101;TRUE;301112;skip;Color black not needed
+;Кількість в ящику;.*;regex;;;Пропустити;102;TRUE;301112;skip;Box quantity not needed
+;Розмір упаковки;.*;regex;;;Пропустити;103;TRUE;301112;skip;Package size not needed
+;Вага брутто;.*;regex;;;Пропустити;104;TRUE;301112;skip;Gross weight not needed
+;Сумісний з серіями камер;.*;regex;;;Пропустити;105;TRUE;301112;skip;Camera compatibility details
+;Кріплення;М\d+.*;regex;;;Пропустити;106;TRUE;301112;skip;Threading specifications
+;Кріплення;Ж.*;regex;;;Пропустити;107;TRUE;301112;skip;Threading G-type
+;Кріплення;Ф.*;regex;;;Пропустити;108;TRUE;301112;skip;Pole diameter range
+;Вологість;.*;regex;;;Пропустити;109;TRUE;301112;skip;Humidity not in prom
+;Ступінь захисту;.*;regex;;;Пропустити;110;TRUE;301112;skip;Protection degree duplicate
