@@ -1,0 +1,77 @@
+supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
+.*\b[Нн]авісн.*;;;regex;Тип встановлення замку;;Навісний;1;TRUE;301010;extract;Padlock type from name
+.*\b[Вв]різн.*;;;regex;Тип встановлення замку;;Врізний;2;TRUE;301010;extract;Mortise type from name
+.*\b[Нн]акладн.*;;;regex;Тип встановлення замку;;Накладний;3;TRUE;301010;extract;Rim type from name
+.*\b[Ее]лектромаг.*;;;regex;Тип замка;;Електромагнітний;10;TRUE;301010;extract;Electromagnetic lock from name
+.*\b[Ее]лектромех.*;;;regex;Тип замка;;Електромеханічний;11;TRUE;301010;extract;Electromechanical lock from name
+.*\b[Ее]лектр.*защелк.*;;;regex;Тип замка;;Електромеханічний;12;TRUE;301010;extract;Electric latch from name
+.*\b[Рр]ігель.*;;;regex;Тип замка;;Ригельна система запирання;13;TRUE;301010;extract;Bolt lock from name
+.*\b12\s*[ВV].*;;;regex;Живлення;;Мережа 12В;20;TRUE;301010;extract;12V power from name
+.*\b24\s*[ВV].*;;;regex;Живлення;;Мережа 24В;21;TRUE;301010;extract;24V power from name
+.*\b[Нн]ержав.*сталь.*;;;regex;Матеріал замку;;Нержавіюча сталь;30;TRUE;301010;extract;Stainless steel from name
+\b(\d+)\s*кг\b;;;regex;Сила утримання;кг;$1 ;40;TRUE;301010;extract;Holding force in kg from name
+;Метод роботи;[Ее]лектромаг.*;regex;Тип замка;;Електромагнітний;50;TRUE;301010;attribute;Electromagnetic from method
+;Метод роботи;[Ее]лектромех.*;regex;Тип замка;;Електромеханічний;51;TRUE;301010;attribute;Electromechanical from method
+;Метод роботи;[Ее]лектрор.*;regex;Тип замка;;Ригельна система запирання;52;TRUE;301010;attribute;Electric bolt from method
+;Метод роботи;.*клямка;regex;Тип замка;;Електромеханічний;53;TRUE;301010;attribute;Electric latch from method
+;Монтаж;врізний;exact;Тип встановлення замку;;Врізний;60;TRUE;301010;attribute;Mortise installation
+;Монтаж;накладний;exact;Тип встановлення замку;;Накладний;61;TRUE;301010;attribute;Rim installation
+;Монтаж;універсальний;exact;Тип встановлення замку;;Врізний;62;TRUE;301010;attribute;Universal mapped to mortise
+;Сила утримання;(\d+)\s*кг;regex;Сила утримання;кг;$1 ;70;TRUE;301010;attribute;Holding force from attribute
+;Живлення;.*DC\s*12\s*[ВV].*;regex;Живлення;;Мережа 12В;80;TRUE;301010;attribute;DC 12V power supply
+;Живлення;.*DC\s*24\s*[ВV].*;regex;Живлення;;Мережа 24В;81;TRUE;301010;attribute;DC 24V power supply
+;Живлення;.*AC\s*12\s*[ВV].*;regex;Живлення;;Мережа 12В;82;TRUE;301010;attribute;AC 12V power supply
+;Живлення;.*AC\s*24\s*[ВV].*;regex;Живлення;;Мережа 24В;83;TRUE;301010;attribute;AC 24V power supply
+;Живлення;.*12\s*[ВV].*;regex;Живлення;;Мережа 12В;84;TRUE;301010;attribute;12V power supply generic
+;Живлення;.*24\s*[ВV].*;regex;Живлення;;Мережа 24В;85;TRUE;301010;attribute;24V power supply generic
+;Живлення;.*220\s*[ВV].*;regex;Живлення;;Мережа 220В;86;TRUE;301010;attribute;220V power supply
+;Живлення;.*батарейк.*;regex;Живлення;;Батарейки одноразові;87;TRUE;301010;attribute;Battery power
+;Живлення;(\d+)\s*батарейк.*;regex;Аварійне підживлення;;Так;88;TRUE;301010;attribute;Battery backup detected
+;Матеріал;.*[Нн]ержав.*сталь.*;regex;Матеріал замку;;Нержавіюча сталь;90;TRUE;301010;attribute;Stainless steel material
+;Матеріал;.*[Оо]цинков.*сталь.*;regex;Матеріал замку;;Оцинкована сталь;91;TRUE;301010;attribute;Galvanized steel
+;Матеріал;.*[Аа]нодован.*[Аа]люмін.*;regex;Матеріал замку;;Анодований алюміній;92;TRUE;301010;attribute;Anodized aluminum
+;Матеріал;[Лл]атун.*;exact;Матеріал замку;;Латунь;93;TRUE;301010;attribute;Brass material
+;Матеріал;[Цц]инк.*;regex;Матеріал замку;;Цинковий сплав;94;TRUE;301010;attribute;Zinc alloy
+;Матеріал;[Мм]етал;exact;Матеріал замку;;Сталь;95;TRUE;301010;attribute;Metal generic as steel
+;Робоча температура;(-?\d+)°?\s*[CС]?\s*[-–—~]+\s*\+?(-?\d+)°?\s*[CС];regex;Мінімальна робоча температура;град.;$1 ;100;TRUE;301010;attribute;Min operating temperature
+;Робоча температура;(-?\d+)°?\s*[CС]?\s*[-–—~]+\s*\+?(-?\d+)°?\s*[CС];regex;Максимальна робоча температура;град.;$2 ;101;TRUE;301010;attribute;Max operating temperature
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;110;TRUE;301010;attribute;Length from dimensions
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;111;TRUE;301010;attribute;Width from dimensions
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;112;TRUE;301010;attribute;Height from dimensions
+;Розмір;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;113;TRUE;301010;attribute;Length from Розмір
+;Розмір;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;114;TRUE;301010;attribute;Width from Розмір
+;Розмір;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;115;TRUE;301010;attribute;Height from Розмір
+;Вага;(\d+(?:\.\d+)?)\s*г;regex;;;Пропустити;120;TRUE;301010;skip;Weight in grams - PROM requires kg not convertible
+;Вага;(\d+(?:\.\d+)?)\s*кг;regex;Вага;кг;$1 ;121;TRUE;301010;attribute;Weight in kg
+;Баксет;(\d+)\s*мм;regex;Backset;мм;$1 ;130;TRUE;301010;attribute;Backset from attribute
+;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;140;TRUE;301010;attribute;Warranty period
+;Напруга;(\d+)\s*[ВV];regex;Напруга;В;$1 ;150;TRUE;301010;attribute;Voltage from attribute
+;Особливості;.*зчитувач відбитка пальця.*;regex;Відкриття пристрою;;Ідентифікація відбитка пальця;160;TRUE;301010;attribute;Fingerprint reader
+;Особливості;.*[Кк]ерування з мобільного.*;regex;Відкриття пристрою;;З мобільного телефону;161;TRUE;301010;attribute;Mobile control
+;Особливості;.*[Бб]луетуз.*|.*Bluetooth.*;regex;;;Пропустити;162;TRUE;301010;skip;Bluetooth not in PROM dictionary
+;Особливості;.*Wi-Fi.*;regex;Протокол зв'язку;;Wi-Fi;163;TRUE;301010;attribute;Wi-Fi protocol
+;Особливості;.*IP\d+.*;regex;Вандалозахист;;Так;164;TRUE;301010;attribute;IP rating indicates protection
+;Додаткові характеристики;.*таймер.*(\d+).*;regex;Таймер затримки;сек;$1 ;170;TRUE;301010;attribute;Timer delay from additional
+;Таймер;.*(\d+).*;regex;Таймер затримки;сек;$1 ;171;TRUE;301010;attribute;Timer from attribute
+;Особливості;.*таймер.*;regex;Таймер затримки;;Так;172;TRUE;301010;attribute;Timer present flag
+;Датчик;.*стану двері.*;regex;Індикація відкриття/закриття;;Так;180;TRUE;301010;attribute;Door status sensor
+;Особливості;.*світлов.*індикац.*;regex;Індикація відкриття/закриття;;Так;181;TRUE;301010;attribute;Light indication
+;Додатково;.*світлов.*індикац.*;regex;Індикація відкриття/закриття;;Так;182;TRUE;301010;attribute;Light indication from additional
+;Споживання;(\d+)\s*/\s*(\d+)\s*мА;regex;Живлення в режимі очікування;мА;$1 ;190;TRUE;301010;attribute;Standby consumption first value
+;Особливості;.*ліва/права.*;regex;Відкриття блоку;;Універсальне;200;TRUE;301010;attribute;Left/right universal
+;Особливості;.*[Тт]ип встановлення:\s*врізний;regex;Тип встановлення замку;;Врізний;201;TRUE;301010;attribute;Installation type mortise
+;Особливості;.*[Тт]ип встановлення:\s*накладний;regex;Тип встановлення замку;;Накладний;202;TRUE;301010;attribute;Installation type rim
+;Тип пристрою;.*[Ее]лектромаг.*;regex;Тип замка;;Електромагнітний;210;TRUE;301010;attribute;Electromagnetic device type
+;Тип пристрою;.*кронштейн.*;regex;;;Пропустити;220;TRUE;301010;skip;Mounting bracket not lock
+;Тип пристрою;.*куточок.*;regex;;;Пропустити;221;TRUE;301010;skip;Corner bracket not lock
+;Сумісність;.*;regex;;;Пропустити;230;TRUE;301010;skip;Compatibility info not in prom
+;У комплекті;.*;regex;;;Пропустити;231;TRUE;301010;skip;Package contents not in prom
+;Комплектація;.*;regex;;;Пропустити;232;TRUE;301010;skip;Completeness not in prom
+;Кабель;.*;regex;;;Пропустити;233;TRUE;301010;skip;Cable not in prom
+;Кількість в ящику;.*;regex;;;Пропустити;240;TRUE;301010;skip;Box quantity not needed
+;Вага брутто;.*;regex;;;Пропустити;241;TRUE;301010;skip;Gross weight not needed
+;Розмір упаковки.*;.*;regex;;;Пропустити;242;TRUE;301010;skip;Package dimensions not needed
+;Без живлення;.*;regex;;;Пропустити;250;TRUE;301010;skip;No power state not in prom
+;Додатково;.*сила утримання.*;regex;;;Пропустити;251;TRUE;301010;skip;Holding force already mapped
+;Особливості;.*планки.*;regex;;;Пропустити;252;TRUE;301010;skip;Mounting plates not in prom
+;Особливості;.*[Сс]умісн.*;regex;;;Пропустити;253;TRUE;301010;skip;Compatibility not in prom
