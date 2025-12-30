@@ -17,15 +17,64 @@ SUPPLIERS = ['viatec', 'secur', 'neolight', 'lun', 'eserver']
 TYPES = ['dealer', 'retail']
 
 
+def detect_encoding(file_path: str) -> str:
+    """Автоматично визначає кодування файлу."""
+    # Спробуємо спочатку прочитати перші байти для визначення
+    try:
+        with open(file_path, 'rb') as f:
+            raw_data = f.read(10000)  # Перші 10KB
+        
+        # Перевірка на BOM UTF-8
+        if raw_data.startswith(b'\xef\xbb\xbf'):
+            return 'utf-8-sig'
+        
+        # Спробуємо різні кодування
+        encodings_to_try = [
+            'utf-8',
+            'utf-8-sig', 
+            'windows-1251',
+            'cp1251',
+            'latin-1'
+        ]
+        
+        for encoding in encodings_to_try:
+            try:
+                raw_data.decode(encoding)
+                # Перевіряємо чи є заголовок з кирилицею
+                try:
+                    text = raw_data.decode(encoding)
+                    if 'Назва_позиції' in text or 'Код_товару' in text:
+                        return encoding
+                except:
+                    pass
+                # Якщо декодування пройшло без помилок, використовуємо це кодування
+                return encoding
+            except (UnicodeDecodeError, LookupError):
+                continue
+                
+    except Exception as e:
+        print(f"⚠️  Помилка визначення кодування: {e}")
+    
+    # Fallback
+    return 'utf-8-sig'
+
+
 def read_csv_as_rows(file_path: str) -> tuple[List[List[str]], List[str]]:
-    """Читає CSV як список рядків."""
+    """Читає CSV як список рядків з автоматичним визначенням кодування."""
     rows = []
     headers = []
     
     try:
-        with open(file_path, 'r', encoding='utf-8-sig') as f:
+        encoding = detect_encoding(file_path)
+        print(f"🔍 Кодування: {encoding}")
+        
+        with open(file_path, 'r', encoding=encoding, errors='replace') as f:
             reader = csv.reader(f, delimiter=';')
             headers = next(reader)
+            
+            # Виводимо перші 3 колонки заголовка для діагностики
+            print(f"📋 Заголовки: {headers[:3]}...")
+            
             for row in reader:
                 rows.append(row)
         
@@ -37,6 +86,8 @@ def read_csv_as_rows(file_path: str) -> tuple[List[List[str]], List[str]]:
         return [], []
     except Exception as e:
         print(f"❌ Помилка читання: {e}")
+        import traceback
+        traceback.print_exc()
         return [], []
 
 
@@ -45,6 +96,8 @@ def get_field_index(headers: List[str], field_name: str) -> int:
     try:
         return headers.index(field_name)
     except ValueError:
+        print(f"⚠️  Не знайдено колонку '{field_name}'")
+        print(f"⚠️  Доступні колонки: {headers[:10]}...")
         return -1
 
 
@@ -118,7 +171,10 @@ def process_supplier(supplier: str, product_type: str) -> None:
         return
     
     # Читаємо файли
+    print("\n📂 Читаємо export-products.csv...")
     old_rows, old_headers = read_csv_as_rows(export_file)
+    
+    print(f"\n📂 Читаємо {product_type}.csv...")
     new_rows, new_headers = read_csv_as_rows(new_file)
     
     if not old_rows or not new_rows:
@@ -176,7 +232,7 @@ def process_supplier(supplier: str, product_type: str) -> None:
             else:
                 new_products_dict[identifier] = row
     
-    print(f"📊 Старих товарів (з ідентифікатором): {len(old_products_dict)}")
+    print(f"\n📊 Старих товарів (з ідентифікатором): {len(old_products_dict)}")
     print(f"📊 Нових товарів (з ідентифікатором):  {len(new_products_dict)}")
     
     # Виводимо інформацію про фільтрацію

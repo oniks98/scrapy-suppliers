@@ -418,6 +418,9 @@ class SuppliersPipeline:
             # Конвертуємо назад у список
             specs_list = list(specs_dict.values())
             
+            # ПОСТОБРОБКА: Конвертуємо вагу в грами
+            specs_list = self._postprocess_weight_in_specs(specs_list, spider)
+            
             spider.logger.info(
                 f"📊 Маппінг характеристик: "
                 f"{len(mapping_result['supplier'])} користувацьких + "
@@ -650,6 +653,8 @@ class SuppliersPipeline:
                 value = value.upper() if value else "UAH"
             elif field == "Одиниця_виміру":
                 value = value if value else "шт."
+            elif field == "Вага,кг":
+                value = self._convert_weight_to_grams(value)
             
             cleaned[field] = value
         
@@ -674,6 +679,70 @@ class SuppliersPipeline:
             return ""
         except ValueError:
             return ""
+    
+    def _convert_weight_to_grams(self, weight_str):
+        """
+        Конвертує вагу в грами для PROM
+        Приклади:
+        'Вага 340 г' -> '340'
+        'Вага 5 кг' -> '5000'
+        'Вага 0.67 кг' -> '670'
+        '340 г' -> '340'
+        '5 кг' -> '5000'
+        """
+        if not weight_str:
+            return ""
+        
+        weight_str = str(weight_str).strip()
+        
+        # Граммы - забираємо одиницю (з "Вага" або без)
+        match_g = re.search(r'(?:Вага\s+)?([0-9\.]+)\s*г', weight_str, re.IGNORECASE)
+        if match_g:
+            grams = match_g.group(1)
+            return grams
+        
+        # Кілограми - конвертуємо в грами (з "Вага" або без)
+        match_kg = re.search(r'(?:Вага\s+)?([0-9\.]+)\s*кг', weight_str, re.IGNORECASE)
+        if match_kg:
+            kg = float(match_kg.group(1))
+            grams = kg * 1000
+            # Прибираємо .0 для цілих чисел
+            grams_str = str(int(grams)) if grams == int(grams) else str(grams)
+            return grams_str
+        
+        # Якщо не знайшли паттерн - повертаємо як є
+        return weight_str
+    
+    def _postprocess_weight_in_specs(self, specs_list, spider):
+        """
+        Постобробка характеристик: конвертує вагу в грами
+        Приклади:
+        {'name': 'Вага', 'value': '300 г', 'unit': 'г'} -> {'name': 'Вага', 'value': '300', 'unit': 'г'}
+        {'name': 'Вага', 'value': '5 кг', 'unit': 'г'} -> {'name': 'Вага', 'value': '5000', 'unit': 'г'}
+        """
+        if not specs_list:
+            return specs_list
+        
+        weight_names = ['вага', 'вага брутто', 'вага нетто', 'weight', 'gross weight', 'net weight']
+        
+        for spec in specs_list:
+            spec_name_lower = spec.get('name', '').lower().strip()
+            
+            # Перевіряємо чи це характеристика ваги
+            if spec_name_lower in weight_names:
+                original_value = spec.get('value', '')
+                
+                # Конвертуємо значення
+                converted_value = self._convert_weight_to_grams(original_value)
+                
+                if converted_value != original_value:
+                    spec['value'] = converted_value
+                    spider.logger.info(
+                        f"⚖️ Конвертація ваги в характеристиках: "
+                        f"{spec['name']} = '{original_value}' → '{converted_value}'"
+                    )
+        
+        return specs_list
     
     def _increment_stat(self, output_file, stat_key):
         """Допоміжний метод для інкрементування статистики"""
