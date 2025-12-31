@@ -1,66 +1,53 @@
 ﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
-.*\b(HQHI|HGHI|HUHI|HTHI)\b.*;;;regex;Тип відеореєстратора;;HD-TVI;1;TRUE;301101;extract;HQHI/HGHI/HUHI/HTHI series DVR
-.*\bXVR\b.*;;;regex;Тип відеореєстратора;;HD-CVI;2;TRUE;301101;extract;XVR series (hybrid)
-.*\b(NI|NXI|NVR)\b.*;;;regex;Тип відеореєстратора;;NVR;3;TRUE;301101;extract;NVR series (NI/NXI/NVR)
-.*\b(HQHI|HGHI|HUHI|HTHI|XVR|NI|NXI|NVR)\b.*;;;regex;Функціональність;;Pentaplex;4;TRUE;301101;extract;Pentaplex functionality
-\b(4|8|16|32|64)\s*-?\s*кан\.?\b;;;regex;Кількість каналів;;$1 ;5;TRUE;301101;extract;Channel count
-.*\bPoE\b.*;;;regex;Підтримка PoE;;Так;6;TRUE;301101;extract;PoE support detection
-;IP камери;(\d+);regex;Кількість каналів;;$1 ;10;TRUE;301101;attribute;Extract IP channels as main channel count
-;Аналогові входи;(\d+);regex;Кількість каналів;;$1 ;11;TRUE;301101;attribute;Extract analog inputs as channel count
-;Аналогові входи;(\d+)\s*BNC;regex;Кількість каналів;;$1 ;12;TRUE;301101;attribute;Extract BNC analog inputs
-;HDMI відеовихід;Так;exact;HDMI відеовихід;;Так;20;TRUE;301101;attribute;HDMI output present
-;Інтерфейси відео виходу;.*HDMI.*;regex;HDMI відеовихід;;Так;21;TRUE;301101;attribute;HDMI from video interfaces
-;VGA відеовихід;Так;exact;VGA відеовихід;;Так;22;TRUE;301101;attribute;VGA output present
-;Інтерфейси відео виходу;.*VGA.*;regex;VGA відеовихід;;Так;23;TRUE;301101;attribute;VGA from video interfaces
-;Інтерфейси відео виходу;(\d+)\s*(?:HDMI|VGA|CVBS);regex;Кількість відеовиходів;;$1 ;24;TRUE;301101;attribute;Count video outputs
-;USB;(\d+)\s*(?:×|x)?\s*USB;regex;Кількість USB-портів;;$1 ;30;TRUE;301101;attribute;Extract USB port count
-;Внутрішні HDD;(\d+)\s*SATA;regex;Количество HDD;;$1 ;40;TRUE;301101;attribute;Extract HDD count from SATA
-;Відео компресія;.*H\.265\+.*;regex;Формат стиснення;;H.265+;70;TRUE;301101;attribute;H.265+ compression
-;Відео компресія;.*H\.265(?!\+).*;regex;Формат стиснення;;H.265;71;TRUE;301101;attribute;H.265 compression
-;Відео компресія;.*H\.264\+.*;regex;Формат стиснення;;H.264+;72;TRUE;301101;attribute;H.264+ compression
-;Відео компресія;.*H\.264(?!\+).*;regex;Формат стиснення;;H.264;73;TRUE;301101;attribute;H.264 compression
-;Відео компресія;.*MJPEG.*;regex;Формат стиснення;;MJPEG;74;TRUE;301101;attribute;MJPEG compression
-;Живлення;.*12\s*В.*;regex;Живлення;;Мережа 12В;80;TRUE;301101;attribute;12V power supply
-;Живлення;.*48\s*В.*;regex;Живлення;;PoE;81;TRUE;301101;attribute;48V PoE power
-;Живлення;.*220\s*В.*;regex;Живлення;;Мережа 220В;82;TRUE;301101;attribute;220V AC power
-;PoE порти;(\d+)\s*(?:×|x)?\s*(?:IEEE\s*)?802\.3;regex;Підтримка PoE;;Так;90;TRUE;301101;attribute;PoE support detected
-;PoE порти;(\d+)\s*(?:×|x)?\s*(?:IEEE\s*)?802\.3;regex;Кількість вбудованих портів POE;;$1 ;91;TRUE;301101;attribute;PoE port count
-;Підтримка PoE;Так;exact;Підтримка PoE;;Так;92;TRUE;301101;attribute;PoE support flag
-;RS485;.+;regex;RS-485;;Так;100;TRUE;301101;attribute;RS-485 interface
-;RS232;.+;regex;RS-232;;Так;101;TRUE;301101;attribute;RS-232 interface
-;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);110;TRUE;301101;attribute;Min operating temperature
-;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;111;TRUE;301101;attribute;Max operating temperature
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;120;TRUE;301101;attribute;Length from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;121;TRUE;301101;attribute;Width from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;122;TRUE;301101;attribute;Height from dimensions
-;Вага;([0-9\.]+)\s*(г);regex;Вага;кг;$1 ;130;TRUE;301101;attribute;Weight in grams
-;Вага;([0-9\.]+)\s*(кг);regex;Вага;кг;$1 ;131;TRUE;301101;attribute;Weight in kg
-;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;140;TRUE;301101;attribute;Warranty period
-;Тривожні входи;(\d+);regex;;;Пропустити;200;TRUE;301101;skip;No prom attribute for alarm inputs
-;Релейні виходи;(\d+);regex;;;Пропустити;201;TRUE;301101;skip;No prom attribute for relay outputs
-;Ethernet;.*;regex;;;Пропустити;202;TRUE;301101;skip;Ethernet details not needed
-;Вхідний потік;.*;regex;;;Пропустити;203;TRUE;301101;skip;Input bandwidth not in prom
-;Роздільна здатність відеовиходу;.*;regex;;;Пропустити;204;TRUE;301101;skip;Video output resolution details
-;Частота кадрів \(головний потік\);.*;regex;;;Пропустити;205;TRUE;301101;skip;Frame rate details
-;Частота кадрів \(доп\. потік\);.*;regex;;;Пропустити;206;TRUE;301101;skip;Secondary frame rate
-;Підтримка роздільної здатності;.*;regex;;;Пропустити;207;TRUE;301101;skip;Resolution support details
-;Сумісність;.*;regex;;;Пропустити;208;TRUE;301101;skip;Compatibility info
-;Макс\. кількість користувачів;.*;regex;;;Пропустити;209;TRUE;301101;skip;Max users not in prom
-;Потужність споживання;.*;regex;;;Пропустити;210;TRUE;301101;skip;Power consumption
-;Вага брутто;.*;regex;;;Пропустити;214;TRUE;301101;skip;Gross weight
-;Кількість в ящику;.*;regex;;;Пропустити;215;TRUE;301101;skip;Box quantity
-;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;216;TRUE;301101;skip;Package dimensions
-;Аналітика з камерою;.*;regex;;;Пропустити;220;TRUE;301101;skip;Camera analytics not in prom
-;Аналітика реєстратора;.*;regex;;;Пропустити;221;TRUE;301101;skip;DVR analytics not in prom
-;Захист периметра \(канали\);.*;regex;;;Пропустити;222;TRUE;301101;skip;Perimeter protection
-;Розпізнавання облич \(канали\);.*;regex;;;Пропустити;223;TRUE;301101;skip;Face recognition
-;Режим розпізнавання облич;.*;regex;;;Пропустити;224;TRUE;301101;skip;Face recognition mode
-;Класифікація об'єктів;.*;regex;;;Пропустити;225;TRUE;301101;skip;Object classification
-;Декодування;.*;regex;;;Пропустити;226;TRUE;301101;skip;Decoding details
-;HDCVI камери;.*;regex;;;Пропустити;230;TRUE;301101;skip;HDCVI camera specs
-;AHD камери;.*;regex;;;Пропустити;231;TRUE;301101;skip;AHD camera specs
-;TVI камери;.*;regex;;;Пропустити;232;TRUE;301101;skip;TVI camera specs
-;CVBS камери;.*;regex;;;Пропустити;233;TRUE;301101;skip;CVBS camera specs
-;Аудіо інтерфейси;.*;regex;;;Пропустити;240;TRUE;301101;skip;Audio interfaces
-;Двостороння розмова;.*;regex;;;Пропустити;241;TRUE;301101;skip;Two-way audio
-;HDD режими;.*;regex;;;Пропустити;250;TRUE;301101;skip;HDD modes
+.*NXI.*;;;regex;Тип відеореєстратора;;NVR;1;TRUE;301101;extract;Hikvision NXI → NVR
+.*\bNVR\b.*;;;regex;Тип відеореєстратора;;NVR;2;TRUE;301101;extract;Explicit NVR in name
+.*XVR.*;;;regex;Тип відеореєстратора;;HDVR;3;TRUE;301101;extract;XVR (HD-CVI / Penta-brid)
+.*HQHI.*;;;regex;Тип відеореєстратора;;HDVR;4;TRUE;301101;extract;Hikvision HD-TVI DVR
+.*HGHI.*;;;regex;Тип відеореєстратора;;HDVR;5;TRUE;301101;extract;Hikvision HD-TVI DVR
+.*HUHI.*;;;regex;Тип відеореєстратора;;HDVR;6;TRUE;301101;extract;Hikvision HD-TVI DVR
+.*HTHI.*;;;regex;Тип відеореєстратора;;HDVR;7;TRUE;301101;extract;Hikvision HD-TVI DVR
+.*\bNI\b.*;;;regex;Тип відеореєстратора;;NVR;8;TRUE;301101;extract;NI as standalone token only
+.*XVR.*;;;regex;Функціональність;;Pentaplex;9;TRUE;301101;extract;XVR → Pentaplex
+.*HQHI.*;;;regex;Функціональність;;Pentaplex;10;TRUE;301101;extract;DVR → Pentaplex
+.*HGHI.*;;;regex;Функціональність;;Pentaplex;11;TRUE;301101;extract;DVR → Pentaplex
+.*HUHI.*;;;regex;Функціональність;;Pentaplex;12;TRUE;301101;extract;DVR → Pentaplex
+.*HTHI.*;;;regex;Функціональність;;Pentaplex;13;TRUE;301101;extract;DVR → Pentaplex
+.*\b4\s*[-–]?\s*кан.*;;;regex;Кількість каналів;;4;14;TRUE;301101;extract;4 channels
+.*\b8\s*[-–]?\s*кан.*;;;regex;Кількість каналів;;8;15;TRUE;301101;extract;8 channels
+.*\b16\s*[-–]?\s*кан.*;;;regex;Кількість каналів;;16;16;TRUE;301101;extract;16 channels
+.*\b32\s*[-–]?\s*кан.*;;;regex;Кількість каналів;;32;17;TRUE;301101;extract;32 channels
+.*\b64\s*[-–]?\s*кан.*;;;regex;Кількість каналів;;64;18;TRUE;301101;extract;64 channels
+.*\bPoE\b.*;;;regex;Підтримка PoE;;Так;19;TRUE;301101;extract;PoE support
+;PoE порти;(\d+)\s*[xх×]\s*RJ-?45;regex;Кількість вбудованих портів POE;;$1 ;20;TRUE;301101;value;PoE ports count
+;Інтерфейси відео виходу;\bHDMI\b;regex;HDMI відеовихід;;Так;21;TRUE;301101;value;Detect HDMI output
+;Інтерфейси відео виходу;\bVGA\b;regex;VGA відеовихід;;Так;22;TRUE;301101;value;Detect VGA output
+;USB;(\d+)\s*[x×]\s*USB\s*2\.0;regex;Кількість USB-портів;;$1 ;23;TRUE;301101;value;USB 2.0 ports count
+;Внутрішні HDD;(\d+)\s*SATA;regex;Количество HDD;;$1 ;24;TRUE;301101;value;Number of SATA HDD
+;Внутрішні HDD;(\d+)\s*SATA\s*до\s*(\d+)\s*Тб;regex;Суммарная емкость HDD;GB;$1 SATA $2 Тб;25;TRUE;301101;extract;Extract HDD SATA and TB
+;HDD режими;(\d+)\s*SATA\s*до\s*(\d+)\s*Тб;regex;Суммарная емкость HDD;GB;$1 SATA $2 Тб;26;TRUE;301101;extract;Extract HDD SATA and TB
+;RS485;\b1\s*порт\b;regex;RS-485;;Так;27;TRUE;301101;value;RS-485 port present
+;RS-232;\b1\s*порт\b;regex;RS-232;;Так;28;TRUE;301101;value;RS-232 port present
+;RS232;\b1\s*порт\b;regex;RS-232;;Так;29;TRUE;301101;value;RS-232 port present
+;Відео компресія;.*H\.265\+.*;regex;Формат стиснення;;H.265+;30;TRUE;301105;extract;
+;Відео компресія;.*H\.265.*;regex;Формат стиснення;;H.265;31;TRUE;301105;extract;
+;Відео компресія;.*H\.264\+.*;regex;Формат стиснення;;H.264+;32;TRUE;301105;extract;
+;Відео компресія;.*H\.264.*;regex;Формат стиснення;;H.264;33;TRUE;301105;extract;
+;Відео компресія;.*MJPEG.*;regex;Формат стиснення;;MJPEG;34;TRUE;301105;extract;
+;Відео компресія;.*MPEG-4.*;regex;Формат стиснення;;MPEG-4;35;TRUE;301105;extract;
+;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);36;TRUE;301101;extract;Min operating temperature
+;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;37;TRUE;301101;extract;Max operating temperature
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;38;TRUE;301101;extract;Length from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;39;TRUE;301101;extract;Width from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;40;TRUE;301101;extract;Height from dimensions
+;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;41;TRUE;301101;extract;Weight in grams (decimal kg → g)
+;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;42;TRUE;301101;extract;Weight in grams (integer kg → g)
+;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;43;TRUE;301101;extract;Warranty period
+;Аналітика з камерою;.*;skip;;;Пропустити;44;TRUE;301101;skip;no prom attr
+;Аналітика реєстратора;.*;skip;;;Пропустити;45;TRUE;301101;skip;no prom attr
+;Класифікація об'єктів;.*;skip;;;Пропустити;46;TRUE;301101;skip;no prom attr
+;Захист периметра \(канали\);.*;skip;;;Пропустити;47;TRUE;301101;skip;no prom attr
+;Розпізнавання облич \(канали\);.*;skip;;;Пропустити;48;TRUE;301101;skip;no prom attr
+;Режим розпізнавання облич;.*;skip;;;Пропустити;49;TRUE;301101;skip;no prom attr
+;Декодування;.*;skip;;;Пропустити;50;TRUE;301101;skip;no prom attr
+;Вага брутто;.*;skip;;;Пропустити;52;TRUE;301101;skip;no prom attr
+;Розмір упаковки \(Ш х В х Г\);.*;skip;;;Пропустити;53;TRUE;301101;skip;no prom attr

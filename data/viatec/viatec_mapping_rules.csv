@@ -153,98 +153,70 @@
 ;Інтерфейси відео виходу;\bVGA\b;regex;VGA відеовихід;;Так;22;TRUE;301101;value;Detect VGA output
 ;USB;(\d+)\s*[x×]\s*USB\s*2\.0;regex;Кількість USB-портів;;$1 ;23;TRUE;301101;value;USB 2.0 ports count
 ;Внутрішні HDD;(\d+)\s*SATA;regex;Количество HDD;;$1 ;24;TRUE;301101;value;Number of SATA HDD
-;RS485;\b1\s*порт\b;regex;RS-485;;Так;25;TRUE;301101;value;RS-485 port present
-;RS-232;\b1\s*порт\b;regex;RS-232;;Так;26;TRUE;301101;value;RS-232 port present
-;RS232;\b1\s*порт\b;regex;RS-232;;Так;27;TRUE;301101;value;RS-232 port present
-;Відео компресія;H.265+;contains;Формат стиснення;;H.265+;28;TRUE;301105;extract;
-;Відео компресія;H.265;contains;Формат стиснення;;H.265;29;TRUE;301105;extract;
-;Відео компресія;H.264+;contains;Формат стиснення;;H.264+;30;TRUE;301105;extract;
-;Відео компресія;H.264;contains;Формат стиснення;;H.264;31;TRUE;301105;extract;
-;Відео компресія;MJPEG;contains;Формат стиснення;;MJPEG;32;TRUE;301105;extract;
-;Відео компресія;MPEG-4;contains;Формат стиснення;;MPEG-4;33;TRUE;301105;extract;
-;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);34;TRUE;301101;extract;Min operating temperature
-;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;35;TRUE;301101;extract;Max operating temperature
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;36;TRUE;301101;extract;Length from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;37;TRUE;301101;extract;Width from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;38;TRUE;301101;extract;Height from dimensions
-;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;39;TRUE;301101;extract;Weight in grams (decimal kg → g)
-;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;40;TRUE;301101;extract;Weight in grams (integer kg → g)
-;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;41;TRUE;301101;extract;Warranty period
-;Аналітика з камерою;.*;skip;;;Пропустити;42;TRUE;301101;skip;no prom attr
-;Аналітика реєстратора;.*;skip;;;Пропустити;43;TRUE;301101;skip;no prom attr
-;Класифікація об'єктів;.*;skip;;;Пропустити;44;TRUE;301101;skip;no prom attr
-;Захист периметра \(канали\);.*;skip;;;Пропустити;45;TRUE;301101;skip;no prom attr
-;Розпізнавання облич \(канали\);.*;skip;;;Пропустити;46;TRUE;301101;skip;no prom attr
-;Режим розпізнавання облич;.*;skip;;;Пропустити;47;TRUE;301101;skip;no prom attr
-;Декодування;.*;skip;;;Пропустити;48;TRUE;301101;skip;no prom attr
-;HDD режими;.*;skip;;;Пропустити;49;TRUE;301101;skip;no prom attr
-;Вага брутто;.*;skip;;;Пропустити;50;TRUE;301101;skip;no prom attr
-;Розмір упаковки \(Ш х В х Г\);.*;skip;;;Пропустити;51;TRUE;301101;skip;no prom attr
-.*\b(\d+)\s*[ГгGg][БбBb]\b.*;;;regex;Об'єм накопичувача;GB;$1 ;1;TRUE;70704;extract;Extract capacity in GB from product name
-.*\b(\d+)\s*GB\b.*;;;regex;Об'єм накопичувача;GB;$1 ;2;TRUE;70704;extract;Extract capacity GB from product name (English)
-.*\b3\.5[""]\b.*;;;regex;Форм-фактор;;3.5";3;TRUE;70704;extract;3.5" form factor from name
-.*\b2\.5[""]\b.*;;;regex;Форм-фактор;;2.5";4;TRUE;70704;extract;2.5" form factor from name
-.*\b(micro\s*SD)\b.*;;;regex;Форм-фактор;;microSD;5;TRUE;70704;extract;microSD form factor (case-insensitive)
-.*\bSATA\s*III\b.*;;;regex;Інтерфейс;;SATA III (SATA/600);6;TRUE;70704;extract;SATA III interface from name
-.*\bSATA\s*II\b.*;;;regex;Інтерфейс;;SATA II (SATA/300);7;TRUE;70704;extract;SATA II interface from name
-.*\bSATAIII\b.*;;;regex;Інтерфейс;;SATA III (SATA/600);8;TRUE;70704;extract;SATAIII (no space) from name
-.*\bUSB\s*3\.2\b.*;;;regex;Інтерфейс;;USB 3.2;9;TRUE;70704;extract;USB 3.2 from name
-.*\bUSB\s*3\.0\b.*;;;regex;Інтерфейс;;USB 3.0;10;TRUE;70704;extract;USB 3.0 from name
-.*\bUSB\s*Type-C\b.*;;;regex;Інтерфейс;;USB Type-C;11;TRUE;70704;extract;USB Type-C from name
-.*\b(HDD|жесткий диск|Жесткий диск)\b.*;;;regex;Тип диска;;HDD;12;TRUE;70704;extract;HDD type from name
-.*\b(SSD|твердотільний)\b.*;;;regex;Тип диска;;SSD;13;TRUE;70704;extract;SSD type from name
-.*\b(карта памяти)\b.*;;;regex;Тип диска;;Карта пам'яті;14;TRUE;70704;extract;Memory card type
-.*\b(флеш|USB flash|DataTraveler)\b.*;;;regex;Тип диска;;USB флеш-накопичувач;15;TRUE;70704;extract;USB flash drive
-.*\b(SkyHawk|Purple(\s*Pro)?|Surveillance|Hikvision\s+DS\d+HK|HKVS|HKAI|Dahua\s+DHI-TF|TF-C100)\b.*;;;regex;Призначення;;Для відеоспостереження;16;TRUE;70704;extract;Surveillance purpose from name
-;Форм-фактор;3\.5[""]?;regex;Форм-фактор;;3.5";17;TRUE;70704;attribute;3.5" form factor from attribute
-;Форм-фактор;2\.5[""]?;regex;Форм-фактор;;2.5";18;TRUE;70704;attribute;2.5" form factor from attribute
-;Форм-фактор;M\.2.*(\d{4});regex;Форм-фактор;;M.2 $1;19;TRUE;70704;attribute;M.2 with size from attribute
-;Форм-фактор;M\.2;regex;Форм-фактор;;M.2;20;TRUE;70704;attribute;M.2 without size
-;Форм-фактор;.*micro\s*SD.*;regex;Форм-фактор;;microSD;21;TRUE;70704;attribute;microSD from attribute (case-insensitive)
-;Форм-фактор;Брелок;exact;Форм-фактор;;USB брелок;22;TRUE;70704;attribute;USB keychain form factor
-;Форм-фактор;Моноблок;exact;Форм-фактор;;USB моноблок;23;TRUE;70704;attribute;USB monoblock form factor
-;Ємність;(\d+)\s*[ГгGg][БбBb];regex;Об'єм накопичувача;GB;$1 ;24;TRUE;70704;attribute;Capacity in GB
-;Ємність;(\d+)\s*GB;regex;Об'єм накопичувача;GB;$1 ;25;TRUE;70704;attribute;Capacity GB (English)
-;Інтерфейс користувача;SATA\s*III;regex;Інтерфейс;;SATA III (SATA/600);26;TRUE;70704;attribute;SATA III interface
-;Інтерфейс користувача;SATAIII;regex;Інтерфейс;;SATA III (SATA/600);27;TRUE;70704;attribute;SATAIII no space
-;Інтерфейс користувача;SATA\s*II;regex;Інтерфейс;;SATA II (SATA/300);28;TRUE;70704;attribute;SATA II interface
-;Інтерфейс користувача;SATA-600;regex;Інтерфейс;;SATA III (SATA/600);29;TRUE;70704;attribute;SATA-600 designation
-;Інтерфейс користувача;USB\s*3\.2;regex;Інтерфейс;;USB 3.2;30;TRUE;70704;attribute;USB 3.2
-;Інтерфейс користувача;USB\s*3\.0;regex;Інтерфейс;;USB 3.0;31;TRUE;70704;attribute;USB 3.0
-;Інтерфейс користувача;USB\s*Type-C;regex;Інтерфейс;;USB Type-C;32;TRUE;70704;attribute;USB Type-C
-;Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;;USB 2.0;33;TRUE;70704;attribute;USB 2.0
-;Інтерфейс користувача;PCI\s*Express\s*4\.0;regex;Інтерфейс;;PCI Express 4.0 x4;34;TRUE;70704;attribute;PCIe 4.0
-;Інтерфейс користувача;PCI\s*Express\s*3\.0;regex;Інтерфейс;;PCI Express 3.0 x4;35;TRUE;70704;attribute;PCIe 3.0
-;Інтерфейс користувача;SATA;regex;Інтерфейс;;SATA III (SATA/600);36;TRUE;70704;attribute;SATA generic (default to III) - LOWEST PRIORITY
-;Швидкість обертання \(об / хв\);(\d+);regex;Швидкість обертання;об/хв;$1 ;37;TRUE;70704;attribute;Rotation speed RPM
-;Швидкість обертання \(об / хв\);(\d+)\s*об/хв;regex;Швидкість обертання;об/хв;$1 ;38;TRUE;70704;attribute;Rotation speed with units
-;Кеш-пам'ять;(\d+)\s*Мб;regex;Об`єм буфера;MB;$1 ;39;TRUE;70704;attribute;Cache memory in MB
-;Кеш-пам'ять;(\d+)\s*МБ;regex;Об`єм буфера;MB;$1 ;40;TRUE;70704;attribute;Cache memory MB uppercase
-;Макс\. швидкість тривалої передачі;(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1 ;41;TRUE;70704;attribute;Read speed MB/s
-;Макс\. швидкість тривалої передачі;(\d+)\s*Мб/с;regex;Швидкість зчитування;Мб/сек;$1 ;42;TRUE;70704;attribute;Read speed Mb/s
-;Макс\. швидкість тривалої передачі;(\d+)\s*Мбіт/с;regex;Швидкість зчитування;Мбіт/сек;$1 ;43;TRUE;70704;attribute;Read speed Mbit/s (different unit!)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1 ;44;TRUE;70704;attribute;Read speed MB/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*МБ/с;regex;Швидкість запису;Мб/сек;$2 ;45;TRUE;70704;attribute;Write speed MB/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мб/с;regex;Швидкість зчитування;Мб/сек;$1 ;46;TRUE;70704;attribute;Read speed Mb/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мб/с;regex;Швидкість запису;Мб/сек;$2 ;47;TRUE;70704;attribute;Write speed Mb/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мбіт/с;regex;Швидкість зчитування;Мбіт/сек;$1 ;48;TRUE;70704;attribute;Read speed Mbit/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мбіт/с;regex;Швидкість запису;Мбіт/сек;$2 ;49;TRUE;70704;attribute;Write speed Mbit/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)\s*-\s*(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1 ;50;TRUE;70704;attribute;Read speed range (take first value)
-;Макс\. швидкість читання;(\d+)\s*Мб\s*/\s*с;regex;Швидкість зчитування;Мб/сек;$1 ;51;TRUE;70704;attribute;Max read speed
-;Макс\. швидкість запису;(\d+)\s*Мб\s*/\s*с;regex;Швидкість запису;Мб/сек;$1 ;52;TRUE;70704;attribute;Max write speed
-;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);53;TRUE;70704;extract;Min operating temperature
-;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;54;TRUE;70704;extract;Max operating temperature
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;55;TRUE;70704;extract;Length from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;56;TRUE;70704;extract;Width from dimensions
-;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;57;TRUE;70704;extract;Height from dimensions
-;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;58;TRUE;70704;extract;Weight in grams (decimal kg → g)
-;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;59;TRUE;70704;extract;Weight in grams (integer kg → g)
-;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;61;TRUE;70704;extract;Warranty period
-;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;200;TRUE;70704;skip;Package dimensions not product dimensions
-;Кількість в ящику;.*;regex;;;Пропустити;201;TRUE;70704;skip;Box quantity not in prom attributes
-;Номер моделі;.*;regex;;;Пропустити;202;TRUE;70704;skip;Model number handled separately
-;Файлова система;.*;regex;;;Пропустити;203;TRUE;70704;skip;File system not in prom attributes
-;Сумісність;.*;regex;;;Пропустити;204;TRUE;70704;skip;Compatibility details not needed
+;Внутрішні HDD;(\d+)\s*SATA\s*до\s*(\d+)\s*Тб;regex;Суммарная емкость HDD;GB;$1 SATA $2 Тб;25;TRUE;301101;extract;Extract HDD SATA and TB
+;HDD режими;(\d+)\s*SATA\s*до\s*(\d+)\s*Тб;regex;Суммарная емкость HDD;GB;$1 SATA $2 Тб;26;TRUE;301101;extract;Extract HDD SATA and TB
+;RS485;\b1\s*порт\b;regex;RS-485;;Так;27;TRUE;301101;value;RS-485 port present
+;RS-232;\b1\s*порт\b;regex;RS-232;;Так;28;TRUE;301101;value;RS-232 port present
+;RS232;\b1\s*порт\b;regex;RS-232;;Так;29;TRUE;301101;value;RS-232 port present
+;Відео компресія;.*H\.265\+.*;regex;Формат стиснення;;H.265+;30;TRUE;301105;extract;
+;Відео компресія;.*H\.265.*;regex;Формат стиснення;;H.265;31;TRUE;301105;extract;
+;Відео компресія;.*H\.264\+.*;regex;Формат стиснення;;H.264+;32;TRUE;301105;extract;
+;Відео компресія;.*H\.264.*;regex;Формат стиснення;;H.264;33;TRUE;301105;extract;
+;Відео компресія;.*MJPEG.*;regex;Формат стиснення;;MJPEG;34;TRUE;301105;extract;
+;Відео компресія;.*MPEG-4.*;regex;Формат стиснення;;MPEG-4;35;TRUE;301105;extract;
+;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);36;TRUE;301101;extract;Min operating temperature
+;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;37;TRUE;301101;extract;Max operating temperature
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;38;TRUE;301101;extract;Length from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;39;TRUE;301101;extract;Width from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;40;TRUE;301101;extract;Height from dimensions
+;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;41;TRUE;301101;extract;Weight in grams (decimal kg → g)
+;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;42;TRUE;301101;extract;Weight in grams (integer kg → g)
+;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;43;TRUE;301101;extract;Warranty period
+;Аналітика з камерою;.*;skip;;;Пропустити;44;TRUE;301101;skip;no prom attr
+;Аналітика реєстратора;.*;skip;;;Пропустити;45;TRUE;301101;skip;no prom attr
+;Класифікація об'єктів;.*;skip;;;Пропустити;46;TRUE;301101;skip;no prom attr
+;Захист периметра \(канали\);.*;skip;;;Пропустити;47;TRUE;301101;skip;no prom attr
+;Розпізнавання облич \(канали\);.*;skip;;;Пропустити;48;TRUE;301101;skip;no prom attr
+;Режим розпізнавання облич;.*;skip;;;Пропустити;49;TRUE;301101;skip;no prom attr
+;Декодування;.*;skip;;;Пропустити;50;TRUE;301101;skip;no prom attr
+;Вага брутто;.*;skip;;;Пропустити;52;TRUE;301101;skip;no prom attr
+;Розмір упаковки \(Ш х В х Г\);.*;skip;;;Пропустити;53;TRUE;301101;skip;no prom attr
+.*\b(HDD|жесткий диск|Жесткий диск)\b.*;;;regex;Тип диска;;HDD;1;TRUE;70704;extract;HDD type from name
+.*\b(SSD|твердотільний)\b.*;;;regex;Тип диска;;SSD;2;TRUE;70704;extract;SSD type from name
+(?i).*(SkyHawk|Purple|Surveillance|PURU|PURZ).*;;;regex;Призначення;;Для відеоспостереження;3;TRUE;70704;extract;Surveillance purpose from name
+;Форм-фактор;3\.5[""]?;regex;Форм-фактор;;3.5";4;TRUE;70704;attribute;3.5" form factor from attribute
+;Форм-фактор;2\.5[""]?;regex;Форм-фактор;;2.5";5;TRUE;70704;attribute;2.5" form factor from attribute
+;Ємність;(\d+)\s*[ГгGg][БбBb];regex;Об'єм накопичувача;GB;$1 ;6;TRUE;70704;attribute;Capacity in GB
+;Ємність;(\d+)\s*GB;regex;Об'єм накопичувача;GB;$1 ;7;TRUE;70704;attribute;Capacity GB (English)
+;Ємність;(\d+)\s*[Тт][БбBb];regex;Об'єм накопичувача;GB;$1 Тб;8;TRUE;70704;attribute;Capacity in TB
+;Інтерфейс користувача;SATA\s*III;regex;Інтерфейс;;SATA III (SATA/600);9;TRUE;70704;attribute;SATA III interface
+;Інтерфейс користувача;SATAIII;regex;Інтерфейс;;SATA III (SATA/600);10;TRUE;70704;attribute;SATAIII no space
+;Інтерфейс користувача;SATA\s*II;regex;Інтерфейс;;SATA II (SATA/300);11;TRUE;70704;attribute;SATA II interface
+;Інтерфейс користувача;SATA-600;regex;Інтерфейс;;SATA III (SATA/600);12;TRUE;70704;attribute;SATA-600 designation
+;Інтерфейс користувача;USB\s*3\.2;regex;Інтерфейс;;USB 3.2;13;TRUE;70704;attribute;USB 3.2
+;Інтерфейс користувача;USB\s*3\.0;regex;Інтерфейс;;USB 3.0;14;TRUE;70704;attribute;USB 3.0
+;Інтерфейс користувача;USB\s*Type-C;regex;Інтерфейс;;USB Type-C;15;TRUE;70704;attribute;USB Type-C
+;Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;;USB 2.0;16;TRUE;70704;attribute;USB 2.0
+;Інтерфейс користувача;PCI\s*Express\s*4\.0;regex;Інтерфейс;;PCI Express 4.0 x4;17;TRUE;70704;attribute;PCIe 4.0
+;Інтерфейс користувача;PCI\s*Express\s*3\.0;regex;Інтерфейс;;PCI Express 3.0 x4;18;TRUE;70704;attribute;PCIe 3.0
+;Інтерфейс користувача;SATA;regex;Інтерфейс;;SATA III (SATA/600);19;TRUE;70704;attribute;SATA generic (default to III) - LOWEST PRIORITY
+;Швидкість обертання (об / хв);(\d+);regex;Швидкість обертання;об/хв;$1 ;22;TRUE;70704;attribute;Rotation speed RPM
+;Швидкість обертання (об / хв);(\d+)\s*об/хв;regex;Швидкість обертання;об/хв;$1 ;23;TRUE;70704;attribute;Rotation speed with units
+;Кеш-пам'ять;(\d+)\s*Мб;regex;Об`єм буфера;MB;$1 ;24;TRUE;70704;attribute;Cache memory in MB
+;Кеш-пам'ять;(\d+)\s*МБ;regex;Об`єм буфера;MB;$1 ;25;TRUE;70704;attribute;Cache memory MB uppercase
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Довжина;мм;$1 ;26;TRUE;70704;attribute;Length from size
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Ширина;мм;$2 ;27;TRUE;70704;attribute;Width from size
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Висота;мм;$3 ;28;TRUE;70704;attribute;Height from size
+;Вага брутто;(\d+\.?\d*)\s*г;regex;Вага;г;$1 ;29;TRUE;70704;attribute;Gross weight in grams
+;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;30;TRUE;70704;attribute;Warranty period in months
+;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Мінімальна робоча температура;град.;($1);31;TRUE;70704;attribute;Min operating temperature
+;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Максимальна робоча температура;град.;$2 ;32;TRUE;70704;attribute;Max operating temperature
+;Макс\. швидкість тривалої передачі;(\d+)\s*МБ/с;regex;;;Пропустити;33;TRUE;70704;skip;Read speed MB/s
+;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;34;TRUE;70704;skip;Package dimensions not product dimensions
+;Кількість в ящику;.*;regex;;;Пропустити;35;TRUE;70704;skip;Box quantity not in prom attributes
+;Номер моделі;.*;regex;;;Пропустити;36;TRUE;70704;skip;Model number handled separately
+;Файлова система;.*;regex;;;Пропустити;37;TRUE;70704;skip;File system not in prom attributes
+;Сумісність;.*;regex;;;Пропустити;38;TRUE;70704;skip;Compatibility details not needed
 .*\bкожух\b.*;;;regex;Тип пристрою;;Кожух;1;TRUE;301112;extract;Extract housing type from name
 .*\bкронштейн\b.*;;;regex;Тип пристрою;;Кронштейн;2;TRUE;301112;extract;Extract bracket type from name
 .*\bнастен\b.*;;;regex;Тип кріплення кронштейна;;Настінне кріплення;3;TRUE;301112;extract;Wall mounting from name
@@ -402,98 +374,92 @@
 ;Динамічний діапазон;(\d+)\s*[Дд]б;regex;;;Пропустити;118;TRUE;6371204;skip;Dynamic range not in prom
 ;Матеріал;.*;regex;;;Пропустити;119;TRUE;6371204;skip;Material not in prom
 ;Вага;(\d+(?:\.\d+)?)\s*кг;regex;;;Пропустити;120;TRUE;6371204;skip;Weight in kg - engine limitation (no arithmetic)
-.*\bLiFePO4\b.*;;;regex;Тип акумулятора;;LiFePO4;1;TRUE;5280501;extract;LiFePO4 from name
-.*\bLi-?Ion\b.*;;;regex;Тип акумулятора;;Li-Ion;2;TRUE;5280501;extract;Li-Ion from name
-.*\bLi-?Pol\b.*;;;regex;Тип акумулятора;;Li-Pol;3;TRUE;5280501;extract;Li-Pol from name
-.*\bAGM\b.*;;;regex;Тип акумулятора;;AGM;4;TRUE;5280501;extract;AGM from name
-.*\bGEL\b.*;;;regex;Тип акумулятора;;GEL;5;TRUE;5280501;extract;GEL from name
-.*\bгелев.*;;;regex;Тип акумулятора;;GEL;6;TRUE;5280501;extract;Gel from name (Cyrillic)
-.*\bNi-?MH\b.*;;;regex;Тип акумулятора;;Ni-MH;7;TRUE;5280501;extract;Ni-MH from name
-.*\bNi-?Cd\b.*;;;regex;Тип акумулятора;;Ni-Cd;8;TRUE;5280501;extract;Ni-Cd from name
-\b(\d+(?:\.\d+)?)\s*[АA][\•·●]?[гh]\b;;;regex;Ємність акумулятору;А. г;$1 ;10;TRUE;5280501;extract;Capacity in Ah from name
-\b(\d+(?:\.\d+)?)\s*кВт[\•·●]?г\b;;;regex;;;Пропустити;12;TRUE;5280501;skip;kWh cannot convert to Ah without voltage
-\b(\d+(?:\.\d+)?)\s*[ВV]\b;;;regex;Напруга;В;$1 ;13;TRUE;5280501;extract;Voltage from name
-;Тип устройства;AGM;exact;Тип акумулятора;;AGM;20;TRUE;5280501;attribute;AGM type
-;Тип устройства;GEL;exact;Тип акумулятора;;GEL;21;TRUE;5280501;attribute;GEL type
-;Тип устройства;GL \(гелевий\);exact;Тип акумулятора;;GEL;22;TRUE;5280501;attribute;GL gel type
-;Тип устройства;гелевий;exact;Тип акумулятора;;GEL;23;TRUE;5280501;attribute;Gel type (Cyrillic)
-;Тип устройства;Гелевий;exact;Тип акумулятора;;GEL;24;TRUE;5280501;attribute;Gel type (Cyrillic capital)
-;Тип устройства;GEL \(гелевий\);exact;Тип акумулятора;;GEL;25;TRUE;5280501;attribute;GEL gel type
-;Тип устройства;LiFePo4.*;regex;Тип акумулятора;;LiFePO4;26;TRUE;5280501;attribute;LiFePO4 type
-;Тип устройства;.*літій-залізо-фосфат.*;regex;Тип акумулятора;;LiFePO4;27;TRUE;5280501;attribute;LiFePO4 (Cyrillic description)
-;Емкость;(\d+(?:\.\d+)?)\s*[АA][\•·●]?[гh];regex;Ємність акумулятору;А. г;$1 ;30;TRUE;5280501;attribute;Capacity from Емкость attribute
-;Емкость;(\d+(?:\.\d+)?)\s*кВт[\•·●]?г;regex;;;Пропустити;31;TRUE;5280501;skip;kWh cannot convert to Ah without voltage
-;Ємність акумулятору \(А·г\);(\d+(?:\.\d+)?);regex;Ємність акумулятору;А. г;$1 ;32;TRUE;5280501;attribute;Capacity from formatted attribute
-;Ємність акумулятору;(\d+(?:\.\d+)?);regex;Ємність акумулятору;А. г;$1 ;33;TRUE;5280501;attribute;Capacity direct from attribute
-;Выходное напряжение;(\d+(?:\.\d+)?)\s*[ВV];regex;Напруга;В;$1 ;40;TRUE;5280501;attribute;Voltage from Выходное напряжение
-;Напруга \(В\);(\d+(?:\.\d+)?);regex;Напруга;В;$1 ;41;TRUE;5280501;attribute;Voltage from formatted attribute
-;Напруга;(\d+(?:\.\d+)?);regex;Напруга;В;$1 ;42;TRUE;5280501;attribute;Voltage direct from attribute
-;Питание;(\d+)\s*В;regex;Напруга;В;$1 ;43;TRUE;5280501;attribute;Voltage from Питание
-;Тип акумулятора;AGM;exact;Тип акумулятора;;AGM;50;TRUE;5280501;attribute;Battery type AGM
-;Тип акумулятора;GEL;exact;Тип акумулятора;;GEL;51;TRUE;5280501;attribute;Battery type GEL
-;Тип акумулятора;LiFePO4;exact;Тип акумулятора;;LiFePO4;52;TRUE;5280501;attribute;Battery type LiFePO4
-;Разъем;F1\b;regex;Тип струмовивіду;;F2;60;TRUE;5280501;attribute;F1 terminal mapped to F2
-;Разъем;F2\b;regex;Тип струмовивіду;;F2;61;TRUE;5280501;attribute;F2 terminal type
-;Разъем;F6\b;regex;Тип струмовивіду;;F6;62;TRUE;5280501;attribute;F6 terminal type
-;Разъем;F8\b;regex;Тип струмовивіду;;F8;63;TRUE;5280501;attribute;F8 terminal type
-;Разъем;F12\b;regex;Тип струмовивіду;;F12 (M8);64;TRUE;5280501;attribute;F12 terminal type
-;Разъем;F13\b;regex;Тип струмовивіду;;F12 (M8);65;TRUE;5280501;attribute;F13 mapped to F12 (M8)
-;Разъем;F18\b;regex;Тип струмовивіду;;F18;66;TRUE;5280501;attribute;F18 terminal type
-;Тип токовывода;F1\b;regex;Тип струмовивіду;;F2;70;TRUE;5280501;attribute;F1 terminal from attribute
-;Тип токовывода;F2\b;regex;Тип струмовивіду;;F2;71;TRUE;5280501;attribute;F2 terminal from attribute
-;Тип токовывода;F6\b;regex;Тип струмовивіду;;F6;72;TRUE;5280501;attribute;F6 terminal from attribute
-;Тип токовывода;F8\b;regex;Тип струмовивіду;;F8;73;TRUE;5280501;attribute;F8 terminal from attribute
-;Тип токовывода;F12\b;regex;Тип струмовивіду;;F12 (M8);74;TRUE;5280501;attribute;F12 terminal from attribute
-;Тип токовывода;F13\b;regex;Тип струмовивіду;;F12 (M8);75;TRUE;5280501;attribute;F13 terminal from attribute
-;Тип токовывода;F18\b;regex;Тип струмовивіду;;F18;76;TRUE;5280501;attribute;F18 terminal from attribute
-;Тип струмовивіду;DT;exact;Тип струмовивіду;;DT;80;TRUE;5280501;attribute;DT terminal type
-;Тип струмовивіду;F1\b;regex;Тип струмовивіду;;F2;81;TRUE;5280501;attribute;F1 mapped to F2
-;Тип струмовивіду;F2\b;regex;Тип струмовивіду;;F2;82;TRUE;5280501;attribute;F2 terminal type
-;Тип струмовивіду;F6\b;regex;Тип струмовивіду;;F6;83;TRUE;5280501;attribute;F6 terminal type
-;Тип струмовивіду;F8\b;regex;Тип струмовивіду;;F8;84;TRUE;5280501;attribute;F8 terminal type
-;Тип струмовивіду;F12\b;regex;Тип струмовивіду;;F12 (M8);85;TRUE;5280501;attribute;F12 terminal type
-;Тип струмовивіду;F18\b;regex;Тип струмовивіду;;F18;86;TRUE;5280501;attribute;F18 terminal type
-;Тип струмовивіду;[Тт]1\b;regex;Тип струмовивіду;;T1;87;TRUE;5280501;attribute;T1 terminal type
-;Тип струмовивіду;[Тт]2\b;regex;Тип струмовивіду;;T2;88;TRUE;5280501;attribute;T2 terminal type
-;Тип струмовивіду;[Тт]3\b;regex;Тип струмовивіду;;T3;89;TRUE;5280501;attribute;T3 terminal type
-;Тип струмовивіду;[Тт]6\b;regex;Тип струмовивіду;;T6;90;TRUE;5280501;attribute;T6 terminal type
-;Тип струмовивіду;[Тт]8\b;regex;Тип струмовивіду;;T8;91;TRUE;5280501;attribute;T8 terminal type
-;Тип струмовивіду;[Тт]11\b;regex;Тип струмовивіду;;Т11;92;TRUE;5280501;attribute;T11 terminal type
-;Тип струмовивіду;[Тт]12\b;regex;Тип струмовивіду;;T12;93;TRUE;5280501;attribute;T12 terminal type
-;Тип струмовивіду;[Тт]14\b;regex;Тип струмовивіду;;Т14;94;TRUE;5280501;attribute;T14 terminal type
-;Додаткові характеристики;.*тип клем\s*-\s*F(\d+);regex;Тип струмовивіду;;F2;95;TRUE;5280501;attribute;Terminal type from additional info
-;Струм заряду \(А\);(\d+(?:\.\d+)?);regex;Струм заряду;А;$1 ;100;TRUE;5280501;attribute;Charge current from formatted attribute
-;Струм заряду;(\d+(?:\.\d+)?);regex;Струм заряду;А;$1 ;101;TRUE;5280501;attribute;Charge current direct from attribute
-;Особенности;.*[Нн]омінальний струм заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;102;TRUE;5280501;attribute;Nominal charge current from features
-;Особенности;.*[Мм]аксимальний\s+(?:зарядний\s+)?струм\s+заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;103;TRUE;5280501;skip;Max charge current not in PROM
-;Особенности;.*[Сс]трум заряду до\s+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;104;TRUE;5280501;attribute;Charge current up to from features
-;Додаткові характеристики;.*[Рр]екомендований струм заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;105;TRUE;5280501;attribute;Recommended charge current
-;Напрацювання \(циклів заряду\);(\d+);regex;Напрацювання;циклів заряду;$1 ;110;TRUE;5280501;attribute;Cycle life from formatted attribute
-;Напрацювання;(\d+);regex;Напрацювання;циклів заряду;$1 ;111;TRUE;5280501;attribute;Cycle life direct from attribute
-;Особенности;.*[Кк]ількість циклів[:\s]+[>~]?\s*(\d+);regex;Напрацювання;циклів заряду;$1 ;112;TRUE;5280501;attribute;Cycle count from features
-;Додаткові характеристики;.*цикл життя[:\s]+<?\s*(\d+);regex;Напрацювання;циклів заряду;$1 ;113;TRUE;5280501;attribute;Lifecycle from additional info
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;120;TRUE;5280501;attribute;Length from Розміри
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;121;TRUE;5280501;attribute;Width from Розміри
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;122;TRUE;5280501;attribute;Height from Розміри
-;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;130;TRUE;5280501;attribute;Weight in kg from Вес
-;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;131;TRUE;5280501;skip;Weight in grams - PROM requires kg
-;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;140;TRUE;5280501;attribute;Warranty from Строк гарантії
-;Робоча температура;[–-]\s*(\d+)\s*°?\s*[CС℃]\s*[-–—~]\s*\+?\s*(\d+)\s*°?\s*[CС℃];regex;Мінімальна робоча температура;град.;($1);150;TRUE;5280501;attribute;Min temperature from attribute
-;Робоча температура;[–-]\s*(\d+)\s*°?\s*[CС℃]\s*[-–—~]\s*\+?\s*(\d+)\s*°?\s*[CС℃];regex;Максимальна робоча температура;град.;$2 ;151;TRUE;5280501;attribute;Max temperature from attribute
-;Особенности;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;160;TRUE;5280501;skip;Max discharge current not in PROM
-;Особенности;.*[Рр]екомендований струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;161;TRUE;5280501;skip;Recommended discharge current not in PROM
-;Додаткові характеристики;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;162;TRUE;5280501;skip;Max discharge current not in PROM
-;Максимальний струм розряду \(А\);.*;regex;;;Пропустити;163;TRUE;5280501;skip;Max discharge current not in PROM
-;Максимальний струм розряду;.*;regex;;;Пропустити;164;TRUE;5280501;skip;Max discharge current not in PROM
-;Мощность;.*;regex;;;Пропустити;170;TRUE;5280501;skip;Power not in PROM dictionary
-;Вага брутто;.*;regex;;;Пропустити;180;TRUE;5280501;skip;Gross weight not needed
-;Розмір упаковки.*;.*;regex;;;Пропустити;181;TRUE;5280501;skip;Package size not needed
-;Кількість в ящику;.*;regex;;;Пропустити;182;TRUE;5280501;skip;Box quantity not needed
-;Особенности;.*CAN.*|.*RS485.*|.*RS232.*;regex;;;Пропустити;190;TRUE;5280501;skip;Communication protocols not in PROM
-;Додаткові характеристики;.*IP\d+.*;regex;;;Пропустити;191;TRUE;5280501;skip;IP rating not in PROM
-;Особенности;.*[Нн]еобслуговуваний;regex;;;Пропустити;192;TRUE;5280501;skip;Maintenance-free not in PROM
-;Особенности;.*;regex;;;Пропустити;200;TRUE;5280501;skip;Other features - too varied
-;Додаткові характеристики;.*;regex;;;Пропустити;201;TRUE;5280501;skip;Additional features - too varied (except specific extractions)
+.*\b(AGM)\b.*;;;regex;Тип акумулятора;;AGM;1;TRUE;5280501;extract;AGM from name
+.*\b(GEL|GL|гелев)\b.*;;;regex;Тип акумулятора;;GEL;2;TRUE;5280501;extract;GEL / GL / гелевий from name
+.*\b(Li\s*Fe\s*PO\s*4|LiFePO4|LFP|Li-?TIME|LiTIME|Li-TIME)\b.*;;;regex;Тип акумулятора;;LiFePO4;3;TRUE;5280501;extract;LiFePO4 / LFP / Li-TIME from name
+.*\bЛітієва\b.*;;;regex;Тип акумулятора;;LiFePO4;4;TRUE;5280501;extract;Cyrillic Lithium indicator
+.*\bЛитиевая\b.*;;;regex;Тип акумулятора;;LiFePO4;4;TRUE;5280501;extract;Cyrillic Lithium indicator
+\b(\d+(?:\.\d+)?)\s*[АA][\•·●]?[чh]\b;;;regex;Ємність акумулятору;А·г;$1 ;9;TRUE;5280501;extract;Capacity Ah from name
+\b(\d+(?:\.\d+)?)\s*кВт[\•·●]?ч\b;;;regex;;;Пропустити;10;TRUE;5280501;skip;kWh cannot convert to Ah
+\b(\d+(?:\.\d+)?)\s*[ВV]\b;;;regex;Напруга;В;$1 ;11;TRUE;5280501;extract;Voltage from name
+;Тип пристрою;(?i)\bAGM\b;regex;Тип акумулятора;;AGM;12;TRUE;5280501;attribute;AGM type (regex)
+;Тип пристрою;(?i)\b(GEL|гелев(ий|ый)|GL\s*\(гелев(ий|ый)\))\b;regex;Тип акумулятора;;GEL;13;TRUE;5280501;attribute;GEL type (latin + cyrillic)
+;Тип пристрою;(?i)\bLi\s*Fe\s*PO\s*4\b|\bLiFePo4\b|літій[-\s]?залізо[-\s]?фосфат;regex;Тип акумулятора;;LiFePO4;14;TRUE;5280501;attribute;LiFePO4 type
+;Тип пристрою;Гелевий;exact;Тип акумулятора;;GEL;15;TRUE;5280501;attribute;Gel type (Cyrillic capital)
+;Тип пристрою;GEL \(гелевий\);exact;Тип акумулятора;;GEL;16;TRUE;5280501;attribute;GEL gel type
+;Тип пристрою;LiFePo4.*;regex;Тип акумулятора;;LiFePO4;17;TRUE;5280501;attribute;LiFePO4 type
+;Тип пристрою;.*літій-залізо-фосфат.*;regex;Тип акумулятора;;LiFePO4;18;TRUE;5280501;attribute;LiFePO4 (Cyrillic description)
+;Ємність;"(\d+(?:[.,]\d+)?)\s*кВт[\•·●]?[чг]";regex;;;Пропустити;19;TRUE;5280501;skip;kWh capacity – skip
+;Ємність;"(\d+(?:[.,]\d+)?)\s*[АA][\•·●]?\s*[гh]";regex;Ємність акумулятору;А. г;$1 ;20;TRUE;5280501;attribute;"Capacity Ah (А•г, Аг, Ah)"
+;Ємність;"(\d+(?:[.,]\d+)?)\s*[АA]\s*[гh]";regex;Ємність акумулятору;А. г;$1 ;21;TRUE;5280501;attribute;Capacity Ah (Aг without dot)
+;Ємність;"(\d+),(\d+)";regex;Ємність акумулятору;А. г;$1.$2;22;TRUE;5280501;attribute;Comma to dot normalization
+;Выходное напряжение;(\d+(?:\.\d+)?)\s*[ВV];regex;Напруга;В;$1 ;23;TRUE;5280501;attribute;Voltage from Выходное напряжение
+;Напруга \(В\);(\d+(?:\.\d+)?);regex;Напруга;В;$1 ;24;TRUE;5280501;attribute;Voltage from formatted attribute
+;Напруга;(\d+(?:\.\d+)?);regex;Напруга;В;$1 ;25;TRUE;5280501;attribute;Voltage direct from attribute
+;Питание;(\d+)\s*В;regex;Напруга;В;$1 ;26;TRUE;5280501;attribute;Voltage from Питание
+;Тип струмовивіду;\bDT\b;exact;Тип струмовивіду;;DT;30;TRUE;5280501;attribute;DT terminal
+;Тип струмовивіду;\bF2\b;regex;Тип струмовивіду;;F2;31;TRUE;5280501;attribute;F2 terminal
+;Тип струмовивіду;\bF6\b;regex;Тип струмовивіду;;F6;32;TRUE;5280501;attribute;F6 terminal
+;Тип струмовивіду;\bF8\b;regex;Тип струмовивіду;;F8;33;TRUE;5280501;attribute;F8 terminal
+;Тип струмовивіду;\bF12\b;regex;Тип струмовивіду;;F12 (M8);34;TRUE;5280501;attribute;F12 terminal
+;Тип струмовивіду;\bF18\b;regex;Тип струмовивіду;;F18;35;TRUE;5280501;attribute;F18 terminal
+;Тип струмовивіду;[Тт]1\b;regex;Тип струмовивіду;;T1;36;TRUE;5280501;attribute;T1 terminal
+;Тип струмовивіду;[Тт]2\b;regex;Тип струмовивіду;;T2;37;TRUE;5280501;attribute;T2 terminal
+;Тип струмовивіду;[Тт]3\b;regex;Тип струмовивіду;;T3;38;TRUE;5280501;attribute;T3 terminal
+;Тип струмовивіду;[Тт]6\b;regex;Тип струмовивіду;;T6;39;TRUE;5280501;attribute;T6 terminal
+;Тип струмовивіду;[Тт]8\b;regex;Тип струмовивіду;;T8;40;TRUE;5280501;attribute;T8 terminal
+;Тип струмовивіду;[Тт]11\b;regex;Тип струмовивіду;;T11;41;TRUE;5280501;attribute;T11 terminal
+;Тип струмовивіду;[Тт]12\b;regex;Тип струмовивіду;;T12;42;TRUE;5280501;attribute;T12 terminal
+;Тип струмовивіду;[Тт]14\b;regex;Тип струмовивіду;;T14;43;TRUE;5280501;attribute;T14 terminal
+;Тип токовывода;\bF2\b;regex;Тип струмовивіду;;F2;44;TRUE;5280501;attribute;F2 from supplier
+;Тип токовывода;\bF6\b;regex;Тип струмовивіду;;F6;45;TRUE;5280501;attribute;F6 from supplier
+;Тип токовывода;\bF8\b;regex;Тип струмовивіду;;F8;46;TRUE;5280501;attribute;F8 from supplier
+;Тип токовывода;\bF12\b;regex;Тип струмовивіду;;F12 (M8);47;TRUE;5280501;attribute;F12 from supplier
+;Тип токовывода;\bF18\b;regex;Тип струмовивіду;;F18;48;TRUE;5280501;attribute;F18 from supplier
+;Разъем;\bF2\b;regex;Тип струмовивіду;;F2;49;TRUE;5280501;attribute;F2 from connector
+;Разъем;\bF6\b;regex;Тип струмовивіду;;F6;50;TRUE;5280501;attribute;F6 from connector
+;Разъем;\bF8\b;regex;Тип струмовивіду;;F8;51;TRUE;5280501;attribute;F8 from connector
+;Разъем;\bF12\b;regex;Тип струмовивіду;;F12 (M8);52;TRUE;5280501;attribute;F12 from connector
+;Разъем;\bF18\b;regex;Тип струмовивіду;;F18;53;TRUE;5280501;attribute;F18 from connector
+;Додаткові характеристики;.*тип клем\s*-\s*F(2|6|8|12|18)\b;regex;Тип струмовивіду;;F$1;54;TRUE;5280501;attribute;Terminal type from text
+;Струм заряду \(А\);"(\d+(?:[.,]\d+)?)";regex;Струм заряду;А;$1 ;55;TRUE;5280501;attribute;Charge current formatted
+;Струм заряду;"(\d+(?:[.,]\d+)?)";regex;Струм заряду;А;$1 ;56;TRUE;5280501;attribute;Charge current direct
+;Додаткові характеристики;".*[Рр]екомендований струм заряду[:\s]+(\d+(?:[.,]\d+)?)\s*[АA]";regex;Струм заряду;А;$1 ;57;TRUE;5280501;attribute;Recommended charge current
+;Особенности;.*[Мм]аксимальний\s+(?:зарядний\s+)?струм\s+заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;58;TRUE;5280501;skip;Max charge current not in PROM
+;Особенности;.*[Сс]трум заряду до\s+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;59;TRUE;5280501;attribute;Charge current up to from features
+;Додаткові характеристики;.*[Рр]екомендований струм заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;60;TRUE;5280501;attribute;Recommended charge current
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;61;TRUE;5280501;attribute;Length from Розміри
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;62;TRUE;5280501;attribute;Width from Розміри
+;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;63;TRUE;5280501;attribute;Height from Розміри
+;Довжина \(мм\);(\d+(?:\.\d+)?);regex;Довжина;мм;$1 ;64;TRUE;5280501;attribute;Length from formatted attribute
+;Довжина;(\d+(?:\.\d+)?);regex;Довжина;мм;$1 ;65;TRUE;5280501;attribute;Length direct from attribute
+;Ширина \(мм\);(\d+(?:\.\d+)?);regex;Ширина;мм;$1 ;66;TRUE;5280501;attribute;Width from formatted attribute
+;Ширина;(\d+(?:\.\d+)?);regex;Ширина;мм;$1 ;67;TRUE;5280501;attribute;Width direct from attribute
+;Висота \(мм\);(\d+(?:\.\d+)?);regex;Висота;мм;$1 ;68;TRUE;5280501;attribute;Height from formatted attribute
+;Висота;(\d+(?:\.\d+)?);regex;Висота;мм;$1 ;69;TRUE;5280501;attribute;Height direct from attribute
+;Вес;(\d+(?:\.\d+)?)\s*кг;regex;Вага;кг;$1 ;70;TRUE;5280501;attribute;Weight in kg from Вес
+;Вес;(\d+(?:\.\d+)?)\s*г;regex;;;Пропустити;71;TRUE;5280501;skip;Weight in grams - PROM requires kg
+;Вес \(кг\);(\d+(?:\.\d+)?);regex;Вага;кг;$1 ;72;TRUE;5280501;attribute;Weight from formatted attribute
+;Вага;(\d+(?:\.\d+)?);regex;Вага;кг;$1 ;73;TRUE;5280501;attribute;Weight direct from attribute
+;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;74;TRUE;5280501;attribute;Warranty from Строк гарантії
+;Гарантійний термін \(міс\);(\d+);regex;Гарантійний термін;міс;$1 ;75;TRUE;5280501;attribute;Warranty from formatted attribute
+;Гарантійний термін;(\d+);regex;Гарантійний термін;міс;$1 ;76;TRUE;5280501;attribute;Warranty direct from attribute
+;Мінімальна робоча температура;(-?\d+(?:\.\d+)?);regex;Мінімальна робоча температура;град.;$1 ;77;TRUE;5280501;attribute;Min temperature from attribute
+;Максимальна робоча температура;(-?\d+(?:\.\d+)?);regex;Максимальна робоча температура;град.;$1 ;78;TRUE;5280501;attribute;Max temperature from attribute
+;Особенности;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;79;TRUE;5280501;skip;Max discharge current not in PROM
+;Особенности;.*[Рр]екомендований струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;80;TRUE;5280501;skip;Recommended discharge current not in PROM
+;Додаткові характеристики;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;81;TRUE;5280501;skip;Max discharge current not in PROM
+;Максимальний струм розряду \(А\);.*;regex;;;Пропустити;82;TRUE;5280501;skip;Max discharge current not in PROM
+;Максимальний струм розряду;.*;regex;;;Пропустити;83;TRUE;5280501;skip;Max discharge current not in PROM
+;Мощность;.*;regex;;;Пропустити;84;TRUE;5280501;skip;Power not in PROM dictionary
+;Вага брутто;.*;regex;;;Пропустити;85;TRUE;5280501;skip;Gross weight not needed
+;Розмір упаковки.*;.*;regex;;;Пропустити;86;TRUE;5280501;skip;Package size not needed
+;Кількість в ящику;.*;regex;;;Пропустити;87;TRUE;5280501;skip;Box quantity not needed
+;Особенности;.*CAN.*|.*RS485.*|.*RS232.*;regex;;;Пропустити;88;TRUE;5280501;skip;Communication protocols not in PROM
+;Додаткові характеристики;.*IP\d+.*;regex;;;Пропустити;89;TRUE;5280501;skip;IP rating not in PROM
+;Особенности;.*[Нн]еобслуговуваний;regex;;;Пропустити;90;TRUE;5280501;skip;Maintenance-free not in PROM
+;Особенности;.*;regex;;;Пропустити;91;TRUE;5280501;skip;Other features - too varied
+;Додаткові характеристики;.*;regex;;;Пропустити;92;TRUE;5280501;skip;Additional features - too varied (except specific extractions)
 .*\b[Нн]авісн.*;;;regex;Тип встановлення замку;;Навісний;1;TRUE;301010;extract;Padlock type from name
 .*\b[Вв]різн.*;;;regex;Тип встановлення замку;;Врізний;2;TRUE;301010;extract;Mortise type from name
 .*\b[Нн]акладн.*;;;regex;Тип встановлення замку;;Накладний;3;TRUE;301010;extract;Rim type from name

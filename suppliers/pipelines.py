@@ -421,6 +421,9 @@ class SuppliersPipeline:
             # ПОСТОБРОБКА: Конвертуємо вагу в грами
             specs_list = self._postprocess_weight_in_specs(specs_list, spider)
             
+            # ПОСТОБРОБКА: Розрахуємо сумарну ємність HDD
+            specs_list = self._postprocess_hdd_capacity_in_specs(specs_list, spider)
+            
             spider.logger.info(
                 f"📊 Маппінг характеристик: "
                 f"{len(mapping_result['supplier'])} користувацьких + "
@@ -741,6 +744,80 @@ class SuppliersPipeline:
                         f"⚖️ Конвертація ваги в характеристиках: "
                         f"{spec['name']} = '{original_value}' → '{converted_value}'"
                     )
+        
+        return specs_list
+    
+    def _postprocess_hdd_capacity_in_specs(self, specs_list, spider):
+        """
+        Постобробка характеристик: розраховує сумарну ємність HDD в GB
+        Приклади:
+        {'name': 'Суммарная емкость HDD', 'value': '1 SATA 8 Тб', 'unit': 'GB'} -> {'name': 'Суммарная емкость HDD', 'value': '8192', 'unit': 'GB'}
+        {'name': 'Суммарная емкость HDD', 'value': '8 SATA 20 Тб', 'unit': 'GB'} -> {'name': 'Суммарная емкость HDD', 'value': '163840', 'unit': 'GB'}
+        {'name': 'Об'єм накопичувача', 'value': '8 Тб', 'unit': 'GB'} -> {'name': 'Об'єм накопичувача', 'value': '8192', 'unit': 'GB'}
+        """
+        if not specs_list:
+            return specs_list
+        
+        # Характеристики для реєстраторів (NVR/DVR)
+        hdd_capacity_names = [
+            'суммарная емкость hdd',
+            'total hdd capacity',
+            'загальна ємність hdd'
+        ]
+        
+        # Характеристики для дисків
+        disk_capacity_names = [
+            'об\'єм накопичувача',
+            'disk capacity',
+            'ємність диска'
+        ]
+        
+        for spec in specs_list:
+            spec_name_lower = spec.get('name', '').lower().strip()
+            original_value = spec.get('value', '')
+            
+            # Обробка сумарної ємності HDD для реєстраторів
+            if spec_name_lower in hdd_capacity_names:
+                # Парсимо формат: "8 SATA 20 Тб" або "1 SATA 6 Тб"
+                match = re.search(r'(\d+)\s*SATA\s*(\d+)\s*Тб', original_value, re.IGNORECASE)
+                if match:
+                    try:
+                        num_sata = int(match.group(1))
+                        max_tb = int(match.group(2))
+                        
+                        # Розраховуємо: кількість_SATA * макс_Тб * 1024 = GB
+                        total_gb = num_sata * max_tb * 1024
+                        
+                        spec['value'] = str(total_gb)
+                        spider.logger.info(
+                            f"💾 Розрахунок сумарної ємності HDD: "
+                            f"{spec['name']} = '{original_value}' ({num_sata} SATA × {max_tb} Тб × 1024) → '{total_gb} GB'"
+                        )
+                    except (ValueError, AttributeError) as e:
+                        spider.logger.warning(
+                            f"⚠️ Помилка розрахунку HDD ємності: '{original_value}' - {e}"
+                        )
+            
+            # Обробка об'єму накопичувача для дисків
+            elif spec_name_lower in disk_capacity_names:
+                # Парсимо формат: "8 Тб", "10 ТБ", "12Тб" тощо
+                match = re.search(r'(\d+)\s*[Тт][БбBb]', original_value, re.IGNORECASE)
+                if match:
+                    try:
+                        tb_value = int(match.group(1))
+                        
+                        # Конвертуємо Тб в GB: Тб * 1024 = GB
+                        gb_value = tb_value * 1024
+                        
+                        spec['value'] = str(gb_value)
+                        spider.logger.info(
+                            f"💾 Конвертація ємності диска: "
+                            f"{spec['name']} = '{original_value}' ({tb_value} Тб × 1024) → '{gb_value} GB'"
+                        )
+                    except (ValueError, AttributeError) as e:
+                        spider.logger.warning(
+                            f"⚠️ Помилка конвертації ємності диска: '{original_value}' - {e}"
+                        )
         
         return specs_list
     

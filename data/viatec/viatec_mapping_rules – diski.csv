@@ -1,65 +1,37 @@
-supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
-.*\b(\d+)\s*[ГгGg][БбBb]\b.*;;;regex;Об'єм накопичувача;GB;$1;1;TRUE;70704;extract;Extract capacity in GB from product name
-.*\b(\d+)\s*GB\b.*;;;regex;Об'єм накопичувача;GB;$1;2;TRUE;70704;extract;Extract capacity GB from product name (English)
-.*\b3\.5[""]\b.*;;;regex;Форм-фактор;;3.5";3;TRUE;70704;extract;3.5" form factor from name
-.*\b2\.5[""]\b.*;;;regex;Форм-фактор;;2.5";4;TRUE;70704;extract;2.5" form factor from name
-.*\b(micro\s*SD)\b.*;;;regex;Форм-фактор;;microSD;5;TRUE;70704;extract;microSD form factor (case-insensitive)
-.*\bSATA\s*III\b.*;;;regex;Інтерфейс;;SATA III (SATA/600);6;TRUE;70704;extract;SATA III interface from name
-.*\bSATA\s*II\b.*;;;regex;Інтерфейс;;SATA II (SATA/300);7;TRUE;70704;extract;SATA II interface from name
-.*\bSATAIII\b.*;;;regex;Інтерфейс;;SATA III (SATA/600);8;TRUE;70704;extract;SATAIII (no space) from name
-.*\bUSB\s*3\.2\b.*;;;regex;Інтерфейс;;USB 3.2;9;TRUE;70704;extract;USB 3.2 from name
-.*\bUSB\s*3\.0\b.*;;;regex;Інтерфейс;;USB 3.0;10;TRUE;70704;extract;USB 3.0 from name
-.*\bUSB\s*Type-C\b.*;;;regex;Інтерфейс;;USB Type-C;11;TRUE;70704;extract;USB Type-C from name
-.*\b(HDD|жесткий диск|Жесткий диск)\b.*;;;regex;Тип диска;;HDD;12;TRUE;70704;extract;HDD type from name
-.*\b(SSD|твердотільний)\b.*;;;regex;Тип диска;;SSD;13;TRUE;70704;extract;SSD type from name
-.*\b(карта памяти)\b.*;;;regex;Тип диска;;Карта пам'яті;14;TRUE;70704;extract;Memory card type
-.*\b(флеш|USB flash|DataTraveler)\b.*;;;regex;Тип диска;;USB флеш-накопичувач;15;TRUE;70704;extract;USB flash drive
-.*\b(SkyHawk|Purple|Surveillance)\b.*;;;regex;Призначення;;Для відеоспостереження;16;TRUE;70704;extract;Surveillance purpose from name
-;Форм-фактор;3\.5[""]?;regex;Форм-фактор;;3.5";20;TRUE;70704;attribute;3.5" form factor from attribute
-;Форм-фактор;2\.5[""]?;regex;Форм-фактор;;2.5";21;TRUE;70704;attribute;2.5" form factor from attribute
-;Форм-фактор;M\.2.*(\d{4});regex;Форм-фактор;;M.2 $1;22;TRUE;70704;attribute;M.2 with size from attribute
-;Форм-фактор;M\.2;regex;Форм-фактор;;M.2;23;TRUE;70704;attribute;M.2 without size
-;Форм-фактор;.*micro\s*SD.*;regex;Форм-фактор;;microSD;24;TRUE;70704;attribute;microSD from attribute (case-insensitive)
-;Форм-фактор;Брелок;exact;Форм-фактор;;USB брелок;25;TRUE;70704;attribute;USB keychain form factor
-;Форм-фактор;Моноблок;exact;Форм-фактор;;USB моноблок;26;TRUE;70704;attribute;USB monoblock form factor
-;Ємність;(\d+)\s*[ГгGg][БбBb];regex;Об'єм накопичувача;GB;$1;30;TRUE;70704;attribute;Capacity in GB
-;Ємність;(\d+)\s*GB;regex;Об'єм накопичувача;GB;$1;31;TRUE;70704;attribute;Capacity GB (English)
-;Інтерфейс користувача;SATA\s*III;regex;Інтерфейс;;SATA III (SATA/600);40;TRUE;70704;attribute;SATA III interface
-;Інтерфейс користувача;SATAIII;regex;Інтерфейс;;SATA III (SATA/600);41;TRUE;70704;attribute;SATAIII no space
-;Інтерфейс користувача;SATA\s*II;regex;Інтерфейс;;SATA II (SATA/300);42;TRUE;70704;attribute;SATA II interface
-;Інтерфейс користувача;SATA-600;regex;Інтерфейс;;SATA III (SATA/600);43;TRUE;70704;attribute;SATA-600 designation
-;Інтерфейс користувача;USB\s*3\.2;regex;Інтерфейс;;USB 3.2;45;TRUE;70704;attribute;USB 3.2
-;Інтерфейс користувача;USB\s*3\.0;regex;Інтерфейс;;USB 3.0;46;TRUE;70704;attribute;USB 3.0
-;Інтерфейс користувача;USB\s*Type-C;regex;Інтерфейс;;USB Type-C;47;TRUE;70704;attribute;USB Type-C
-;Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;;USB 2.0;48;TRUE;70704;attribute;USB 2.0
-;Інтерфейс користувача;PCI\s*Express\s*4\.0;regex;Інтерфейс;;PCI Express 4.0 x4;49;TRUE;70704;attribute;PCIe 4.0
-;Інтерфейс користувача;PCI\s*Express\s*3\.0;regex;Інтерфейс;;PCI Express 3.0 x4;50;TRUE;70704;attribute;PCIe 3.0
-;Інтерфейс користувача;SATA;regex;Інтерфейс;;SATA III (SATA/600);99;TRUE;70704;attribute;SATA generic (default to III) - LOWEST PRIORITY
-;Швидкість обертання \(об / хв\);(\d+);regex;Швидкість обертання;об/хв;$1;60;TRUE;70704;attribute;Rotation speed RPM
-;Швидкість обертання \(об / хв\);(\d+)\s*об/хв;regex;Швидкість обертання;об/хв;$1;61;TRUE;70704;attribute;Rotation speed with units
-;Кеш-пам'ять;(\d+)\s*Мб;regex;Об`єм буфера;MB;$1;70;TRUE;70704;attribute;Cache memory in MB
-;Кеш-пам'ять;(\d+)\s*МБ;regex;Об`єм буфера;MB;$1;71;TRUE;70704;attribute;Cache memory MB uppercase
-;Макс\. швидкість тривалої передачі;(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1;80;TRUE;70704;attribute;Read speed MB/s
-;Макс\. швидкість тривалої передачі;(\d+)\s*Мб/с;regex;Швидкість зчитування;Мб/сек;$1;81;TRUE;70704;attribute;Read speed Mb/s
-;Макс\. швидкість тривалої передачі;(\d+)\s*Мбіт/с;regex;Швидкість зчитування;Мбіт/сек;$1;82;TRUE;70704;attribute;Read speed Mbit/s (different unit!)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1;83;TRUE;70704;attribute;Read speed MB/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*МБ/с;regex;Швидкість запису;Мб/сек;$2;84;TRUE;70704;attribute;Write speed MB/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мб/с;regex;Швидкість зчитування;Мб/сек;$1;85;TRUE;70704;attribute;Read speed Mb/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мб/с;regex;Швидкість запису;Мб/сек;$2;86;TRUE;70704;attribute;Write speed Mb/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мбіт/с;regex;Швидкість зчитування;Мбіт/сек;$1;87;TRUE;70704;attribute;Read speed Mbit/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)/(\d+)\s*Мбіт/с;regex;Швидкість запису;Мбіт/сек;$2;88;TRUE;70704;attribute;Write speed Mbit/s (read/write format)
-;Макс\. швидкість тривалої передачі;(\d+)\s*-\s*(\d+)\s*МБ/с;regex;Швидкість зчитування;Мб/сек;$1;89;TRUE;70704;attribute;Read speed range (take first value)
-;Макс\. швидкість читання;(\d+)\s*Мб\s*/\s*с;regex;Швидкість зчитування;Мб/сек;$1;90;TRUE;70704;attribute;Max read speed
-;Макс\. швидкість запису;(\d+)\s*Мб\s*/\s*с;regex;Швидкість запису;Мб/сек;$1;91;TRUE;70704;attribute;Max write speed
-;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Довжина;мм;$1;93;TRUE;70704;attribute;Length from size
-;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Ширина;мм;$2;94;TRUE;70704;attribute;Width from size
-;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Висота;мм;$3;95;TRUE;70704;attribute;Height from size
-;Вага брутто;(\d+\.?\d*)\s*г;regex;Вага;г;$1;100;TRUE;70704;attribute;Gross weight in grams
-;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1;110;TRUE;70704;attribute;Warranty period in months
-;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Мінімальна робоча температура;град.;-$1;120;TRUE;70704;attribute;Min operating temperature
-;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Максимальна робоча температура;град.;$2;121;TRUE;70704;attribute;Max operating temperature
-;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;200;TRUE;70704;skip;Package dimensions not product dimensions
-;Кількість в ящику;.*;regex;;;Пропустити;201;TRUE;70704;skip;Box quantity not in prom attributes
-;Номер моделі;.*;regex;;;Пропустити;202;TRUE;70704;skip;Model number handled separately
-;Файлова система;.*;regex;;;Пропустити;203;TRUE;70704;skip;File system not in prom attributes
-;Сумісність;.*;regex;;;Пропустити;204;TRUE;70704;skip;Compatibility details not needed
+﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
+.*\b(HDD|жесткий диск|Жесткий диск)\b.*;;;regex;Тип диска;;HDD;1;TRUE;70704;extract;HDD type from name
+.*\b(SSD|твердотільний)\b.*;;;regex;Тип диска;;SSD;2;TRUE;70704;extract;SSD type from name
+(?i).*(SkyHawk|Purple|Surveillance|PURU|PURZ).*;;;regex;Призначення;;Для відеоспостереження;3;TRUE;70704;extract;Surveillance purpose from name
+;Форм-фактор;3\.5[""]?;regex;Форм-фактор;;3.5";4;TRUE;70704;attribute;3.5" form factor from attribute
+;Форм-фактор;2\.5[""]?;regex;Форм-фактор;;2.5";5;TRUE;70704;attribute;2.5" form factor from attribute
+;Ємність;(\d+)\s*[ГгGg][БбBb];regex;Об'єм накопичувача;GB;$1 ;6;TRUE;70704;attribute;Capacity in GB
+;Ємність;(\d+)\s*GB;regex;Об'єм накопичувача;GB;$1 ;7;TRUE;70704;attribute;Capacity GB (English)
+;Ємність;(\d+)\s*[Тт][БбBb];regex;Об'єм накопичувача;GB;$1 Тб;8;TRUE;70704;attribute;Capacity in TB
+;Інтерфейс користувача;SATA\s*III;regex;Інтерфейс;;SATA III (SATA/600);9;TRUE;70704;attribute;SATA III interface
+;Інтерфейс користувача;SATAIII;regex;Інтерфейс;;SATA III (SATA/600);10;TRUE;70704;attribute;SATAIII no space
+;Інтерфейс користувача;SATA\s*II;regex;Інтерфейс;;SATA II (SATA/300);11;TRUE;70704;attribute;SATA II interface
+;Інтерфейс користувача;SATA-600;regex;Інтерфейс;;SATA III (SATA/600);12;TRUE;70704;attribute;SATA-600 designation
+;Інтерфейс користувача;USB\s*3\.2;regex;Інтерфейс;;USB 3.2;13;TRUE;70704;attribute;USB 3.2
+;Інтерфейс користувача;USB\s*3\.0;regex;Інтерфейс;;USB 3.0;14;TRUE;70704;attribute;USB 3.0
+;Інтерфейс користувача;USB\s*Type-C;regex;Інтерфейс;;USB Type-C;15;TRUE;70704;attribute;USB Type-C
+;Інтерфейс користувача;USB\s*2\.0;regex;Інтерфейс;;USB 2.0;16;TRUE;70704;attribute;USB 2.0
+;Інтерфейс користувача;PCI\s*Express\s*4\.0;regex;Інтерфейс;;PCI Express 4.0 x4;17;TRUE;70704;attribute;PCIe 4.0
+;Інтерфейс користувача;PCI\s*Express\s*3\.0;regex;Інтерфейс;;PCI Express 3.0 x4;18;TRUE;70704;attribute;PCIe 3.0
+;Інтерфейс користувача;SATA;regex;Інтерфейс;;SATA III (SATA/600);19;TRUE;70704;attribute;SATA generic (default to III) - LOWEST PRIORITY
+;Швидкість обертання (об / хв);(\d+);regex;Швидкість обертання;об/хв;$1 ;22;TRUE;70704;attribute;Rotation speed RPM
+;Швидкість обертання (об / хв);(\d+)\s*об/хв;regex;Швидкість обертання;об/хв;$1 ;23;TRUE;70704;attribute;Rotation speed with units
+;Кеш-пам'ять;(\d+)\s*Мб;regex;Об`єм буфера;MB;$1 ;24;TRUE;70704;attribute;Cache memory in MB
+;Кеш-пам'ять;(\d+)\s*МБ;regex;Об`єм буфера;MB;$1 ;25;TRUE;70704;attribute;Cache memory MB uppercase
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Довжина;мм;$1 ;26;TRUE;70704;attribute;Length from size
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Ширина;мм;$2 ;27;TRUE;70704;attribute;Width from size
+;Розмір;(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*х\s*(\d+\.?\d*)\s*мм;regex;Висота;мм;$3 ;28;TRUE;70704;attribute;Height from size
+;Вага брутто;(\d+\.?\d*)\s*г;regex;Вага;г;$1 ;29;TRUE;70704;attribute;Gross weight in grams
+;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;30;TRUE;70704;attribute;Warranty period in months
+;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Мінімальна робоча температура;град.;($1);31;TRUE;70704;attribute;Min operating temperature
+;Робоча температура;[–-]\s*(\d+)\s*[ºº°]?\s*C\s*[-–—]\s*\+?(\d+)\s*[ºº°]?\s*C;regex;Максимальна робоча температура;град.;$2 ;32;TRUE;70704;attribute;Max operating temperature
+;Макс\. швидкість тривалої передачі;(\d+)\s*МБ/с;regex;;;Пропустити;33;TRUE;70704;skip;Read speed MB/s
+;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;34;TRUE;70704;skip;Package dimensions not product dimensions
+;Кількість в ящику;.*;regex;;;Пропустити;35;TRUE;70704;skip;Box quantity not in prom attributes
+;Номер моделі;.*;regex;;;Пропустити;36;TRUE;70704;skip;Model number handled separately
+;Файлова система;.*;regex;;;Пропустити;37;TRUE;70704;skip;File system not in prom attributes
+;Сумісність;.*;regex;;;Пропустити;38;TRUE;70704;skip;Compatibility details not needed
