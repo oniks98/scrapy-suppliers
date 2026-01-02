@@ -1,4 +1,52 @@
 ﻿№;Линк категории поставщика;Категория на моем сайте_RU;Категория на моем сайте_UA;Номер_групи;Ідентифікатор_підрозділу;Посилання_підрозділу
+1;https://viatec.ua/catalog/cameras/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+2;https://viatec.ua/catalog/ptz/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+3;https://viatec.ua/catalog/termal-cameras/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+4;https://viatec.ua/catalog/termal-ptz/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+5;https://viatec.ua/catalog/solution-traffic/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+6;https://viatec.ua/catalog/solution-mobile/0:0;Видеокамеры для видеонаблюдения;Відеокамери для відеоспостереження;8950011;301105;https://prom.ua/Kamery-videonablyudeniya
+7;"https://viatec.ua/catalog/dvr/0:0;proizvoditel:dahua,hikvision,safetyeye,1317";Видеорегистраторы для видеонаблюдения;Відеореєстратори для відеоспостереження;8950007;301101;https://prom.ua/Videoregistratory
+8;https://viatec.ua/catalog/komplekti-videonabludenia/0:0;Видеорегистраторы для видеонаблюдения;Відеореєстратори для відеоспостереження;8950007;301101;https://prom.ua/Videoregistratory
+9;https://viatec.ua/catalog/hdd/0:0;Накопители для видеонаблюдения;Накопичувачі для відеоспостереження;83889367;70704;https://prom.ua/Zhestkie-diski
+10;https://viatec.ua/catalog/bracket/0:0;Комплектующие для видеонаблюдения;Комплектуючі для відеоспостереження;4321341;301112;https://prom.ua/Kozhuhi-i-kronshtejny
+11;https://viatec.ua/catalog/microphone/0:0;Комплектующие для видеонаблюдения;Комплектуючі для відеоспостереження;4321341;6371204;https://prom.ua/Mikrofony
+12;https://viatec.ua/catalog/keyboard/0:0;Комплектующие для видеонаблюдения;Комплектуючі для відеоспостереження;4321341;301110;https://prom.ua/Pulty-dlya-sistem-videonablyudeniya
+13;https://viatec.ua/catalog/CCTV-IR/0:0;Комплектующие для видеонаблюдения;Комплектуючі для відеоспостереження;4321341;150401;https://prom.ua/Naruzhnoe-osveschenie
+14;"https://viatec.ua/catalog/vth/0:0;proizvoditel:dahua,hikvision,394,395,neolight,1199,bcom,dnake";Видеодомофоны;Відеодомофони;4328775;3029;https://prom.ua/Domofony-videodomofony
+15;"https://viatec.ua/catalog/intercom-kits/0:0;proizvoditel:hikvision,ezviz,neolight,1199,dnake,bcom";Видеодомофоны;Відеодомофони;4328775;3029;https://prom.ua/Domofony-videodomofony
+16;"https://viatec.ua/catalog/vto/0:0;proizvoditel:dahua,hikvision,ezviz,neolight,1199,safetyeye,dnake,light-vision,emos";Вызывные видеопанели;Викличні відеопанелі;90718784;3029;https://prom.ua/Domofony-videodomofony
+17;https://viatec.ua/catalog/intercom/0:0;Переговорные устройства;Переговорні пристрої;4339717;50906;https://prom.ua/Peregovornye-ustrojstva
+18;https://viatec.ua/catalog/intercom-accessories/0:0;Комплектующие для домофонов;Комплектуючі для домофонів;72575633;153502;https://prom.ua/Aksessuary-dlya-domofonnogo
+19;https://viatec.ua/catalog/termal-handheld/0:0;Тепловизоры;Тепловізори;90906797;153729;https://prom.ua/Takticheskie-teplovizory-
+20;https://viatec.ua/catalog/pricili/0:0;Тепловизоры;Тепловізори;90906797;15370706;https://prom.ua/Pribory-nochnogo-videniya
+21;https://viatec.ua/catalog/aksesuari-dlia-pnb/0:0;Тепловизоры;Тепловізори;90906797;15370706;https://prom.ua/Pribory-nochnogo-videniya
+22;https://viatec.ua/catalog/pribori-nichnogo-bachennia/0:0;Тепловизоры;Тепловізори;90906797;15370706;https://prom.ua/Pribory-nochnogo-videniya
+23;https://viatec.ua/catalog/radiostancii/0:0;Рации;Рації;139094704;50906;https://prom.ua/Peregovornye-ustrojstva
+24;https://viatec.ua/catalog/kvadrokopteri/0:0;Дроны;Дрони;139094708;2657;https://prom.ua/Kvadrokoptery
+25;https://viatec.ua/catalog/akumuliatori-droniv/0:0;Дроны;Дрони;139094708;5280501;https://prom.ua/Akkumulyatornye-bloki
+26;"https://viatec.ua/catalog/alarm-ppk/0:0;proizvoditel:dahua";Сигнализация Dahua Technology;Сигналізація Dahua Technology;90945152;302306;https://prom.ua/Ohrannye-sistemy-i-signalizatsii
+27;"https://viatec.ua/catalog/alarm-key/0:0;proizvoditel:dahua";Сигнализация Dahua Technology;Сигналізація Dahua Technology;90945152;301305;https://prom.ua/Klaviatury-kodonabornye
+28;"https://viatec.ua/catalog/alarm-detector/0:0;proizvoditel:dahua";Сигнализация Dahua Technology;Сигналізація Dahua Technology;90945152;302302;https://prom.ua/Ohrannye-izveschateli
+29;"https://viatec.ua/catalog/alarm-siren/0:0;proizvoditel:dahua";Сигнализация Dahua Technology;Сигналізація Dahua Technology;90945152;300402;https://prom.ua/Sireny-signalnye
+30;"https://viatec.ua/catalog/alarm-ppk/0:0;proizvoditel:hikvision";Сигнализация Hikvision;Сигналізація Hikvision;90945169;302306;https://prom.ua/Ohrannye-sistemy-i-signalizatsii
+31;"https://viatec.ua/catalog/alarm-key/0:0;proizvoditel:hikvision";Сигнализация Hikvision;Сигналізація Hikvision;90945169;301305;https://prom.ua/Klaviatury-kodonabornye
+32;"https://viatec.ua/catalog/alarm-detector/0:0;proizvoditel:hikvision";Сигнализация Hikvision;Сигналізація Hikvision;90945169;302302;https://prom.ua/Ohrannye-izveschateli
+33;"https://viatec.ua/catalog/alarm-siren/0:0;proizvoditel:hikvision";Сигнализация Hikvision;Сигналізація Hikvision;90945169;300402;https://prom.ua/Sireny-signalnye
+34;https://viatec.ua/catalog/access-control-lock/0:0;Замки и турникеты;Замки и турнікети;90997501;301010;https://prom.ua/Mehanicheskie-zamki
+35;https://viatec.ua/catalog/access-turnstile/0:0;Замки и турникеты;Замки и турнікети;90997501;301301;https://prom.ua/Turnikety
+36;https://viatec.ua/catalog/access-terminal/0:0;Терминалы;Термінали;127628166;3030;https://prom.ua/Sistemy-kontrolya-dostupa
+37;https://viatec.ua/catalog/access-control-button/0:0;Кнопки выхода;Кнопки виходу;127628170;302308;https://prom.ua/Trevozhnye-knopki-i-knopki-vyhoda
+38;https://viatec.ua/catalog/access-reader/0:0;Считыватели;Зчитувачі;127628173;301311;https://prom.ua/Schityvateli
+39;https://viatec.ua/catalog/access-controller/0:0;Контроллеры;Контролери;127628176;301312;https://prom.ua/Kontrollery
+40;https://viatec.ua/catalog/access-accessories/0:0;Комплектующие для контроля доступа;Комплектуючі для контролю доступу;16703618;3030;https://prom.ua/Sistemy-kontrolya-dostupa
+41;https://viatec.ua/catalog/switches/0:0;Коммутаторы;Комутатори;23295147;71903;https://prom.ua/Kommutatory
+42;https://viatec.ua/catalog/network-injectors/0:0;Коммутаторы;Комутатори;23295147;71903;https://prom.ua/Kommutatory
+43;https://viatec.ua/catalog/network-routers/0:0;Маршрутизаторы;Маршрутизатори;90997677;71902;https://prom.ua/Routeryi
+44;https://viatec.ua/catalog/network-ap/0:0;Точки доступа;Точки доступу;90997694;7190603;https://prom.ua/Setevye-kontsentratory
+45;"https://viatec.ua/catalog/for-home/0:0;proizvoditel:imou,meross";Оборудование для системы Умный дом;Обладнання для системи Розумний будинок;22818554;153504;https://prom.ua/Datchiki-dlya-umnogo
+46;https://viatec.ua/catalog/istochniki-bespereboinogo-pitania-12-24v/0:0;Источники бесперебойного питания 12-24В;Джерела безперебійного живлення 12-24В;127351912;14191106;https://prom.ua/Istochnik-besperebojnogo-pitaniya-ibp
+47;https://viatec.ua/catalog/istochniki-bespereboinogo-pitania-220v/0:0;"ИБП, инверторы, стабилизаторы 220В";"ДБЖ, інвертори, стабілізатори 220В";127351948;14191106;https://prom.ua/Istochnik-besperebojnogo-pitaniya-ibp
+48;https://viatec.ua/catalog/equipment-power-supply/0:0;Блоки питания;Блоки живлення;127351950;14191103;https://prom.ua/Promyshlennye-istochniki-pitaniya
 49;https://viatec.ua/catalog/equipment-batteries/0:0;Свинцовые аккумуляторы;Свинцеві акумулятори;127351973;5280501;https://prom.ua/Akkumulyatornye-bloki
 50;https://viatec.ua/catalog/litievi-akumuliatori/0:0;Литивые аккумуляторы;Літієві акумулятори;144038788;5280501;https://prom.ua/Akkumulyatornye-bloki
 51;https://viatec.ua/catalog/invertori/0:0;Инверторы;Інвертори;144038804;5140401;https://prom.ua/Invertory

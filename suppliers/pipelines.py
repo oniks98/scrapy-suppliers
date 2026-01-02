@@ -328,15 +328,15 @@ class SuppliersPipeline:
         row_parts = []
         for field in self.fieldnames_base:
             value = cleaned_item.get(field, "")
-            value_str = str(value).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
+            value_str = str(value).replace(";", ",").replace('"', '″').replace("\n", "<br>").replace("\r", "")
             row_parts.append(value_str)
         
         for i in range(160):
             if i < len(specs_list):
                 spec = specs_list[i]
-                name = str(spec.get("name", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
-                unit = str(spec.get("unit", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
-                value = str(spec.get("value", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
+                name = str(spec.get("name", "")).replace(";", ",").replace('"', '″').replace("\n", "<br>").replace("\r", "")
+                unit = str(spec.get("unit", "")).replace(";", ",").replace('"', '″').replace("\n", "<br>").replace("\r", "")
+                value = str(spec.get("value", "")).replace(";", ",").replace('"', '″').replace("\n", "<br>").replace("\r", "")
                 row_parts.extend([name, unit, value])
             else:
                 row_parts.extend(["", "", ""])
