@@ -53,35 +53,11 @@
 ;Особенности;.*[Мм]аксимальний\s+(?:зарядний\s+)?струм\s+заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;58;TRUE;5280501;skip;Max charge current not in PROM
 ;Особенности;.*[Сс]трум заряду до\s+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;59;TRUE;5280501;attribute;Charge current up to from features
 ;Додаткові характеристики;.*[Рр]екомендований струм заряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;Струм заряду;А;$1 ;60;TRUE;5280501;attribute;Recommended charge current
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Довжина;мм;$1 ;61;TRUE;5280501;attribute;Length from Розміри
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Ширина;мм;$2 ;62;TRUE;5280501;attribute;Width from Розміри
-;Розміри;(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*[хxXх×]\s*(\d+(?:\.\d+)?)\s*мм;regex;Висота;мм;$3 ;63;TRUE;5280501;attribute;Height from Розміри
-;Довжина \(мм\);(\d+(?:\.\d+)?);regex;Довжина;мм;$1 ;64;TRUE;5280501;attribute;Length from formatted attribute
-;Довжина;(\d+(?:\.\d+)?);regex;Довжина;мм;$1 ;65;TRUE;5280501;attribute;Length direct from attribute
-;Ширина \(мм\);(\d+(?:\.\d+)?);regex;Ширина;мм;$1 ;66;TRUE;5280501;attribute;Width from formatted attribute
-;Ширина;(\d+(?:\.\d+)?);regex;Ширина;мм;$1 ;67;TRUE;5280501;attribute;Width direct from attribute
-;Висота \(мм\);(\d+(?:\.\d+)?);regex;Висота;мм;$1 ;68;TRUE;5280501;attribute;Height from formatted attribute
-;Висота;(\d+(?:\.\d+)?);regex;Висота;мм;$1 ;69;TRUE;5280501;attribute;Height direct from attribute
-;Вес;(\d+(?:\.\d+)?)\s*кг;regex;Вага;кг;$1 ;70;TRUE;5280501;attribute;Weight in kg from Вес
-;Вес;(\d+(?:\.\d+)?)\s*г;regex;;;Пропустити;71;TRUE;5280501;skip;Weight in grams - PROM requires kg
-;Вес \(кг\);(\d+(?:\.\d+)?);regex;Вага;кг;$1 ;72;TRUE;5280501;attribute;Weight from formatted attribute
-;Вага;(\d+(?:\.\d+)?);regex;Вага;кг;$1 ;73;TRUE;5280501;attribute;Weight direct from attribute
-;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;74;TRUE;5280501;attribute;Warranty from Строк гарантії
-;Гарантійний термін \(міс\);(\d+);regex;Гарантійний термін;міс;$1 ;75;TRUE;5280501;attribute;Warranty from formatted attribute
-;Гарантійний термін;(\d+);regex;Гарантійний термін;міс;$1 ;76;TRUE;5280501;attribute;Warranty direct from attribute
-;Мінімальна робоча температура;(-?\d+(?:\.\d+)?);regex;Мінімальна робоча температура;град.;$1 ;77;TRUE;5280501;attribute;Min temperature from attribute
-;Максимальна робоча температура;(-?\d+(?:\.\d+)?);regex;Максимальна робоча температура;град.;$1 ;78;TRUE;5280501;attribute;Max temperature from attribute
-;Особенности;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;79;TRUE;5280501;skip;Max discharge current not in PROM
-;Особенности;.*[Рр]екомендований струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;80;TRUE;5280501;skip;Recommended discharge current not in PROM
-;Додаткові характеристики;.*[Мм]аксимальний струм розряду[:\s]+(\d+(?:\.\d+)?)\s*[АA];regex;;;Пропустити;81;TRUE;5280501;skip;Max discharge current not in PROM
-;Максимальний струм розряду \(А\);.*;regex;;;Пропустити;82;TRUE;5280501;skip;Max discharge current not in PROM
-;Максимальний струм розряду;.*;regex;;;Пропустити;83;TRUE;5280501;skip;Max discharge current not in PROM
-;Мощность;.*;regex;;;Пропустити;84;TRUE;5280501;skip;Power not in PROM dictionary
-;Вага брутто;.*;regex;;;Пропустити;85;TRUE;5280501;skip;Gross weight not needed
-;Розмір упаковки.*;.*;regex;;;Пропустити;86;TRUE;5280501;skip;Package size not needed
-;Кількість в ящику;.*;regex;;;Пропустити;87;TRUE;5280501;skip;Box quantity not needed
-;Особенности;.*CAN.*|.*RS485.*|.*RS232.*;regex;;;Пропустити;88;TRUE;5280501;skip;Communication protocols not in PROM
-;Додаткові характеристики;.*IP\d+.*;regex;;;Пропустити;89;TRUE;5280501;skip;IP rating not in PROM
-;Особенности;.*[Нн]еобслуговуваний;regex;;;Пропустити;90;TRUE;5280501;skip;Maintenance-free not in PROM
-;Особенности;.*;regex;;;Пропустити;91;TRUE;5280501;skip;Other features - too varied
-;Додаткові характеристики;.*;regex;;;Пропустити;92;TRUE;5280501;skip;Additional features - too varied (except specific extractions)
+;Робоча температура;[–-]\s*(100|[1-9]?\d|0)\s*°?\s*C\s*[-–—]\s*\+?(-?\d+)\s*°?\s*C;regex;Мінімальна робоча температура;град.;($1);61;TRUE;5280501;extract;Min operating temperature
+;Робоча температура;(-?[0-9]+)\s*°?\s*C\s*[-–—]\s*\+?(-?[0-9]+)\s*(°C);regex;Максимальна робоча температура;град.;$2 ;62;TRUE;5280501;extract;Max operating temperature
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Довжина;$4 ;$1 ;63;TRUE;5280501;extract;Length from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Ширина;$4 ;$2 ;64;TRUE;5280501;extract;Width from dimensions
+;Розміри;([0-9\.]+)\s*×\s*([0-9\.]+)\s*×\s*([0-9\.]+)\s*(мм);regex;Висота;$4 ;$3 ;65;TRUE;5280501;extract;Height from dimensions
+;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;66;TRUE;5280501;extract;Weight in grams (decimal kg → g)
+;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;67;TRUE;5280501;extract;Weight in grams (integer kg → g)
+;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;68;TRUE;5280501;extract;Warranty period

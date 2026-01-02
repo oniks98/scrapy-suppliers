@@ -1,69 +1,33 @@
-supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
-.*\b(\d+)\s*[ВВ][тТ]\b.*;;;regex;Вихідна потужність;Вт;$1 ;1;TRUE;14191106;extract;Power in Watts from name
-.*\b(\d{1,2})[ВВ]\s+\d+[АA].*;;;regex;Вихідна напруга;В;$1 ;2;TRUE;14191106;extract;Output voltage from name with current
-.*\b(online|он-?лайн)\b.*;;;regex;Тип ДБЖ;;З подвійним перетворенням (On-line);3;TRUE;14191106;extract;Online UPS type from name
-.*\b(offline|off-?line|standby)\b.*;;;regex;Тип ДБЖ;;Резервний (Off-line або Standby);4;TRUE;14191106;extract;Offline UPS type from name
-.*\b(line-?interactive|інтерактивн)\b.*;;;regex;Тип ДБЖ;;Лінійно-інтерактивний (Line-Interactive);5;TRUE;14191106;extract;Line-interactive from name
-;Технология;.*(?:лінійний інтерактивн|line-?interactive).*;regex;Тип ДБЖ;;Лінійно-інтерактивний (Line-Interactive);110;TRUE;14191106;attribute;Line-interactive technology
-;Технология;.*(?:інверторн|inverter).*;regex;Тип ДБЖ;;З подвійним перетворенням (On-line);111;TRUE;14191106;attribute;Inverter technology
-;Тип устройства;.*(?:ДБЖ|ИБП|UPS).*;regex;;;Пропустити;112;TRUE;14191106;skip;UPS device type is obvious
-;Тип устройства;.*(?:Блок безперебійного|безперервного|ББП).*;regex;;;Пропустити;113;TRUE;14191106;skip;Power supply block type
-;Тип устройства;.*(?:Імпульсн|импульсн|pulse).*;regex;;;Пропустити;114;TRUE;14191106;skip;Pulse type not in prom
-;Тип аккумулятора;(AGM|GEL|Li-Ion|LiFePO4|Ni-MH|Ni-Cd);regex;Тип акумулятора;;$1 ;120;TRUE;14191106;attribute;Battery type
-;Батареї;.*\b(\d+)\s*[ВВ].*\b(\d+\.?\d*)\s*[АA](?:•|·)?[гчГЧ]\b.*;regex;Напруга акумулятору;В;$1 ;130;TRUE;14191106;attribute;Battery voltage from Батареї
-;Батареї;.*\b(\d+\.?\d*)\s*[АA](?:•|·)?[гчГЧ]\b.*;regex;Ємність акумулятору;мАг;$1*1000 ;131;TRUE;14191106;attribute;Battery capacity Ah to mAh
-;Підтримка АКБ;.*\b(\d+\.?\d*)\s*[АA](?:•|·)?[гчГЧ]\b.*;regex;Ємність акумулятору;мАг;$1*1000 ;132;TRUE;14191106;attribute;Supported battery capacity
-;Аккумулятор;.*\b(\d+)\s*[ВВ].*\b(\d+\.?\d*)\s*[АA](?:•|·)?[гчГЧ]\b.*;regex;Напруга акумулятору;В;$1 ;133;TRUE;14191106;attribute;Battery voltage from Аккумулятор
-;Входное напряжение;.*\b(\d+)\s*[–-]\s*(\d+)\s*[ВВ].*;regex;Мінімальна вхідна напруга;В;$1 ;140;TRUE;14191106;attribute;Min input voltage range
-;Входное напряжение;.*\b(\d+)\s*[–-]\s*(\d+)\s*[ВВ].*;regex;Максимальна вхідна напруга;В;$2 ;141;TRUE;14191106;attribute;Max input voltage range
-;Входное напряжение;.*\b(\d{3})\s*[ВВ]\b.*;regex;Мінімальна вхідна напруга;В;$1 ;142;TRUE;14191106;attribute;Single input voltage as min
-;Входное напряжение;.*\b(\d{3})\s*[ВВ]\b.*;regex;Максимальна вхідна напруга;В;$1 ;143;TRUE;14191106;attribute;Single input voltage as max
-;Діапазон вхідної напруги;.*\b(\d+)\s*[–-]\s*(\d+)\s*[ВВ].*;regex;Мінімальна вхідна напруга;В;$1 ;144;TRUE;14191106;attribute;Min from input range
-;Діапазон вхідної напруги;.*\b(\d+)\s*[–-]\s*(\d+)\s*[ВВ].*;regex;Максимальна вхідна напруга;В;$2 ;145;TRUE;14191106;attribute;Max from input range
-;Выходное напряжение;.*\bDC\s*(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)\s*[ВВ]\b.*;regex;Вихідна напруга;В;$1 ;150;TRUE;14191106;attribute;DC output voltage range start
-;Выходное напряжение;.*\b(\d{1,3})\s*[ВВ]\b(?!.*DC.*[-–]).*;regex;Вихідна напруга;В;$1 ;151;TRUE;14191106;attribute;Output voltage single value
-;Выходное напряжение;.*\b(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)\s*[ВВ]\b(?!.*DC).*;regex;Вихідна напруга;В;$1 ;152;TRUE;14191106;attribute;Voltage range without DC prefix
-;Номинальная мощность;.*\b(\d+)\s*[ВВ][тТ]\b.*;regex;Вихідна потужність;Вт;$1 ;160;TRUE;14191106;attribute;Nominal power in Watts
-;Номинальная мощность;.*\/\s*(\d+)\s*[ВВ][тТ]\b.*;regex;Вихідна потужність;Вт;$1 ;161;TRUE;14191106;attribute;Power in Watts after slash
-;Выходная мощность;(\d+\.?\d*)\s*[ВВ][тТ];regex;Вихідна потужність;Вт;$1 ;162;TRUE;14191106;attribute;Output power in Watts
-;Мощность;(\d+\.?\d*)\s*[ВВ][тТ];regex;Вихідна потужність;Вт;$1 ;163;TRUE;14191106;attribute;Power field in Watts
-;Номинальная мощность;.*\b(\d+)\s*[ВВ][АA]\b.*;regex;;;Пропустити;164;TRUE;14191106;skip;VA cannot be converted without PF
-;Сила струму на виході;(\d+\.?\d*)\s*[АA];regex;;;Пропустити;170;TRUE;14191106;skip;Output current not in prom
-;Выходной ток;(\d+\.?\d*)\s*[АA];regex;;;Пропустити;171;TRUE;14191106;skip;Output current not in prom
-;Номінал струму;(\d+\.?\d*)\s*[АA];regex;;;Пропустити;172;TRUE;14191106;skip;Current rating not in prom
-;Струм заряду акумуляторної батареї;(\d+\.?\d*)\s*[АA];regex;Струм заряду;А;$1 ;180;TRUE;14191106;attribute;Battery charge current
-;Форма сигналу;.*(?:апроксимована|модифікована|модифікованої).*;regex;Форма вихідної напруги;;Апроксимована синусоїда;190;TRUE;14191106;attribute;Approximated sine wave
-;Форма сигналу;.*(?:правильна|чиста|pure).*;regex;Форма вихідної напруги;;Чиста синусоїда;191;TRUE;14191106;attribute;Pure sine wave
-;Форма сигналу;.*(?:ступенева|stepped).*;regex;Форма вихідної напруги;;Ступенева синусоїда;192;TRUE;14191106;attribute;Stepped sine wave
-;Частота струму;(\d+)\s*Гц;regex;Частота струму;Гц;$1 ;200;TRUE;14191106;attribute;Current frequency
-;Рабочая температура;(-?\d+)\s*°?\s*[CС]?\s*[-–—~]+\s*\+?(-?\d+)\s*°?\s*[CС];regex;Мінімальна робоча температура;град.;$1 ;210;TRUE;14191106;attribute;Min operating temperature
-;Рабочая температура;(-?\d+)\s*°?\s*[CС]?\s*[-–—~]+\s*\+?(-?\d+)\s*°?\s*[CС];regex;Максимальна робоча температура;град.;$2 ;211;TRUE;14191106;attribute;Max operating temperature
-;Розміри;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Довжина;мм;$1 ;220;TRUE;14191106;attribute;Length from dimensions
-;Розміри;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Ширина;мм;$2 ;221;TRUE;14191106;attribute;Width from dimensions
-;Розміри;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Висота;мм;$3 ;222;TRUE;14191106;attribute;Height from dimensions
-;Размер;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Довжина;мм;$1 ;223;TRUE;14191106;attribute;Length from Размер
-;Размер;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Ширина;мм;$2 ;224;TRUE;14191106;attribute;Width from Размер
-;Размер;([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*[×xхХ]\s*([0-9\.]+)\s*мм;regex;Висота;мм;$3 ;225;TRUE;14191106;attribute;Height from Размер
-;Вес;(\d+\.?\d*)\s*кг;regex;Вага;кг;$1 ;230;TRUE;14191106;attribute;Weight in kg
-;Вес;(\d+)\s*г\b;regex;Вага;кг;$1/1000 ;231;TRUE;14191106;attribute;Weight grams to kg needs preprocessing
-;Вага брутто;.*;regex;;;Пропустити;232;TRUE;14191106;skip;Gross weight not needed
-;Строк гарантії;(\d+)\s*міс\.?;regex;Гарантійний термін;міс;$1 ;240;TRUE;14191106;attribute;Warranty period in months
-;Колір;(?i)(Білий|Чорний|Сірий|Синій);regex;Колір корпусу;;$1 ;250;TRUE;14191106;attribute;Case color
-;Материал;.*(?:Металл|метал).*;regex;Матеріал корпусу;;Метал;260;TRUE;14191106;attribute;Metal case
-;Материал;.*(?:Пластик|пластик).*;regex;Матеріал корпусу;;Пластик;261;TRUE;14191106;attribute;Plastic case
-;Класс защиты;IP\s*(\d{2});regex;Ступінь захисту IP;;$1 ;270;TRUE;14191106;attribute;IP protection rating
-;Захист;.*(?:короткого замикання|КЗ|short circuit).*;regex;Захист від короткого замикання;;Так;280;TRUE;14191106;attribute;Short circuit protection
-;Защита от короткого замыкания;.*(?:Підтримує|так|yes).*;regex;Захист від короткого замикання;;Так;281;TRUE;14191106;attribute;Short circuit protection flag
-;Захист;.*(?:перенавантаження|overload).*;regex;Захист від перевантаження;;Так;282;TRUE;14191106;attribute;Overload protection
-;Захист;.*(?:перегріву|overheat).*;regex;Захист від перегріву;;Так;283;TRUE;14191106;attribute;Overheat protection
-;Захист;.*(?:переполюсовк|polarity).*;regex;Захист від переполюсовки;;Так;284;TRUE;14191106;attribute;Polarity protection
-;Додаткові характеристики;.*(?:Холодний старт|cold start).*;regex;Наявність холодного старту;;Так;290;TRUE;14191106;attribute;Cold start feature
-;Індикація станів;.*(?:LED|світлодіодн|індикація).*;regex;Індикація;;Світлова;300;TRUE;14191106;attribute;LED indication
-;Кількість каналів навантаження;(\d+);regex;;;Пропустити;310;TRUE;14191106;skip;Load channels not in prom
-;Кількість в ящику;.*;regex;;;Пропустити;320;TRUE;14191106;skip;Box quantity not needed
-;Розмір упаковки \(Ш х В х Г\);.*;regex;;;Пропустити;321;TRUE;14191106;skip;Package dimensions not needed
-;Час автономної роботи, хв;.*;regex;;;Пропустити;330;TRUE;14191106;skip;Runtime details not in prom
-;Резервна батарея акумулятора;.*;regex;;;Пропустити;331;TRUE;14191106;skip;Backup battery details
-;Інтерфейс зв'язку;.*;regex;;;Пропустити;340;TRUE;14191106;skip;Communication interface not in prom
-;Особенности;.*;regex;;;Пропустити;350;TRUE;14191106;skip;Special features too detailed
-;Додаткові характеристики;.*(?:розеток|Schuko|євророзетк).*;regex;;;Пропустити;351;TRUE;14191106;skip;Socket info not in prom attributes
+﻿supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
+.*\b(online|он-?лайн)\b.*;;;regex;Тип ДБЖ;;З подвійним перетворенням (On-line);10;TRUE;14191106;extract;
+.*\b(offline|off-?line|standby)\b.*;;;regex;Тип ДБЖ;;Резервний (Off-line або Standby);11;TRUE;14191106;extract;
+.*\b(line-?interactive|інтерактивн)\b.*;;;regex;Тип ДБЖ;;Лінійно-інтерактивний (Line-Interactive);12;TRUE;14191106;extract;
+;Технологія;.*(?:line-?interactive|лінійний інтерактивн).*;regex;Тип ДБЖ;;Лінійно-інтерактивний (Line-Interactive);20;TRUE;14191106;attribute;
+;Технологія;.*(?:inverter|інверторн).*;regex;Тип ДБЖ;;З подвійним перетворенням (On-line);21;TRUE;14191106;attribute;
+.*\b(\d+)\s*[ВВ][тТ]\b.*;;;regex;Вихідна потужність;Вт;$1 ;22;TRUE;14191106;attribute;
+;Номінальна потужність;.*?(\d+)\s*(?:В|V)[тТ]\b.*;regex;Вихідна потужність;Вт;$1 ;23;TRUE;14191106;attribute;
+;Номінальна потужність;^\s*(\d+)\s*$;regex;Вихідна потужність;Вт;$1 ;24;TRUE;14191106;attribute;
+;Вихідна потужність;(\d+\.?\d*)\s*[ВВ][тТ];regex;Вихідна потужність;Вт;$1 ;25;TRUE;14191106;attribute;
+;Вхідна напруга;.*?(\d+(?:\.\d+)?)\s*(?:В|V)?\s*[\-–—~]\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Мінімальна вхідна напруга;В;$1 ;26;TRUE;14191106;attribute;
+;Вхідна напруга;.*?(\d+(?:\.\d+)?)\s*(?:В|V)?\s*[\-–—~]\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Максимальна вхідна напруга;В;$2 ;27;TRUE;14191106;attribute;
+;Діапазон вхідної напруги;.*?(\d+(?:\.\d+)?)\s*(?:В|V)?\s*[\-–—~]\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Мінімальна вхідна напруга;В;$1 ;28;TRUE;14191106;attribute;
+;Діапазон вхідної напруги;.*?(\d+(?:\.\d+)?)\s*(?:В|V)?\s*[\-–—~]\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Максимальна вхідна напруга;В;$2 ;29;TRUE;14191106;attribute;
+;Вхідна напруга;.*?\b(\d+(?:\.\d+)?)\s*(?:В|V)\b.*;regex;Мінімальна вхідна напруга;В;$1 ;30;TRUE;14191106;attribute;
+;Вхідна напруга;.*?\b(\d+(?:\.\d+)?)\s*(?:В|V)\b.*;regex;Максимальна вхідна напруга;В;$1 ;31;TRUE;14191106;attribute;
+;Вихідна напруга;.*?(?:AC|DC)?\s*(\d+(?:\.\d+)?)\s*[\-–—~]\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Вихідна напруга;В;$2 ;32;TRUE;14191106;attribute;
+;Вихідна напруга;.*?(?:AC|DC)?\s*(\d+(?:\.\d+)?)\s*(?:В|V).*;regex;Вихідна напруга;В;$1 ;33;TRUE;14191106;attribute;
+;Батареї;.*\b(\d+\.?\d*)\s*[АA](?:•|·)?[гчГЧ]\b.*;regex;Ємність акумулятору;мАг;$1 А·г;34;TRUE;14191106;attribute;Battery capacity in Ah
+;Акумулятор;.*\b(\d+)\s*[ВВ].*;regex;Напруга акумулятору;В;$1 ;35;TRUE;14191106;attribute;
+;Форма сигналу;.*(?:апроксимована|модифікована).*;regex;Форма вихідної напруги;;Апроксимована синусоїда;36;TRUE;14191106;attribute;
+;Форма сигналу;.*(?:чиста|правильна|pure).*;regex;Форма вихідної напруги;;Чиста синусоїда;37;TRUE;14191106;attribute;
+;Робоча температура;(-?\d+)\s*(?:°?\s*C)?\s*(?:-|–|—|~)\s*\+?\d+;regex;Мінімальна робоча температура;град.;$1 ;38;TRUE;14191106;attribute;
+;Робоча температура;-?\d+\s*(?:°?\s*C)?\s*(?:-|–|—|~)\s*\+?(-?\d+);regex;Максимальна робоча температура;град.;$1 ;39;TRUE;14191106;attribute;
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*(мм);regex;Довжина;$4 ;$3 ;40;TRUE;14191106;attribute;
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*(мм);regex;Ширина;$4 ;$1 ;41;TRUE;14191106;attribute;
+;Розміри;([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*(мм);regex;Висота;$4 ;$2 ;42;TRUE;14191106;attribute;
+;"Розміри, мм";([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?);regex;Довжина;мм;$3 ;43;TRUE;14191106;attribute;
+;"Розміри, мм";([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?);regex;Ширина;мм;$1 ;44;TRUE;14191106;attribute;
+;"Розміри, мм";([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?)\s*[xх×]\s*([0-9]+(?:\.[0-9]+)?);regex;Висота;мм;$2 ;45;TRUE;14191106;attribute;
+;Вага;([0-9\.]+)\s*г;regex;Вага;г;$1 г;46;TRUE;14191106;attribute;
+;Вага;([0-9\.]+)\s*кг;regex;Вага;г;$1 кг;47;TRUE;14191106;attribute;
+;Строк гарантії;([0-9]+)\s*(міс)\.?;regex;Гарантійний термін;$2 ;$1 ;48;TRUE;14191106;attribute;

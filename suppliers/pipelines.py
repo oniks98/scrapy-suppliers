@@ -32,9 +32,9 @@ class SuppliersPipeline:
     def __init__(self):
         self.files = {}
         self.writers = {}
-        self.viatec_dealer_coefficient_mapping = {}  # {url: coefficient}
-        self.personal_notes_mapping = {}  # {номер_групи: особисті_нотатки}
-        self.label_mapping = {}  # {номер_групи: ярлик}
+        self.viatec_dealer_coefficient_mapping = {}
+        self.personal_notes_mapping = {}
+        self.label_mapping = {}
         self.attribute_mapper = None
         
         # Базові поля CSV згідно формату PROM
@@ -90,13 +90,8 @@ class SuppliersPipeline:
             "Де_знаходиться_товар",
         ]
         
-        # Директорія для вихідних файлів
         self.output_dir = Path(r"C:\FullStack\Scrapy\output")
-        
-        # Лічильники для послідовної нумерації продуктів
         self.product_counters = {}
-        
-        # Статистика
         self.stats = {}
     
     def open_spider(self, spider):
@@ -111,11 +106,10 @@ class SuppliersPipeline:
             try:
                 with open(coefficient_path, 'r', encoding='utf-8-sig') as f:
                     reader = csv.reader(f, delimiter=';')
-                    header = next(reader)  # Пропускаємо заголовок
+                    next(reader)  # Пропускаємо заголовок
                     
                     for row in reader:
                         if len(row) >= 3:
-                            # row[0] = номер, row[1] = URL, row[2] = coefficient
                             url = row[1].strip()
                             coefficient_str = row[2].strip().replace(',', '.')
                             try:
@@ -134,7 +128,6 @@ class SuppliersPipeline:
                 spider.logger.error(f"❌ Файл коефіцієнту не знайдено: {coefficient_path}")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка завантаження коефіцієнтів для viatec_dealer: {e}")
-                spider.logger.error(f"   Перевірте формат файлу {coefficient_path}")
 
         # Завантаження особистих нотаток та ярликів
         supplier_name = spider.name.split('_')[0]
@@ -143,71 +136,56 @@ class SuppliersPipeline:
         try:
             with open(personal_notes_path, 'r', encoding='utf-8-sig') as f:
                 reader = csv.reader(f, delimiter=';')
-                next(reader)  # Skip header
+                next(reader)
                 for row in reader:
                     if len(row) >= 2:
-                        group_number = row[0].strip()  # Номер_групи
-                        personal_note_value = row[1].strip()  # Особисті нотатки
-                        label_value = row[2].strip() if len(row) >= 3 else ""  # Ярлик
+                        group_number = row[0].strip()
+                        personal_note_value = row[1].strip()
+                        label_value = row[2].strip() if len(row) >= 3 else ""
                         
                         self.personal_notes_mapping[group_number] = personal_note_value
                         self.label_mapping[group_number] = label_value
             
-            spider.logger.info(
-                f"✅ Мапінг особистих нотаток для {spider.name} завантажено: "
-                f"{len(self.personal_notes_mapping)} записів"
-            )
-            spider.logger.info(
-                f"✅ Мапінг ярликів для {spider.name} завантажено: "
-                f"{len(self.label_mapping)} записів"
-            )
+            spider.logger.info(f"✅ Мапінг особистих нотаток: {len(self.personal_notes_mapping)} записів")
+            spider.logger.info(f"✅ Мапінг ярликів: {len(self.label_mapping)} записів")
         except FileNotFoundError:
-            spider.logger.warning(
-                f"⚠️  Файл особистих нотаток не знайдено для {spider.name} за шляхом: {personal_notes_path}"
-            )
+            spider.logger.warning(f"⚠️  Файл особистих нотаток не знайдено: {personal_notes_path}")
         except Exception as e:
-            spider.logger.error(f"❌ Помилка завантаження мапінгу для {spider.name}: {e}")
+            spider.logger.error(f"❌ Помилка завантаження мапінгу: {e}")
 
-        # Ініціалізація маппера характеристик з підтримкою rule_kind
+        # Ініціалізація маппера характеристик
         rules_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_mapping_rules.csv"
         if rules_path.exists():
             try:
                 self.attribute_mapper = AttributeMapper(str(rules_path), spider.logger)
-                spider.logger.info(f"✅ AttributeMapper ініціалізовано для {spider.name} з підтримкою rule_kind")
+                spider.logger.info(f"✅ AttributeMapper ініціалізовано")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка ініціалізації AttributeMapper: {e}")
                 self.attribute_mapper = None
         else:
-            spider.logger.warning(f"⚠️  Файл правил маппінгу не знайдено: {rules_path}")
             spider.logger.warning(f"⚠️  Маппінг характеристик відключено")
             self.attribute_mapper = None
 
-        # Отримуємо ім'я файлу з атрибутів паука
         output_file = getattr(spider, 'output_filename', f"{spider.name}.csv")
         filepath = self.output_dir / output_file
         
-        # Перевіряємо чи файл не відкритий в іншій програмі
+        # Перевірка доступності файлу
         try:
             test_file = open(filepath, "a", encoding="utf-8")
             test_file.close()
         except PermissionError:
-            spider.logger.error(f"❌ ПОМИЛКА: Файл {filepath} відкритий в іншій програмі!")
-            spider.logger.error(f"   Закрийте файл в Excel або іншому редакторі і спробуйте знову.")
-            raise PermissionError(
-                f"Неможливо записати у файл {filepath}. "
-                f"Файл відкритий в іншій програмі. Закрийте його і спробуйте знову."
-            )
+            spider.logger.error(f"❌ Файл {filepath} відкритий в іншій програмі!")
+            raise PermissionError(f"Неможливо записати у файл {filepath}")
         
-        # Створюємо файл і пишемо заголовок з BOM для правильного відображення кирилиці
+        # Створення файлу
         try:
             self.files[output_file] = open(filepath, "w", encoding="utf-8-sig", newline="", buffering=1)
             self._write_header(self.files[output_file])
-            spider.logger.info(f"📝 Створено файл з заголовком: {filepath}")
+            spider.logger.info(f"📝 Створено файл: {filepath}")
         except Exception as e:
-            spider.logger.error(f"❌ Помилка створення файлу {filepath}: {e}")
+            spider.logger.error(f"❌ Помилка створення файлу: {e}")
             raise
         
-        # Ініціалізуємо лічильник і статистику
         self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
         self.stats[output_file] = {
             "count": 0,
@@ -216,44 +194,31 @@ class SuppliersPipeline:
         }
     
     def process_item(self, item, spider):
-        """Обробляємо кожен item з ФІЛЬТРАЦІЄЮ та підтримкою rule_kind"""
+        """Обробляємо кожен item з ФІЛЬТРАЦІЄЮ"""
         adapter = ItemAdapter(item)
-        
-        # Отримуємо ідентифікатор файлу
         output_file = adapter.get("output_file") or f"{adapter.get('supplier_id', 'unknown')}.csv"
-        filepath = self.output_dir / output_file
         
-        # ФІЛЬТР 1: Перевірка ціни
+        # ФІЛЬТР 1: Ціна
         price = adapter.get("Ціна", "")
         if not price or not self._is_valid_price(price):
             self._increment_stat(output_file, "filtered_no_price")
             product_name = adapter.get('Назва_позиції', 'Невідомий')[:60]
-            product_url = adapter.get('Продукт_на_сайті', 'N/A')
-            spider.logger.warning(f"❌ Товар без ціни: {product_name}... | {product_url}")
-            raise DropItem(f"Товар без ціни")
+            spider.logger.warning(f"❌ Товар без ціни: {product_name}...")
+            raise DropItem("Товар без ціни")
         
-        # ФІЛЬТР 2: Перевірка наявності
+        # ФІЛЬТР 2: Наявність
         availability_raw = adapter.get("Наявність", "")
-        product_name_short = adapter.get('Назва_позиції', 'Невідомий')[:50]
-        spider.logger.info(f"🔍 ПРОВЕРКА НАЯВНОСТІ: {product_name_short}... | RAW: '{availability_raw}'")
-        availability_status = self._check_availability(availability_raw)
-        spider.logger.info(f"🔍 РЕЗУЛЬТАТ: {availability_status}")
-        
-        if not availability_status:
+        if not self._check_availability(availability_raw):
             self._increment_stat(output_file, "filtered_no_stock")
             product_name = adapter.get('Назва_позиції', 'Невідомий')[:60]
-            product_url = adapter.get('Продукт_на_сайті', 'N/A')
-            spider.logger.warning(f"❌ ВІДФІЛЬТРОВАНО (немає): {product_name}... | Наявність: '{availability_raw}' | {product_url}")
-            raise DropItem(f"Товар не в наявності")
+            spider.logger.warning(f"❌ Товар не в наявності: {product_name}...")
+            raise DropItem("Товар не в наявності")
         
-        # Очищення та нормалізація даних
         cleaned_item = self._clean_item(adapter, spider)
         
-        # РОЗРАХУНОК ЦІНИ З КОЕФІЦІЄНТОМ (НА ОСНОВІ CATEGORY_URL)
+        # Множення ціни для viatec_dealer
         if spider.name == 'viatec_dealer' and self.viatec_dealer_coefficient_mapping:
             category_url = adapter.get('category_url', '')
-            
-            # Знаходимо відповідний коефіцієнт
             coefficient = self.viatec_dealer_coefficient_mapping.get(category_url)
             
             if coefficient:
@@ -261,272 +226,136 @@ class SuppliersPipeline:
                     price_float = float(cleaned_item["Ціна"].replace(',', '.'))
                     multiplied_price = price_float * coefficient
                     cleaned_item["Ціна"] = f"{multiplied_price:.2f}".replace('.', ',')
-                    spider.logger.debug(
-                        f"Ціна для {cleaned_item['Назва_позиції'][:40]} помножена на {coefficient} "
-                        f"(категорія: {category_url[:60]}...) -> {cleaned_item['Ціна']}"
-                    )
                 except (ValueError, TypeError) as e:
-                    spider.logger.error(f"❌ Помилка при множенні ціни для {cleaned_item['Назва_позиції']}: {e}")
-            else:
-                spider.logger.warning(
-                    f"⚠️ Коефіцієнт не знайдено для категорії: {category_url[:80]}... "
-                    f"Ціна залишається без змін."
-                )
+                    spider.logger.error(f"❌ Помилка множення ціни: {e}")
 
-        # Оновлюємо поля наявності
         cleaned_item["Наявність"] = "+"
-        quantity = adapter.get("Кількість", "")
-        cleaned_item["Кількість"] = quantity if quantity else "100"
+        cleaned_item["Кількість"] = adapter.get("Кількість", "") or "100"
         
-        # ГЕНЕРАЦІЯ ПОСЛІДОВНОГО КОДУ ТОВАРУ
-        supplier_sku = adapter.get("Ідентифікатор_товару", "").strip()
-        
+        # Генерація коду товару
         if output_file not in self.product_counters:
             self.product_counters[output_file] = self._load_initial_product_code(spider.name, spider.logger)
         
         cleaned_item["Код_товару"] = str(self.product_counters[output_file])
         self.product_counters[output_file] += 1
         
-        spider.logger.info(f"🔢 Код товару: {cleaned_item['Код_товару']} | Артикул: '{supplier_sku}'")
+        cleaned_item["Ідентифікатор_товару"] = adapter.get("Ідентифікатор_товару", "").strip()
         
-        cleaned_item["Ідентифікатор_товару"] = supplier_sku
-        
-        # Встановлюємо Особисті_нотатки та Ярлик на основі Номер_групи
+        # Особисті нотатки та ярлики
         group_number = adapter.get("Номер_групи", "")
-        personal_note = self.personal_notes_mapping.get(group_number, "PROM")
-        label = self.label_mapping.get(group_number, "")
+        cleaned_item["Особисті_нотатки"] = self.personal_notes_mapping.get(group_number, "PROM")
+        cleaned_item["Ярлик"] = self.label_mapping.get(group_number, "")
         
-        spider.logger.debug(f"📝 Номер групи: '{group_number}' | Особисті нотатки: '{personal_note}' | Ярлик: '{label}'")
-        cleaned_item["Особисті_нотатки"] = personal_note
-        cleaned_item["Ярлик"] = label
-        
-        # ОБРОБКА ОПИСУ
+        # Опис
         cleaned_item["Опис"] = self._clean_description(cleaned_item.get("Опис", ""))
         cleaned_item["Опис_укр"] = self._clean_description(cleaned_item.get("Опис_укр", ""))
         
-        # САНІТИЗАЦІЯ URL ЗОБРАЖЕНЬ
+        # Санітизація URL зображень
         image_url = cleaned_item.get("Посилання_зображення", "")
         if image_url:
             urls = [u.strip() for u in image_url.split(", ") if u.strip()]
-            sanitized_urls = []
-            for url in urls:
-                if ',' in url:
-                    url = url.replace(",", "%2C")
-                sanitized_urls.append(url)
+            sanitized_urls = [url.replace(",", "%2C") if ',' in url else url for url in urls]
             cleaned_item["Посилання_зображення"] = ", ".join(sanitized_urls)
         
-        # ОБРОБКА ХАРАКТЕРИСТИК з підтримкою rule_kind
+        # Обробка характеристик
         specs_list_original = adapter.get("specifications_list", [])
         
         if self.attribute_mapper:
             category_id = adapter.get("Ідентифікатор_підрозділу", "")
             product_name = cleaned_item.get('Назва_позиції', '')
             
-            spider.logger.info(f"🎯 category_id для маппінгу: '{category_id}' | Товар: {product_name[:40]}...")
-            
-            # 1. Мапимо з назви товару (вищий пріоритет: 1-9)
+            # Мапінг з назви товару
             name_mapped = []
             if product_name:
                 name_mapped = self.attribute_mapper.map_product_name(product_name, category_id)
-                if name_mapped:
-                    spider.logger.info(
-                        f"🎯 З назви товару ({len(name_mapped)}): " +
-                        ", ".join([f"{s['name']}={s['value']} [{s.get('rule_kind', 'extract')}]" for s in name_mapped[:5]])
-                    )
             
-            # 2. Мапимо з характеристик (нижчий пріоритет: 10+)
+            # Мапінг з характеристик
             mapping_result = {'supplier': [], 'mapped': [], 'unmapped': []}
             if specs_list_original:
                 mapping_result = self.attribute_mapper.map_attributes(specs_list_original, category_id)
             
-            # 3. ОБ'ЄДНУЄМО З ДЕДУПЛІКАЦІЄЮ з урахуванням rule_kind
+            # Об'єднання з дедуплікацією
             specs_dict = {}
             
-            # Спочатку додаємо оригінальні (найнижчий пріоритет)
             for spec in mapping_result['supplier']:
                 key = spec['name'].lower().strip()
                 if key not in specs_dict:
-                    specs_dict[key] = {
-                        **spec,
-                        'rule_priority': 9999,
-                        'rule_kind': 'supplier'
-                    }
+                    specs_dict[key] = {**spec, 'rule_priority': 9999, 'rule_kind': 'supplier'}
             
-            # Потім з характеристик (середній пріоритет: 10+)
             for spec in mapping_result['mapped']:
                 rule_kind = spec.get('rule_kind', 'extract')
-                
-                # ✅ КРИТИЧНО: skip НЕ додаємо взагалі
                 if rule_kind == 'skip':
-                    spider.logger.debug(f"⏭️ SKIP правило проігноровано: {spec['name']}")
-                    continue  # Пропускаємо цю характеристику
-                
-                key = spec['name'].lower().strip()
-                rule_priority = spec.get('rule_priority', 999)
-                
-                if key not in specs_dict:
-                    specs_dict[key] = spec
-                else:
-                    current = specs_dict[key]
-                    current_kind = current.get('rule_kind', 'extract')
-                    current_priority = current.get('rule_priority', 999)
-                    
-                    # Застосовуємо логіку rule_kind
-                    should_replace = self._should_replace_attribute(
-                        rule_kind, rule_priority, 
-                        current_kind, current_priority
-                    )
-                    
-                    if should_replace:
-                        spider.logger.debug(
-                            f"⚠️ Заміна '{spec['name']}': "
-                            f"{current_kind}[{current_priority}] → {rule_kind}[{rule_priority}]"
-                        )
-                        specs_dict[key] = spec
-            
-            # І нарешті з назви (найвищий пріоритет: 1-9)
-            for spec in name_mapped:
-                rule_kind = spec.get('rule_kind', 'extract')
-                
-                # ✅ КРИТИЧНО: skip НЕ додаємо взагалі
-                if rule_kind == 'skip':
-                    spider.logger.debug(f"⏭️ SKIP правило (з назви) проігноровано: {spec['name']}")
                     continue
                 
                 key = spec['name'].lower().strip()
-                rule_priority = spec.get('rule_priority', 999)
-                
-                if key not in specs_dict:
+                if key not in specs_dict or self._should_replace_attribute(
+                    rule_kind, spec.get('rule_priority', 999),
+                    specs_dict[key].get('rule_kind', 'extract'),
+                    specs_dict[key].get('rule_priority', 999)
+                ):
                     specs_dict[key] = spec
-                else:
-                    current = specs_dict[key]
-                    current_kind = current.get('rule_kind', 'extract')
-                    current_priority = current.get('rule_priority', 999)
-                    
-                    should_replace = self._should_replace_attribute(
-                        rule_kind, rule_priority,
-                        current_kind, current_priority
-                    )
-                    
-                    if should_replace:
-                        spider.logger.debug(
-                            f"⚠️ Заміна з назви '{spec['name']}': "
-                            f"{current_kind}[{current_priority}] → {rule_kind}[{rule_priority}]"
-                        )
-                        specs_dict[key] = spec
             
-            # Конвертуємо назад у список
+            for spec in name_mapped:
+                rule_kind = spec.get('rule_kind', 'extract')
+                if rule_kind == 'skip':
+                    continue
+                
+                key = spec['name'].lower().strip()
+                if key not in specs_dict or self._should_replace_attribute(
+                    rule_kind, spec.get('rule_priority', 999),
+                    specs_dict[key].get('rule_kind', 'extract'),
+                    specs_dict[key].get('rule_priority', 999)
+                ):
+                    specs_dict[key] = spec
+            
             specs_list = list(specs_dict.values())
             
-            # ПОСТОБРОБКА: Конвертуємо вагу в грами
+            # Постобробка
             specs_list = self._postprocess_weight_in_specs(specs_list, spider)
-            
-            # ПОСТОБРОБКА: Розрахуємо сумарну ємність HDD
             specs_list = self._postprocess_hdd_capacity_in_specs(specs_list, spider)
-            
-            spider.logger.info(
-                f"📊 Маппінг характеристик: "
-                f"{len(mapping_result['supplier'])} користувацьких + "
-                f"{len(name_mapped)} з назви + "
-                f"{len(mapping_result['mapped'])} з характеристик = "
-                f"{len(specs_list)} фінально (після дедуплікації з rule_kind)"
-            )
-            
-            if mapping_result['unmapped']:
-                spider.logger.debug(
-                    f"❌ Не змапилось ({len(mapping_result['unmapped'])}): " +
-                    ", ".join([f"{s['name']}={s['value']}" for s in mapping_result['unmapped'][:3]])
-                )
-            
-            if mapping_result['mapped']:
-                spider.logger.info(
-                    f"✅ Портальні ({len(mapping_result['mapped'])}): " +
-                    ", ".join([
-                        f"{s['name']}={s['value']} [{s.get('rule_kind', 'extract')}]" 
-                        for s in mapping_result['mapped'][:10]
-                    ])
-                )
+            specs_list = self._postprocess_battery_capacity_in_specs(specs_list, spider)
         else:
             specs_list = specs_list_original
         
-        # Файл вже створений в open_spider()
+        # Витягуємо габарити з характеристик для колонок PROM (після всіх постпроцесів)
+        dimensions = self._extract_dimensions_from_specs(specs_list, spider)
+        cleaned_item.update(dimensions)
+        
+        # Запис у файл
         if output_file not in self.files:
-            spider.logger.error(f"❌ Файл {output_file} не знайдено! Це помилка.")
-            raise ValueError(f"File {output_file} was not initialized in open_spider")
+            raise ValueError(f"File {output_file} was not initialized")
         
-        # Створюємо ROW з базовими полями + характеристиками
         row_parts = []
-        
-        # Базові поля
         for field in self.fieldnames_base:
             value = cleaned_item.get(field, "")
             value_str = str(value).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
             row_parts.append(value_str)
         
-        # Характеристики (160 триплетів)
         for i in range(160):
             if i < len(specs_list):
                 spec = specs_list[i]
                 name = str(spec.get("name", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
                 unit = str(spec.get("unit", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
                 value = str(spec.get("value", "")).replace(";", ",").replace('"', '""').replace("\n", "<br>").replace("\r", "")
-                row_parts.append(name)
-                row_parts.append(unit)
-                row_parts.append(value)
+                row_parts.extend([name, unit, value])
             else:
                 row_parts.extend(["", "", ""])
         
-        # Записуємо рядок у файл
-        row_line = ";".join(row_parts) + "\n"
-        self.files[output_file].write(row_line)
-        
-        # Оновлюємо статистику
+        self.files[output_file].write(";".join(row_parts) + "\n")
         self.stats[output_file]["count"] += 1
-        
-        spider.logger.debug(
-            f"✅ Записано: {cleaned_item.get('Назва_позиції')} | Ціна: {cleaned_item.get('Ціна')} | Характеристик: {len(specs_list)}"
-        )
         
         return item
     
     def _should_replace_attribute(self, new_kind, new_priority, current_kind, current_priority):
-        """
-        Визначає чи треба замінити поточну характеристику новою з урахуванням rule_kind
-        
-        Args:
-            new_kind: rule_kind нового правила
-            new_priority: пріоритет нового правила
-            current_kind: rule_kind поточного значення
-            current_priority: пріоритет поточного значення
-        
-        Returns:
-            True якщо треба замінити, False якщо ні
-        """
-        # skip - ніколи не заміняємо
-        if new_kind == 'skip':
+        """Визначає чи треба замінити характеристику"""
+        if new_kind in ['skip', 'fallback']:
             return False
-        
-        # fallback - тільки якщо значення відсутнє (але тут значення вже є)
-        if new_kind == 'fallback':
-            return False
-        
-        # derive - НЕ заміняє extract/normalize
         if new_kind == 'derive':
-            # Замінюємо тільки інші derive з кращим пріоритетом
-            if current_kind == 'derive' and new_priority < current_priority:
-                return True
-            # НЕ замінюємо extract/normalize/supplier
-            return False
-        
-        # extract/normalize - основна логіка
-        # Замінюємо якщо пріоритет кращий (менше число)
-        if new_priority < current_priority:
-            return True
-        
-        return False
+            return current_kind == 'derive' and new_priority < current_priority
+        return new_priority < current_priority
     
     def close_spider(self, spider):
-        """Закриваємо файли та виводимо статистику"""
+        """Закриття файлів та статистика"""
         for f in self.files.values():
             f.close()
         
@@ -541,26 +370,22 @@ class SuppliersPipeline:
             spider.logger.info(f"  ❌ Відфільтровано без наявності: {stats['filtered_no_stock']}")
         
         spider.logger.info("=" * 80)
-        spider.logger.info(f"✅ Pipeline закрито")
     
     def _write_header(self, file_obj):
-        """Пише заголовок з повторюваними триплетами (БЕЗ нумерації)"""
+        """Запис заголовку"""
         header_parts = self.fieldnames_base.copy()
-        
         for _ in range(160):
             header_parts.extend([
                 "Назва_Характеристики",
                 "Одиниця_виміру_Характеристики",
                 "Значення_Характеристики",
             ])
-        
         file_obj.write(";".join(header_parts) + "\n")
     
     def _is_valid_price(self, price):
-        """Перевірка валідності ціни"""
+        """Перевірка ціни"""
         if not price:
             return False
-        
         try:
             price_float = float(str(price).replace(",", ".").replace(" ", ""))
             return price_float > 0
@@ -568,62 +393,26 @@ class SuppliersPipeline:
             return False
     
     def _check_availability(self, availability_str):
-        """
-        Перевірка наявності товару
-        Повертає True якщо товар В НАЯВНОСТІ, False якщо немає
-        
-        За замовчуванням вважаємо товар В НАЯВНОСТІ,
-        якщо явно не вказано що його немає
-        """
+        """Перевірка наявності"""
         if not availability_str:
             return True
         
         availability_lower = str(availability_str).lower().strip()
         
-        # Перевіряємо на відсутність (явні негативні маркери)
         out_of_stock_keywords = [
-            "немає",
-            "немає в наявності",
-            "нет в наличии",
-            "нет на складе",
-            "нет наявності",
-            "відсутній",
-            "відсутня",
-            "закінчився",
-            "закінчилась",
-            "out of stock",
-            "unavailable",
-            "под заказ",
-            "під замовлення",
+            "немає", "немає в наявності", "нет в наличии", "нет на складе",
+            "відсутній", "відсутня", "закінчився", "закінчилась",
+            "out of stock", "unavailable", "под заказ", "під замовлення",
         ]
         
         for keyword in out_of_stock_keywords:
             if keyword in availability_lower:
                 return False
         
-        # Позитивні маркери наявності
-        in_stock_keywords = [
-            "є в наявності",
-            "в наявності",
-            "в наличии",
-            "есть",
-            "доступно",
-            "available",
-            "in stock",
-            "наявності",
-            "наявност",
-            "є",
-        ]
-        
-        for keyword in in_stock_keywords:
-            if keyword in availability_lower:
-                return True
-        
-        # За замовчуванням вважаємо товар В НАЯВНОСТІ
         return True
     
     def _clean_description(self, description):
-        """Очищає опис від тексту про аналоги та замінює \n на <br>"""
+        """Очищення опису"""
         if not description:
             return ""
         
@@ -641,7 +430,7 @@ class SuppliersPipeline:
         return description.strip()
     
     def _clean_item(self, adapter, spider):
-        """Очищення та нормалізація даних"""
+        """Очищення даних"""
         cleaned = {}
         
         for field in self.fieldnames_base:
@@ -664,10 +453,7 @@ class SuppliersPipeline:
         return cleaned
     
     def _clean_price(self, price):
-        """
-        Очищення ціни від зайвих символів
-        ЗАМІНЮЄ ТОЧКУ НА КОМУ в ціні
-        """
+        """Очищення ціни"""
         if not price:
             return ""
         
@@ -684,145 +470,190 @@ class SuppliersPipeline:
             return ""
     
     def _convert_weight_to_grams(self, weight_str):
-        """
-        Конвертує вагу в грами для PROM
-        Приклади:
-        'Вага 340 г' -> '340'
-        'Вага 5 кг' -> '5000'
-        'Вага 0.67 кг' -> '670'
-        '340 г' -> '340'
-        '5 кг' -> '5000'
-        """
+        """Конвертація ваги в грами"""
         if not weight_str:
             return ""
         
         weight_str = str(weight_str).strip()
         
-        # Граммы - забираємо одиницю (з "Вага" або без)
         match_g = re.search(r'(?:Вага\s+)?([0-9\.]+)\s*г', weight_str, re.IGNORECASE)
         if match_g:
-            grams = match_g.group(1)
-            return grams
+            return match_g.group(1)
         
-        # Кілограми - конвертуємо в грами (з "Вага" або без)
         match_kg = re.search(r'(?:Вага\s+)?([0-9\.]+)\s*кг', weight_str, re.IGNORECASE)
         if match_kg:
             kg = float(match_kg.group(1))
             grams = kg * 1000
-            # Прибираємо .0 для цілих чисел
-            grams_str = str(int(grams)) if grams == int(grams) else str(grams)
-            return grams_str
+            return str(int(grams)) if grams == int(grams) else str(grams)
         
-        # Якщо не знайшли паттерн - повертаємо як є
         return weight_str
     
     def _postprocess_weight_in_specs(self, specs_list, spider):
-        """
-        Постобробка характеристик: конвертує вагу в грами
-        Приклади:
-        {'name': 'Вага', 'value': '300 г', 'unit': 'г'} -> {'name': 'Вага', 'value': '300', 'unit': 'г'}
-        {'name': 'Вага', 'value': '5 кг', 'unit': 'г'} -> {'name': 'Вага', 'value': '5000', 'unit': 'г'}
-        """
+        """Постобробка ваги в характеристиках"""
         if not specs_list:
             return specs_list
         
         weight_names = ['вага', 'вага брутто', 'вага нетто', 'weight', 'gross weight', 'net weight']
         
         for spec in specs_list:
-            spec_name_lower = spec.get('name', '').lower().strip()
-            
-            # Перевіряємо чи це характеристика ваги
-            if spec_name_lower in weight_names:
+            if spec.get('name', '').lower().strip() in weight_names:
                 original_value = spec.get('value', '')
-                
-                # Конвертуємо значення
                 converted_value = self._convert_weight_to_grams(original_value)
-                
                 if converted_value != original_value:
                     spec['value'] = converted_value
-                    spider.logger.info(
-                        f"⚖️ Конвертація ваги в характеристиках: "
-                        f"{spec['name']} = '{original_value}' → '{converted_value}'"
-                    )
+                    spider.logger.info(f"⚖️ Конвертація ваги: {spec['name']} = '{original_value}' → '{converted_value}'")
         
         return specs_list
     
     def _postprocess_hdd_capacity_in_specs(self, specs_list, spider):
-        """
-        Постобробка характеристик: розраховує сумарну ємність HDD в GB
-        Приклади:
-        {'name': 'Суммарная емкость HDD', 'value': '1 SATA 8 Тб', 'unit': 'GB'} -> {'name': 'Суммарная емкость HDD', 'value': '8192', 'unit': 'GB'}
-        {'name': 'Суммарная емкость HDD', 'value': '8 SATA 20 Тб', 'unit': 'GB'} -> {'name': 'Суммарная емкость HDD', 'value': '163840', 'unit': 'GB'}
-        {'name': 'Об'єм накопичувача', 'value': '8 Тб', 'unit': 'GB'} -> {'name': 'Об'єм накопичувача', 'value': '8192', 'unit': 'GB'}
-        """
+        """Постобробка ємності HDD"""
         if not specs_list:
             return specs_list
         
-        # Характеристики для реєстраторів (NVR/DVR)
-        hdd_capacity_names = [
-            'суммарная емкость hdd',
-            'total hdd capacity',
-            'загальна ємність hdd'
-        ]
-        
-        # Характеристики для дисків
-        disk_capacity_names = [
-            'об\'єм накопичувача',
-            'disk capacity',
-            'ємність диска'
-        ]
+        hdd_names = ['суммарная емкость hdd', 'total hdd capacity', 'загальна ємність hdd']
+        disk_names = ['об\'єм накопичувача', 'disk capacity', 'ємність диска']
         
         for spec in specs_list:
             spec_name_lower = spec.get('name', '').lower().strip()
             original_value = spec.get('value', '')
             
-            # Обробка сумарної ємності HDD для реєстраторів
-            if spec_name_lower in hdd_capacity_names:
-                # Парсимо формат: "8 SATA 20 Тб" або "1 SATA 6 Тб"
+            if spec_name_lower in hdd_names:
                 match = re.search(r'(\d+)\s*SATA\s*(\d+)\s*Тб', original_value, re.IGNORECASE)
                 if match:
                     try:
                         num_sata = int(match.group(1))
                         max_tb = int(match.group(2))
-                        
-                        # Розраховуємо: кількість_SATA * макс_Тб * 1024 = GB
                         total_gb = num_sata * max_tb * 1024
-                        
                         spec['value'] = str(total_gb)
-                        spider.logger.info(
-                            f"💾 Розрахунок сумарної ємності HDD: "
-                            f"{spec['name']} = '{original_value}' ({num_sata} SATA × {max_tb} Тб × 1024) → '{total_gb} GB'"
-                        )
+                        spider.logger.info(f"💾 HDD: '{original_value}' → '{total_gb} GB'")
                     except (ValueError, AttributeError) as e:
-                        spider.logger.warning(
-                            f"⚠️ Помилка розрахунку HDD ємності: '{original_value}' - {e}"
-                        )
+                        spider.logger.warning(f"⚠️ Помилка HDD: {e}")
             
-            # Обробка об'єму накопичувача для дисків
-            elif spec_name_lower in disk_capacity_names:
-                # Парсимо формат: "8 Тб", "10 ТБ", "12Тб" тощо
+            elif spec_name_lower in disk_names:
                 match = re.search(r'(\d+)\s*[Тт][БбBb]', original_value, re.IGNORECASE)
                 if match:
                     try:
                         tb_value = int(match.group(1))
-                        
-                        # Конвертуємо Тб в GB: Тб * 1024 = GB
                         gb_value = tb_value * 1024
-                        
                         spec['value'] = str(gb_value)
-                        spider.logger.info(
-                            f"💾 Конвертація ємності диска: "
-                            f"{spec['name']} = '{original_value}' ({tb_value} Тб × 1024) → '{gb_value} GB'"
-                        )
+                        spider.logger.info(f"💾 Диск: '{original_value}' → '{gb_value} GB'")
                     except (ValueError, AttributeError) as e:
-                        spider.logger.warning(
-                            f"⚠️ Помилка конвертації ємності диска: '{original_value}' - {e}"
-                        )
+                        spider.logger.warning(f"⚠️ Помилка диск: {e}")
         
         return specs_list
     
+    def _postprocess_battery_capacity_in_specs(self, specs_list, spider):
+        """Постобробка ємності батареї"""
+        if not specs_list:
+            return specs_list
+        
+        battery_names = ['ємність акумулятору', 'battery capacity', 'емкость аккумулятора']
+        
+        for spec in specs_list:
+            if spec.get('name', '').lower().strip() in battery_names:
+                original_value = spec.get('value', '')
+                match = re.search(r'([\d\.]+)\s*[АA](?:•|·|г)?[гч]?', original_value, re.IGNORECASE)
+                if match:
+                    try:
+                        ah_value = float(match.group(1))
+                        mah_value = int(ah_value * 1000)
+                        spec['value'] = str(mah_value)
+                        spider.logger.info(f"🔋 Батарея: '{original_value}' → '{mah_value} мА·г'")
+                    except (ValueError, AttributeError) as e:
+                        spider.logger.warning(f"⚠️ Помилка батарея: {e}")
+        
+        return specs_list
+    
+    def _extract_dimensions_from_specs(self, specs_list, spider):
+        """
+        Витягує габарити з характеристик для заповнення колонок PROM.
+        Конвертує мм → см, г → кг
+        
+        Шукає:
+        - Вага (вже в г після постпроцесу) → переводить в кг
+        - Ширина (мм) → см
+        - Висота (мм) → см
+        - Довжина (мм) → см
+        """
+        dimensions = {
+            "Вага,кг": "",
+            "Ширина,см": "",
+            "Висота,см": "",
+            "Довжина,см": ""
+        }
+        
+        if not specs_list:
+            return dimensions
+        
+        # Мапінг назв характеристик → колонки PROM
+        weight_keys = ['вага', 'вага брутто', 'вага нетто', 'weight', 'gross weight', 'net weight']
+        width_keys = ['ширина', 'width']
+        height_keys = ['висота', 'высота', 'height']
+        length_keys = ['довжина', 'длина', 'length', 'глибина', 'глубина', 'depth']
+        
+        for spec in specs_list:
+            spec_name = spec.get('name', '').lower().strip()
+            spec_value = spec.get('value', '').strip()
+            spec_unit = spec.get('unit', '').lower().strip()
+            
+            if not spec_value:
+                continue
+            
+            # 1. ВАГА: з г → кг (після постпроцесу вже в грамах)
+            if spec_name in weight_keys:
+                match_g = re.search(r'([0-9\.]+)', spec_value)
+                if match_g:
+                    try:
+                        grams = float(match_g.group(1))
+                        kg = grams / 1000
+                        dimensions["Вага,кг"] = f"{kg:.3f}".replace('.', ',')
+                        spider.logger.debug(f"⚖️ Вага: {grams}г → {kg}кг")
+                    except ValueError:
+                        pass
+            
+            # 2. ШИРИНА: з мм → см (перевіряємо unit або value)
+            elif spec_name in width_keys:
+                if spec_unit == 'мм' or 'мм' in spec_value:
+                    match_num = re.search(r'([0-9\.]+)', spec_value)
+                    if match_num:
+                        try:
+                            mm = float(match_num.group(1))
+                            cm = mm / 10
+                            dimensions["Ширина,см"] = f"{cm:.1f}".replace('.', ',')
+                            spider.logger.debug(f"📏 Ширина: {mm}мм → {cm}см")
+                        except ValueError:
+                            pass
+            
+            # 3. ВИСОТА: з мм → см (перевіряємо unit або value)
+            elif spec_name in height_keys:
+                if spec_unit == 'мм' or 'мм' in spec_value:
+                    match_num = re.search(r'([0-9\.]+)', spec_value)
+                    if match_num:
+                        try:
+                            mm = float(match_num.group(1))
+                            cm = mm / 10
+                            dimensions["Висота,см"] = f"{cm:.1f}".replace('.', ',')
+                            spider.logger.debug(f"📏 Висота: {mm}мм → {cm}см")
+                        except ValueError:
+                            pass
+            
+            # 4. ДОВЖИНА: з мм → см (перевіряємо unit або value)
+            elif spec_name in length_keys:
+                if spec_unit == 'мм' or 'мм' in spec_value:
+                    match_num = re.search(r'([0-9\.]+)', spec_value)
+                    if match_num:
+                        try:
+                            mm = float(match_num.group(1))
+                            cm = mm / 10
+                            dimensions["Довжина,см"] = f"{cm:.1f}".replace('.', ',')
+                            spider.logger.debug(f"📏 Довжина: {mm}мм → {cm}см")
+                        except ValueError:
+                            pass
+        
+        return dimensions
+    
     def _increment_stat(self, output_file, stat_key):
-        """Допоміжний метод для інкрементування статистики"""
+        """Інкремент статистики"""
         if output_file not in self.stats:
             self.stats[output_file] = {
                 "count": 0,
@@ -832,10 +663,7 @@ class SuppliersPipeline:
         self.stats[output_file][stat_key] += 1
 
     def _load_initial_product_code(self, spider_name, logger):
-        """
-        Завантажує початковий код товару з CSV файлу.
-        Формат файлу: один рядок, одне число.
-        """
+        """Завантаження початкового коду товару"""
         supplier_prefix = spider_name.split('_')[0]
         counter_file_path = Path(r"C:\FullStack\Scrapy\data") / supplier_prefix / f"{supplier_prefix}_counter_product_code.csv"
         
@@ -844,30 +672,22 @@ class SuppliersPipeline:
                 reader = csv.reader(f)
                 for row in reader:
                     if row:
-                        try:
-                            match = re.search(r'(\d+)', row[0])
-                            if match:
-                                initial_code = int(match.group(1))
-                                logger.info(f"✅ Початковий код товару для {spider_name} завантажено з {counter_file_path}: {initial_code}")
-                                return initial_code
-                            else:
-                                logger.warning(f"⚠️ Не знайдено числа у файлі лічильника {counter_file_path}. Використовуємо значення за замовчуванням.")
-                                return 200000
-                        except ValueError:
-                            logger.warning(f"⚠️ Некоректний формат числа у файлі лічильника {counter_file_path}. Використовуємо значення за замовчуванням.")
-                            return 200000
-            logger.warning(f"⚠️ Файл лічильника {counter_file_path} порожній. Використовуємо значення за замовчуванням.")
+                        match = re.search(r'(\d+)', row[0])
+                        if match:
+                            initial_code = int(match.group(1))
+                            logger.info(f"✅ Початковий код: {initial_code}")
+                            return initial_code
             return 200000
         except FileNotFoundError:
-            logger.warning(f"⚠️ Файл лічильника не знайдено для {spider_name} за шляхом: {counter_file_path}. Використовуємо значення за замовчуванням.")
+            logger.warning(f"⚠️ Файл лічильника не знайдено: {counter_file_path}")
             return 200000
         except Exception as e:
-            logger.error(f"❌ Помилка завантаження початкового коду товару для {spider_name} з {counter_file_path}: {e}. Використовуємо значення за замовчуванням.")
+            logger.error(f"❌ Помилка завантаження коду: {e}")
             return 200000
 
 
 class ValidationPipeline:
-    """Додатковий pipeline для валідації (опціонально)"""
+    """Додатковий pipeline для валідації"""
     
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
