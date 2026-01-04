@@ -1,0 +1,51 @@
+supplier_name_substring;supplier_attribute;supplier_value_pattern;pattern_type;prom_attribute;prom_attribute_unit_template;prom_value_template;priority;is_active;category_id;rule_kind;notes
+(?i).*\bкомутатор\b.*\bкерован.*;;;regex;Тип комутатора;;Керований рівня 2;1;TRUE;71903;extract;Керований комутатор
+(?i).*\bкомутатор\b.*\bуправ.*;;;regex;Тип комутатора;;Керований рівня 2;2;TRUE;71903;extract;Управляємий комутатор
+(?i).*\bкомутатор\b.*\bнекерован.*;;;regex;Тип комутатора;;Некерований;3;TRUE;71903;extract;Некерований комутатор
+(?i).*\bкомутатор\b.*\bнеуправ.*;;;regex;Тип комутатора;;Некерований;4;TRUE;71903;extract;Неуправляємий комутатор
+;Керування;.*Layer\s*2.*;regex;Тип комутатора;;Керований рівня 2;5;TRUE;71903;attribute;Layer 2
+;Керування;.*Layer\s*3.*;regex;Тип комутатора;;Керований рівня 3 і вище;6;TRUE;71903;attribute;Layer 3
+;Керування;.*L2.*;regex;Тип комутатора;;Керований рівня 2;7;TRUE;71903;attribute;L2
+;Керування;.*L3.*;regex;Тип комутатора;;Керований рівня 3 і вище;8;TRUE;71903;attribute;L3
+;Керування;.*Л2.*;regex;Тип комутатора;;Керований рівня 2;9;TRUE;71903;attribute;Л2
+;Керування;.*Л3.*;regex;Тип комутатора;;Керований рівня 3 і вище;10;TRUE;71903;attribute;Л3
+(?i).*\b(\d+)\s*порт[іаів].*;;;regex;Загальна кількість портів;шт.;$1;11;TRUE;71903;extract;Кількість портів з назви
+;Порти (DownLink);(\d+)x\s*RJ45.*1000.*M.*;regex;Тип портів;;Gigabit Ethernet;12;TRUE;71903;extract;Gigabit Ethernet DownLink
+;Порти (DownLink);(\d+)x\s*RJ45.*10\/100.*M.*;regex;Тип портів;;Fast Ethernet;13;TRUE;71903;extract;Fast Ethernet DownLink
+;Порти (DownLink);(\d+)x\s*RJ45.*100.*M.*;regex;Тип портів;;Fast Ethernet;14;TRUE;71903;extract;Fast Ethernet 100M
+;Порти (DownLink);.*10\/100\/1000.*M.*;regex;Тип портів;;Gigabit Ethernet;15;TRUE;71903;attribute;Gigabit Ethernet combo
+;Порти (DownLink);.*SFP.*;regex;Тип портів;;SFP;16;TRUE;71903;attribute;SFP порти
+;Порти (Uplink);.*SFP\+.*;regex;Тип портів;;SFP+;17;TRUE;71903;attribute;SFP+ порти Uplink
+;Порти (DownLink);.*SFP\+.*;regex;Тип портів;;SFP+;18;TRUE;71903;attribute;SFP+ порти DownLink
+;Порти (Uplink);.*SFP.*;regex;Наявність портів SFP;;Так;19;TRUE;71903;attribute;SFP Uplink
+;Порти (DownLink);.*SFP.*;regex;Наявність портів SFP;;Так;20;TRUE;71903;attribute;SFP DownLink
+;Порти (Uplink);.*SFP\+.*;regex;Наявність портів SFP+;;Так;21;TRUE;71903;attribute;SFP+ Uplink наявність
+;Порти (DownLink);.*SFP\+.*;regex;Наявність портів SFP+;;Так;22;TRUE;71903;attribute;SFP+ DownLink наявність
+;Споживана потужність PoE;.*бюджет.*(\d+)\s*Вт.*;regex;Підтримка PoE;;Так;23;TRUE;71903;attribute;PoE підтримка з бюджету
+;Протоколи PoE;.*IEEE\s*802\.3af.*;regex;Підтримка PoE;;Так;24;TRUE;71903;attribute;PoE 802.3af
+;Протоколи PoE;.*IEEE\s*802\.3at.*;regex;Підтримка PoE;;Так;25;TRUE;71903;attribute;PoE 802.3at
+;Протоколи PoE;.*802\.3bt.*;regex;Підтримка PoE;;Так;26;TRUE;71903;attribute;PoE 802.3bt
+(?i).*\bPoE\b.*;;;regex;Підтримка PoE;;Так;27;TRUE;71903;extract;PoE з назви
+;VLAN;.*Підтримує.*;regex;Агрегування каналів (LACP);;Так;28;TRUE;71903;attribute;VLAN підтримка
+;Віддзеркалення портів;.*Підтримує.*;regex;Стэкирование;;Так;29;TRUE;71903;attribute;Віддзеркалення портів
+;Керування потоком;.*Підтримує.*;regex;Агрегування каналів (LACP);;Так;30;TRUE;71903;attribute;Керування потоком
+;Живлення від PoE-in;.*Підтримує.*;regex;Заживлення від портів (PoE на виході);;Так;31;TRUE;71903;attribute;PoE-in підтримка
+;Живлення від PoE-in;.*802\.3af.*;regex;Заживлення від портів (PoE на виході);;Так;32;TRUE;71903;attribute;PoE-in 802.3af
+;Живлення від PoE-in;.*802\.3at.*;regex;Заживлення від портів (PoE на виході);;Так;33;TRUE;71903;attribute;PoE-in 802.3at
+;Живлення від PoE-in;.*Passive.*;regex;Заживлення від портів (PoE на виході);;Так;34;TRUE;71903;attribute;Passive PoE-in
+(?i).*\bстійк[аіу].*;;;regex;Можливість монтажу в стійку;;Так;35;TRUE;71903;extract;Монтаж у стійку з назви
+(?i).*\bRM\b.*;;;regex;Можливість монтажу в стійку;;Так;36;TRUE;71903;extract;RM - rack mount
+(?i).*\bрек.*;;;regex;Можливість монтажу в стійку;;Так;37;TRUE;71903;extract;Рековий монтаж
+;Розміри;440.*мм;regex;Можливість монтажу в стійку;;Так;38;TRUE;71903;attribute;Розмір 440мм (19")
+;Розміри;443.*мм;regex;Можливість монтажу в стійку;;Так;39;TRUE;71903;attribute;Розмір 443мм (19")
+(?i).*\bнастільн.*;;;regex;Форм-фактор;;Настільний;40;TRUE;71903;extract;Настільний з назви
+(?i).*\bнавісн.*;;;regex;Форм-фактор;;Навісний;41;TRUE;71903;extract;Навісний з назви
+(?i).*\bзовнішн.*;;;regex;Форм-фактор;;Зовнішній;42;TRUE;71903;extract;Зовнішній з назви
+;Мережеві стандарти;.*802\.11a.*;regex;Стандарт бездротового зв'язку;;802.11a;43;TRUE;71903;attribute;WiFi 802.11a
+;Мережеві стандарти;.*802\.11b.*;regex;Стандарт бездротового зв'язку;;802.11b;44;TRUE;71903;attribute;WiFi 802.11b
+;Мережеві стандарти;.*802\.11g.*;regex;Стандарт бездротового зв'язку;;802.11g;45;TRUE;71903;attribute;WiFi 802.11g
+;Мережеві стандарти;.*802\.11n.*;regex;Стандарт бездротового зв'язку;;802.11n;46;TRUE;71903;attribute;WiFi 802.11n
+;Мережеві стандарти;.*802\.11ac.*;regex;Стандарт бездротового зв'язку;;802.11ac;47;TRUE;71903;attribute;WiFi 802.11ac
+;Мережеві стандарти;.*802\.11ax.*;regex;Стандарт бездротового зв'язку;;802.11ax;48;TRUE;71903;attribute;WiFi 802.11ax
+;Операційна система;.*WiFi.*;regex;Стандарт бездротового зв'язку;;802.11n;49;TRUE;71903;attribute;WiFi загальний
+;Додатково;.*корпус\s+(?:метал|пластик).*;regex;Колір;;Сірий;50;TRUE;71903;attribute;Колір корпусу
