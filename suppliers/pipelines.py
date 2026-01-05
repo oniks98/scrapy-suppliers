@@ -24,6 +24,7 @@ from pathlib import Path
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from suppliers.attribute_mapper import AttributeMapper
+from suppliers.keywords_generator import ProductKeywordsGenerator
 
 
 class SuppliersPipeline:
@@ -36,6 +37,7 @@ class SuppliersPipeline:
         self.personal_notes_mapping = {}
         self.label_mapping = {}
         self.attribute_mapper = None
+        self.keywords_generator = None
         
         # Базові поля CSV згідно формату PROM
         self.fieldnames_base = [
@@ -165,6 +167,19 @@ class SuppliersPipeline:
         else:
             spider.logger.warning(f"⚠️  Маппінг характеристик відключено")
             self.attribute_mapper = None
+        
+        # Ініціалізація генератора ключових слів
+        keywords_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_keywords.csv"
+        if keywords_path.exists():
+            try:
+                self.keywords_generator = ProductKeywordsGenerator(str(keywords_path), spider.logger)
+                spider.logger.info(f"✅ ProductKeywordsGenerator ініціалізовано")
+            except Exception as e:
+                spider.logger.error(f"❌ Помилка ініціалізації ProductKeywordsGenerator: {e}")
+                self.keywords_generator = None
+        else:
+            spider.logger.warning(f"⚠️  Генератор ключових слів відключено")
+            self.keywords_generator = None
 
         output_file = getattr(spider, 'output_filename', f"{spider.name}.csv")
         filepath = self.output_dir / output_file
@@ -320,6 +335,28 @@ class SuppliersPipeline:
         # Витягуємо габарити з характеристик для колонок PROM (після всіх постпроцесів)
         dimensions = self._extract_dimensions_from_specs(specs_list, spider)
         cleaned_item.update(dimensions)
+        
+        # Генерація ключових слів (якщо генератор доступний)
+        if self.keywords_generator:
+            category_id = adapter.get("Ідентифікатор_підрозділу", "")
+            product_name_ru = cleaned_item.get('Назва_позиції', '')
+            product_name_ua = cleaned_item.get('Назва_позиції_укр', '')
+            
+            try:
+                keywords_ru = self.keywords_generator.generate_keywords(
+                    product_name_ru, category_id, specs_list, lang='ru'
+                )
+                keywords_ua = self.keywords_generator.generate_keywords(
+                    product_name_ua, category_id, specs_list, lang='ua'
+                )
+                
+                cleaned_item['Пошукові_запити'] = keywords_ru
+                cleaned_item['Пошукові_запити_укр'] = keywords_ua
+                
+                spider.logger.debug(f"🔑 RU: {keywords_ru[:80]}...")
+                spider.logger.debug(f"🔑 UA: {keywords_ua[:80]}...")
+            except Exception as e:
+                spider.logger.error(f"❌ Помилка генерації ключових слів: {e}")
         
         # Запис у файл
         if output_file not in self.files:

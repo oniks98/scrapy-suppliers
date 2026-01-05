@@ -315,15 +315,14 @@ class ViatecDealerSpider(ViatecBaseSpider, BaseDealerSpider):
             manufacturer = self._extract_manufacturer(name_ru)
             
             subdivision_id = response.meta.get("subdivision_id", "")
-            search_terms_ru = self._generate_search_terms(name_ru, subdivision_id, lang="ru")
-            search_terms_ua = self._generate_search_terms(name_ua, subdivision_id, lang="ua")
+            # Ключові слова генеруються автоматично через ProductKeywordsGenerator в pipeline
             
             item = {
                 "Код_товару": code,
                 "Назва_позиції": name_ru,
                 "Назва_позиції_укр": name_ua,
-                "Пошукові_запити": search_terms_ru,
-                "Пошукові_запити_укр": search_terms_ua,
+                "Пошукові_запити": "",  # Заповнюється в pipeline
+                "Пошукові_запити_укр": "",  # Заповнюється в pipeline
                 "Опис": description_ru,
                 "Опис_укр": description_ua,
                 "Тип_товару": "r",
