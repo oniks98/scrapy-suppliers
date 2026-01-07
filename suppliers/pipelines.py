@@ -170,14 +170,24 @@ class SuppliersPipeline:
         
         # Ініціалізація генератора ключових слів
         keywords_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_keywords.csv"
-        if keywords_path.exists():
+        manufacturers_path = Path(r"C:\FullStack\Scrapy\data") / supplier_name / f"{supplier_name}_manufacturers.csv"
+        
+        if keywords_path.exists() and manufacturers_path.exists():
             try:
-                self.keywords_generator = ProductKeywordsGenerator(str(keywords_path), spider.logger)
+                self.keywords_generator = ProductKeywordsGenerator(
+                    keywords_csv_path=str(keywords_path),
+                    manufacturers_csv_path=str(manufacturers_path),
+                    logger=spider.logger
+                )
                 spider.logger.info(f"✅ ProductKeywordsGenerator ініціалізовано")
             except Exception as e:
                 spider.logger.error(f"❌ Помилка ініціалізації ProductKeywordsGenerator: {e}")
                 self.keywords_generator = None
         else:
+            if not keywords_path.exists():
+                spider.logger.warning(f"⚠️  Файл {keywords_path} не знайдено")
+            if not manufacturers_path.exists():
+                spider.logger.warning(f"⚠️  Файл {manufacturers_path} не знайдено")
             spider.logger.warning(f"⚠️  Генератор ключових слів відключено")
             self.keywords_generator = None
 
