@@ -8,7 +8,7 @@
 
 import re
 import csv
-from typing import List, Dict, Optional, Set, TypedDict
+from typing import List, Dict, Optional, Set, TypedDict, Callable
 from pathlib import Path
 from dataclasses import dataclass
 from enum import Enum
@@ -49,6 +49,8 @@ CATEGORY_PROCESSORS = {
     "301105": ProcessorType.CAMERA,  # Камеры видеонаблюдения
     "301101": ProcessorType.DVR,     # Видеорегистраторы
     "70704": ProcessorType.GENERIC,  # Жесткие диски (HDD)
+    "63705": ProcessorType.GENERIC,  # Карты памяти (SD/microSD)
+    "70501": ProcessorType.GENERIC,  # USB-флешки
 }
 
 # Константы лимитов
@@ -71,6 +73,231 @@ SPEC_TERMS = {
     "dvr_type": {"ru": "тип відеореєстратора", "ua": "тип відеореєстратора"},
     "poe": {"ru": "підтримка poe", "ua": "підтримка poe"},
 }
+
+
+# =====================================================
+# HELPER КЛАССЫ
+# =====================================================
+
+class SpecAccessor:
+    """Строгий доступ к характеристикам без ложных совпадений"""
+    
+    def __init__(self, specs: List[Spec]):
+        """
+        Args:
+            specs: Список характеристик товара
+        """
+        self._map = {
+            s["name"].strip().lower(): s
+            for s in specs
+            if s.get("name")
+        }
+    
+    def get(self, name: str) -> Optional[Dict]:
+        """Получить характеристику по имени"""
+        return self._map.get(name.lower())
+    
+    def value(self, name: str) -> Optional[str]:
+        """Получить значение характеристики"""
+        s = self.get(name)
+        return s["value"] if s else None
+    
+    def unit(self, name: str) -> Optional[str]:
+        """Получить единицу измерения характеристики"""
+        s = self.get(name)
+        return s.get("unit") if s else None
+
+
+class KeywordBucket:
+    """Контейнер для ключевых слов с автоматической дедупликацией и лимитами"""
+    
+    def __init__(self, limit: int):
+        """
+        Args:
+            limit: Максимальное количество ключевых слов
+        """
+        self.limit = limit
+        self.items: List[str] = []
+        self.seen: Set[str] = set()
+    
+    def add(self, value: Optional[str]) -> None:
+        """Добавить одно ключевое слово"""
+        if not value:
+            return
+        
+        v = value.strip().lower()
+        if v and v not in self.seen and len(self.items) < self.limit:
+            self.seen.add(v)
+            self.items.append(value.strip())
+    
+    def extend(self, values: List[str]) -> None:
+        """Добавить несколько ключевых слов"""
+        for v in values:
+            self.add(v)
+    
+    def to_list(self) -> List[str]:
+        """Получить список ключевых слов"""
+        return self.items
+
+
+# =====================================================
+# HELPER ФУНКЦИИ
+# =====================================================
+
+def extract_capacity(
+    specs: SpecAccessor,
+    name: str
+) -> Optional[Dict[str, any]]:
+    """
+    Универсальное извлечение объёма (для HDD/SD/USB).
+    
+    Args:
+        specs: Accessor для характеристик
+        name: Имя характеристики (например, "Об'єм накопичувача")
+    
+    Returns:
+        {"formatted": "128gb", "size_gb": 128} или None
+    """
+    raw = specs.value(name)
+    if not raw:
+        return None
+    
+    # Извлекаем число
+    match = re.search(r"(\d+)", raw)
+    if not match:
+        return None
+    
+    size = int(match.group(1))
+    unit = (specs.unit(name) or "").upper()
+    
+    if unit not in ["GB", "TB", "MB"]:
+        return None
+    
+    # Конвертируем в GB
+    if unit == "GB":
+        size_gb = size
+        formatted = f"{size // 1000}tb" if size >= 1000 else f"{size}gb"
+    elif unit == "TB":
+        size_gb = size * 1000
+        formatted = f"{size}tb"
+    elif unit == "MB":
+        size_gb = size / 1000
+        formatted = f"{size}mb"
+    else:
+        return None
+    
+    return {
+        "formatted": formatted,
+        "size_gb": size_gb
+    }
+
+
+def extract_speed(
+    specs: SpecAccessor,
+    name: str
+) -> Optional[str]:
+    """
+    Извлечение скорости (для SD-карт).
+    
+    Args:
+        specs: Accessor для характеристик
+        name: Имя характеристики (например, "Швидкість зчитування")
+    
+    Returns:
+        Скорость в виде числа (например, "90") или None
+    """
+    raw = specs.value(name)
+    if not raw:
+        return None
+    
+    # Ищем число
+    match = re.search(r"(\d+)", raw)
+    return match.group(1) if match else None
+
+
+def extract_interface(
+    specs: SpecAccessor,
+    name: str
+) -> Optional[str]:
+    """
+    Извлечение интерфейса (для HDD/USB).
+    
+    Args:
+        specs: Accessor для характеристик
+        name: Имя характеристики (например, "Інтерфейс")
+    
+    Returns:
+        Интерфейс в нижнем регистре (например, "sata", "usb type-c") или None
+    """
+    raw = specs.value(name)
+    if not raw:
+        return None
+    
+    value_lower = raw.lower()
+    
+    # Проверяем популярные интерфейсы
+    if "sata" in value_lower:
+        return "sata"
+    elif "m.2" in value_lower or "m2" in value_lower:
+        return "m.2"
+    elif "nvme" in value_lower:
+        return "nvme"
+    elif "sas" in value_lower:
+        return "sas"
+    elif "ide" in value_lower:
+        return "ide"
+    elif "type-c" in value_lower or "type c" in value_lower:
+        return "usb type-c"
+    elif "usb 3" in value_lower or "3." in value_lower:
+        return "usb 3.0"
+    elif "usb 2" in value_lower or "2." in value_lower:
+        return "usb 2.0"
+    
+    return raw  # Возвращаем как есть, если не распознали
+
+
+def extract_rpm(
+    specs: SpecAccessor,
+    name: str
+) -> Optional[str]:
+    """
+    Извлечение скорости вращения (для HDD).
+    
+    Args:
+        specs: Accessor для характеристик
+        name: Имя характеристики (например, "Швидкість обертання")
+    
+    Returns:
+        Скорость вращения (например, "7200") или None
+    """
+    raw = specs.value(name)
+    if not raw:
+        return None
+    
+    # Ищем число (5400, 7200, 10000)
+    match = re.search(r"(\d{4,5})", raw)
+    return match.group(1) if match else None
+
+
+def is_spec_allowed(spec_name: str, allowed: Set[str]) -> bool:
+    """
+    Проверка, разрешена ли характеристика.
+    
+    Args:
+        spec_name: Имя характеристики
+        allowed: Множество разрешённых характеристик
+    
+    Returns:
+        True, если характеристика разрешена
+    """
+    if not allowed:
+        return True
+    
+    spec_lower = spec_name.lower()
+    return any(
+        spec_lower in allowed_spec or allowed_spec in spec_lower 
+        for allowed_spec in allowed
+    )
 
 
 # =====================================================
@@ -221,19 +448,12 @@ class ProductKeywordsGenerator:
         # Блок 1: Модель и бренд
         block1 = self._generate_model_keywords(product_name)
 
-        # Блок 2: Спецификации (зависит от типа процессора)
-        if config.processor_type == ProcessorType.CAMERA:
-            block2 = self._generate_camera_keywords(
-                product_name, config, specs_list, lang
-            )
-        elif config.processor_type == ProcessorType.DVR:
-            block2 = self._generate_dvr_keywords(
-                product_name, config, specs_list, lang
-            )
+        # Блок 2: Спецификации (роутинг через handler)
+        handler = PROCESSOR_HANDLERS.get(config.processor_type)
+        if handler:
+            block2 = handler(self, product_name, config, specs_list, lang)
         else:
-            block2 = self._generate_generic_keywords(
-                product_name, config, specs_list, lang
-            )
+            block2 = []
 
         # Блок 3: Универсальные фразы
         block3 = self._generate_universal_keywords(config, lang)
@@ -307,77 +527,73 @@ class ProductKeywordsGenerator:
         if not base:
             return []
 
-        keywords = []
+        accessor = SpecAccessor(specs)
+        bucket = KeywordBucket(MAX_SPEC_KEYWORDS)
+        allowed = config.allowed_specs
 
         # Извлекаем характеристики
-        brand = self._get_brand_from_specs(specs, config.allowed_specs) or self._extract_brand(name)
-        resolution = self._get_resolution(specs, config.allowed_specs)
-        focal = self._get_focal_length(specs, config.allowed_specs)
-        tech = self._get_camera_technology(specs, config.allowed_specs)
-        camera_type = self._get_camera_type(specs, lang, config.allowed_specs)
-        ip_rating = self._get_ip_rating(specs, lang, config.allowed_specs)
+        brand = self._get_brand_from_accessor(accessor, allowed) or self._extract_brand(name)
+        resolution = self._get_resolution(accessor, allowed)
+        focal = self._get_focal_length(accessor, allowed)
+        tech = self._get_camera_technology(accessor, allowed)
+        camera_type = self._get_camera_type(accessor, lang, allowed)
+        ip_rating = self._get_ip_rating(accessor, lang, allowed)
         has_wifi = self._check_wifi(name, specs)
-        wide_angle = self._check_wide_angle(specs, config.allowed_specs)
-        has_microphone = self._check_microphone(specs, config.allowed_specs)
-        has_sd_card = self._check_sd_card(specs, config.allowed_specs)
+        wide_angle = self._check_wide_angle(accessor, allowed)
+        has_microphone = self._check_microphone(accessor, allowed)
+        has_sd_card = self._check_sd_card(accessor, allowed)
 
         # Бренд (с маленькой буквы)
         if brand:
-            keywords.extend([
-                f"{base} {brand.lower()}",
-                f"{brand.lower()} {base}"
-            ])
+            bucket.add(f"{base} {brand.lower()}")
+            bucket.add(f"{brand.lower()} {base}")
 
         # Тип камеры
         if camera_type:
-            keywords.append(f"{camera_type} {base}")
+            bucket.add(f"{camera_type} {base}")
 
         # Разрешение
         if resolution:
-            keywords.extend([
-                f"{base} {resolution}",
-                f"{resolution} {base}",
-                f"{base} {resolution.replace('mp', 'мп')}",
-                f"{resolution.replace('mp', 'мп')} {base}"
-            ])
+            bucket.add(f"{base} {resolution}")
+            bucket.add(f"{resolution} {base}")
+            bucket.add(f"{base} {resolution.replace('mp', 'мп')}")
+            bucket.add(f"{resolution.replace('mp', 'мп')} {base}")
 
         # Технология (с вариантами)
         if tech:
             tech_lower = tech.lower()
             if tech_lower == "ip":
-                keywords.extend([
-                    f"ip {base}",
-                    f"айпи {base}",
-                    f"сетевая {base}" if lang == "ru" else f"мережева {base}"
-                ])
+                bucket.add(f"ip {base}")
+                bucket.add(f"айпи {base}")
+                bucket.add(f"сетевая {base}" if lang == "ru" else f"мережева {base}")
             elif tech_lower in ["tvi", "cvi", "ahd"]:
-                keywords.append(f"{tech_lower} {base}")
+                bucket.add(f"{tech_lower} {base}")
 
         # Фокусное расстояние
         if focal:
-            keywords.append(f"{base} {focal}")
+            bucket.add(f"{base} {focal}")
 
         # IP рейтинг
         if ip_rating:
-            keywords.append(f"{ip_rating} {base}")
+            bucket.add(f"{ip_rating} {base}")
 
         # WiFi
         if has_wifi:
-            keywords.append("wifi видеокамера" if lang == "ru" else "wifi відеокамера")
+            bucket.add("wifi видеокамера" if lang == "ru" else "wifi відеокамера")
 
         # Широкоугольная
         if wide_angle:
-            keywords.append("широкоугольная видеокамера" if lang == "ru" else "ширококутна відеокамера")
+            bucket.add("широкоугольная видеокамера" if lang == "ru" else "ширококутна відеокамера")
 
         # С микрофоном
         if has_microphone:
-            keywords.append("видеокамера с микрофоном" if lang == "ru" else "відеокамера з мікрофоном")
+            bucket.add("видеокамера с микрофоном" if lang == "ru" else "відеокамера з мікрофоном")
 
         # С записью (SD-карта)
         if has_sd_card:
-            keywords.append("видеокамера с записью" if lang == "ru" else "відеокамера з записом")
+            bucket.add("видеокамера с записью" if lang == "ru" else "відеокамера з записом")
 
-        return keywords[:MAX_SPEC_KEYWORDS]
+        return bucket.to_list()
 
     # =====================================================
     # БЛОК 2: ВИДЕОРЕГИСТРАТОРЫ
@@ -395,45 +611,42 @@ class ProductKeywordsGenerator:
         if not base:
             return []
 
-        keywords = []
+        accessor = SpecAccessor(specs)
+        bucket = KeywordBucket(MAX_SPEC_KEYWORDS)
+        allowed = config.allowed_specs
 
         # Извлекаем характеристики
-        brand = self._get_brand_from_specs(specs, config.allowed_specs) or self._extract_brand(name)
-        channels = self._get_channels(specs, lang, config.allowed_specs)
-        dvr_type_keywords = self._get_dvr_type_keywords(specs, lang, config.allowed_specs)
-        poe = self._get_poe_support(specs, lang, config.allowed_specs)
+        brand = self._get_brand_from_accessor(accessor, allowed) or self._extract_brand(name)
+        channels = self._get_channels(accessor, allowed)
+        dvr_type_keywords = self._get_dvr_type_keywords(accessor, lang, allowed)
+        poe = self._get_poe_support(accessor, lang, allowed)
         ai_keywords = self._get_ai_technology_keywords(name, lang)
 
         # Бренд (с маленькой буквы)
         if brand:
-            keywords.extend([
-                f"{base} {brand.lower()}",
-                f"{brand.lower()} {base}"
-            ])
+            bucket.add(f"{base} {brand.lower()}")
+            bucket.add(f"{brand.lower()} {base}")
 
         # Количество каналов (формат: "N-канальный видеорегистратор")
         if channels:
             if lang == "ru":
-                keywords.append(f"{channels}-канальный {base}")
+                bucket.add(f"{channels}-канальный {base}")
             else:
-                keywords.append(f"{channels}-канальний {base}")
+                bucket.add(f"{channels}-канальний {base}")
 
         # Тип DVR (множественные варианты)
-        if dvr_type_keywords:
-            keywords.extend(dvr_type_keywords)
+        bucket.extend(dvr_type_keywords)
 
         # PoE поддержка (множественные варианты)
-        if poe:
-            keywords.extend(poe)
+        bucket.extend(poe)
 
         # AI технологии (WizSense/AcuSense)
-        if ai_keywords:
-            keywords.extend(ai_keywords)
+        bucket.extend(ai_keywords)
 
-        return keywords[:MAX_SPEC_KEYWORDS]
+        return bucket.to_list()
 
     # =====================================================
-    # БЛОК 2: GENERIC
+    # БЛОК 2: GENERIC (HDD / SD / USB)
     # =====================================================
 
     def _generate_generic_keywords(
@@ -445,94 +658,130 @@ class ProductKeywordsGenerator:
     ) -> List[str]:
         """
         Генерация ключевых слов для обычных категорий.
-        Используется для HDD, кронштейнов и других простых категорий.
+        Роутинг по категориям: HDD, SD-карты, USB-флешки.
         """
         base = getattr(config, f"base_keyword_{lang}")
         if not base:
             return []
 
-        keywords = []
+        accessor = SpecAccessor(specs)
+        bucket = KeywordBucket(MAX_SPEC_KEYWORDS)
+        allowed = config.allowed_specs
 
         # Получаем бренд
-        brand = self._get_brand_from_specs(specs, config.allowed_specs) or self._extract_brand(name)
+        brand = self._get_brand_from_accessor(accessor, allowed) or self._extract_brand(name)
 
         # Бренд (с маленькой буквы)
         if brand:
-            keywords.extend([
-                f"{base} {brand.lower()}",
-                f"{brand.lower()} {base}"
-            ])
+            bucket.add(f"{base} {brand.lower()}")
+            bucket.add(f"{brand.lower()} {base}")
 
         # Специфичные характеристики в зависимости от категории
-        category_keywords = self._get_category_specific_keywords(
-            config.category_id, specs, lang, base, config.allowed_specs
-        )
-        if category_keywords:
-            keywords.extend(category_keywords)
+        category_handler = CATEGORY_HANDLERS.get(config.category_id)
+        if category_handler:
+            category_keywords = category_handler(self, accessor, lang, base, allowed)
+            bucket.extend(category_keywords)
 
-        return keywords[:MAX_SPEC_KEYWORDS]
+        return bucket.to_list()
 
-    def _get_category_specific_keywords(
-        self,
-        category_id: str,
-        specs: List[Spec],
-        lang: str,
-        base: str,
-        allowed: Set[str]
-    ) -> List[str]:
-        """
-        Получение специфичных ключевых слов для категории.
-        """
-        # HDD (70704)
-        if category_id == "70704":
-            return self._get_hdd_keywords(specs, lang, base, allowed)
-        
-        # Можно добавить другие категории
-        return []
+    # =====================================================
+    # КАТЕГОРИЯ: ЖЕСТКИЕ ДИСКИ (70704)
+    # =====================================================
 
     def _get_hdd_keywords(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         base: str,
         allowed: Set[str]
     ) -> List[str]:
         """
-        Генерация ключевых слов для жестких дисков и SD-карт.
+        Генерация ключевых слов для жестких дисков (HDD/SSD).
         """
         keywords = []
 
-        # Объем накопителя
-        capacity_info = self._get_hdd_capacity_with_size(specs, lang, allowed)
+        if not is_spec_allowed("Об'єм накопичувача", allowed):
+            return keywords
+
+        # 1. Объем накопителя
+        capacity_info = extract_capacity(accessor, "Об'єм накопичувача")
         if not capacity_info:
             return keywords
 
-        capacity = capacity_info["formatted"]  # "форматированный объем (1tb, 500gb)"
-        size_gb = capacity_info["size_gb"]    # размер в GB для проверки
+        capacity = capacity_info["formatted"]
 
-        # Определяем тип: SD-карта (<=512GB) или HDD/SSD (>512GB)
-        is_sd_card = size_gb <= 512
+        keywords.extend([
+            f"{base} {capacity}",
+            f"{capacity} {base}"
+        ])
 
-        if is_sd_card:
-            # Это SD-карта
-            keywords.extend(self._get_sd_card_keywords(capacity, lang))
+        # 2. Интерфейс
+        if is_spec_allowed("Інтерфейс", allowed):
+            interface = extract_interface(accessor, "Інтерфейс")
+            if interface:
+                keywords.append(f"{base} {interface}")
+
+        # 3. Форм-фактор
+        if is_spec_allowed("Форм-фактор", allowed):
+            form_factor = accessor.value("Форм-фактор")
+            if form_factor:
+                match = re.search(r"(\d\.\d)[\"\']?", form_factor)
+                if match:
+                    keywords.append(f"{base} {match.group(1)}\"")
+
+        # 4. Скорость вращения (если есть - HDD, если нет - SSD)
+        if is_spec_allowed("Швидкість обертання", allowed):
+            rpm = extract_rpm(accessor, "Швидкість обертання")
+            if rpm:
+                if lang == "ru":
+                    keywords.append(f"{base} {rpm} об/мин")
+                else:
+                    keywords.append(f"{base} {rpm} об/хв")
+            else:
+                # Если нет скорости вращения, возможно это SSD
+                keywords.append(f"ssd {base}")
+
+        # 5. Для видеонаблюдения
+        if lang == "ru":
+            keywords.extend([
+                f"{base} для видеонаблюдения",
+                f"{base} для регистратора",
+                f"hdd {base}"
+            ])
         else:
-            # Это HDD/SSD
-            keywords.extend(self._get_hdd_disk_keywords(
-                capacity, specs, lang, base, allowed
-            ))
+            keywords.extend([
+                f"{base} для відеоспостереження",
+                f"{base} для реєстратора",
+                f"hdd {base}"
+            ])
 
         return keywords
 
+    # =====================================================
+    # КАТЕГОРИЯ: КАРТЫ ПАМЯТИ (63705)
+    # =====================================================
+
     def _get_sd_card_keywords(
         self,
-        capacity: str,
-        lang: str
+        accessor: SpecAccessor,
+        lang: str,
+        base: str,
+        allowed: Set[str]
     ) -> List[str]:
         """
         Генерация ключевых слов для SD-карт.
         """
         keywords = []
+
+        if not is_spec_allowed("Об'єм пам'яті", allowed):
+            return keywords
+
+        # 1. Объем памяти
+        capacity_info = extract_capacity(accessor, "Об'єм пам'яті")
+        if not capacity_info:
+            return keywords
+
+        capacity = capacity_info["formatted"]
 
         if lang == "ru":
             keywords.extend([
@@ -555,57 +804,92 @@ class ProductKeywordsGenerator:
                 "карта пам'яті для камери"
             ])
 
+        # 2. Тип карты (microSD / SD)
+        if is_spec_allowed("Тип карти пам'яті", allowed):
+            card_type = accessor.value("Тип карти пам'яті")
+            if card_type:
+                card_type_lower = card_type.lower()
+                if "microsd" in card_type_lower or "micro sd" in card_type_lower:
+                    keywords.append(f"microsd {capacity}")
+                elif "sd" in card_type_lower:
+                    keywords.append(f"sd {capacity}")
+
+        # 3. Скорость чтения (если высокая скорость)
+        if is_spec_allowed("Швидкість зчитування", allowed):
+            read_speed = extract_speed(accessor, "Швидкість зчитування")
+            if read_speed and int(read_speed) >= 90:
+                if lang == "ru":
+                    keywords.append("быстрая sd карта")
+                else:
+                    keywords.append("швидка sd карта")
+
         return keywords
 
-    def _get_hdd_disk_keywords(
+    # =====================================================
+    # КАТЕГОРИЯ: USB-ФЛЕШКИ (70501)
+    # =====================================================
+
+    def _get_usb_flash_keywords(
         self,
-        capacity: str,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         base: str,
         allowed: Set[str]
     ) -> List[str]:
         """
-        Генерация ключевых слов для HDD/SSD.
+        Генерация ключевых слов для USB-флешек.
         """
         keywords = []
 
-        # Объем
-        keywords.extend([
-            f"{base} {capacity}",
-            f"{capacity} {base}"
-        ])
+        if not is_spec_allowed("Об'єм пам'яті", allowed):
+            return keywords
 
-        # Интерфейс
-        interface = self._get_hdd_interface(specs, lang, allowed)
-        if interface:
-            keywords.append(f"{base} {interface}")
+        # 1. Объем памяти
+        capacity_info = extract_capacity(accessor, "Об'єм пам'яті")
+        if not capacity_info:
+            return keywords
 
-        # Скорость вращения (если есть - HDD, если нет - возможно SSD)
-        rpm = self._get_hdd_rpm(specs, lang, allowed)
-        if rpm:
-            # Для видеонаблюдения популярны диски 5400/7200 RPM
-            if lang == "ru":
-                keywords.append(f"{base} {rpm} об/мин")
-            else:
-                keywords.append(f"{base} {rpm} об/хв")
-        else:
-            # Если нет скорости вращения, возможно это SSD
-            keywords.append(f"ssd {base}")
+        capacity = capacity_info["formatted"]
 
-        # Для видеонаблюдения
         if lang == "ru":
             keywords.extend([
-                f"{base} для видеонаблюдения",
-                f"{base} для регистратора",
-                f"hdd {base}"
+                f"флешка {capacity}",
+                f"usb флешка {capacity}",
+                f"{capacity} флешка",
+                f"флеш накопитель {capacity}",
+                "usb флешка для ноутбука",
+                "флешка для компьютера"
             ])
         else:
             keywords.extend([
-                f"{base} для відеоспостереження",
-                f"{base} для реєстратора",
-                f"hdd {base}"
+                f"флешка {capacity}",
+                f"usb флешка {capacity}",
+                f"{capacity} флешка",
+                f"флеш накопичувач {capacity}",
+                "usb флешка для ноутбука",
+                "флешка для комп'ютера"
             ])
+
+        # 2. Интерфейс (USB Type-C, USB 3.0, USB 2.0)
+        if is_spec_allowed("Інтерфейс", allowed):
+            interface = extract_interface(accessor, "Інтерфейс")
+            if interface:
+                interface_lower = interface.lower()
+                if "type-c" in interface_lower or "type c" in interface_lower:
+                    keywords.append("usb type-c флешка")
+                elif "3." in interface_lower or "usb 3" in interface_lower:
+                    keywords.append("usb 3.0 флешка")
+                elif "2." in interface_lower or "usb 2" in interface_lower:
+                    keywords.append("usb 2.0 флешка")
+
+        # 3. Форм-фактор
+        if is_spec_allowed("Форм-фактор", allowed):
+            form_factor = accessor.value("Форм-фактор")
+            if form_factor and "моноблок" in form_factor.lower():
+                if lang == "ru":
+                    keywords.append("компактная флешка")
+                else:
+                    keywords.append("компактна флешка")
 
         return keywords
 
@@ -623,210 +907,185 @@ class ProductKeywordsGenerator:
         return phrases[:MAX_UNIVERSAL_KEYWORDS]
 
     # =====================================================
-    # HELPERS: ИЗВЛЕЧЕНИЕ ИЗ SPECS
+    # HELPERS: ИЗВЛЕЧЕНИЕ ИЗ SPECS (КАМЕРЫ)
     # =====================================================
 
-    def _get_spec_value(
+    def _get_brand_from_accessor(
         self,
-        specs: List[Spec],
-        spec_name_key: str,
-        allowed: Set[str],
-        lang: str = "ru"
-    ) -> Optional[str]:
-        """Универсальный метод получения значения характеристики"""
-        # Проверяем, разрешена ли эта характеристика
-        if not self._is_spec_allowed(spec_name_key, allowed):
-            return None
-
-        # Получаем термин на нужном языке
-        term = SPEC_TERMS.get(spec_name_key, {}).get(lang, "")
-        if not term:
-            return None
-
-        # Ищем в характеристиках
-        for spec in specs:
-            if term in spec.get("name", "").lower():
-                return spec.get("value", "")
-
-        return None
-
-    @staticmethod
-    def _is_spec_allowed(spec_name: str, allowed: Set[str]) -> bool:
-        """Проверка, разрешена ли характеристика"""
-        if not allowed:
-            return True
-        
-        spec_lower = spec_name.lower()
-        return any(
-            spec_lower in allowed_spec or allowed_spec in spec_lower 
-            for allowed_spec in allowed
-        )
-
-    def _get_brand_from_specs(
-        self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         allowed: Set[str]
     ) -> Optional[str]:
         """Извлечение бренда из характеристик"""
-        value = self._get_spec_value(specs, "manufacturer", allowed)
-        return value if value else None
+        if not is_spec_allowed("Виробник", allowed):
+            return None
+        
+        return accessor.value("Виробник")
 
     def _get_resolution(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Извлечение разрешения"""
-        if not self._is_spec_allowed("Роздільна здатність", allowed):
+        """Извлечение разрешения - ТОЛЬКО портальная характеристика 'Роздільна здатність (Мп)'"""
+        if not is_spec_allowed("Роздільна здатність (Мп)", allowed):
             return None
 
-        for spec in specs:
-            name_lower = spec.get("name", "").lower()
-            # ТОЛЬКО точное совпадение с "Роздільна здатність"
-            if "роздільна здатність" not in name_lower:
-                continue
-                
-            value = str(spec.get("value", ""))
-            
-            # Вариант 1: Цифра + mp/мп ("2mp", "5 мп")
-            match = re.search(r"(\d+)\s*[mм][pр]", value, re.I)
-            if match:
-                return f"{match.group(1)}mp"
-            
-            # Вариант 2: Просто цифра ("2", "5")
-            match = re.search(r"^(\d+)$", value.strip())
-            if match:
-                return f"{match.group(1)}mp"
+        value = accessor.value("Роздільна здатність (Мп)")
+        if not value:
+            return None
+        
+        # Вариант 1: Цифра + mp/мп ("2mp", "5 мп")
+        match = re.search(r"(\d+)\s*[mм][pр]", value, re.I)
+        if match:
+            return f"{match.group(1)}mp"
+        
+        # Вариант 2: Просто цифра ("2", "5")
+        match = re.search(r"^(\d+)$", value.strip())
+        if match:
+            return f"{match.group(1)}mp"
 
         return None
 
     def _get_focal_length(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Извлечение фокусного расстояния"""
-        if not self._is_spec_allowed("Фокусна відстань", allowed):
+        """Извлечение фокусного расстояния - ТОЛЬКО портальная характеристика 'Фокусна відстань'"""
+        if not is_spec_allowed("Фокусна відстань", allowed):
             return None
 
-        for spec in specs:
-            if "фокусна відстань" in spec.get("name", "").lower():
-                value = str(spec.get("value", ""))
-                match = re.search(r"(\d+(?:\.\d+)?)\s*(мм|mm)", value, re.I)
-                if match:
-                    return f"{match.group(1)} мм"
+        value = accessor.value("Фокусна відстань")
+        if not value:
+            return None
+        
+        # Если значение уже содержит мм, извлекаем число
+        match = re.search(r"(\d+(?:\.\d+)?)\s*(мм|mm)", value, re.I)
+        if match:
+            return f"{match.group(1)} мм"
+        
+        # Если просто число - добавляем "мм"
+        match = re.search(r"^(\d+(?:\.\d+)?)$", value.strip())
+        if match:
+            return f"{match.group(1)} мм"
 
         return None
 
     def _get_camera_technology(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Извлечение технологии камеры"""
-        if not self._is_spec_allowed("Тип камери", allowed):
+        """Извлечение технологии камеры - ТОЛЬКО портальная характеристика 'Тип камери'"""
+        if not is_spec_allowed("Тип камери", allowed):
             return None
 
-        for spec in specs:
-            if "тип камери" in spec.get("name", "").lower():
-                value = spec.get("value", "").lower()
-                for tech in CAMERA_TECHNOLOGIES:
-                    if tech in value:
-                        return tech.upper()
+        value = accessor.value("Тип камери")
+        if not value:
+            return None
+        
+        value_lower = value.lower()
+        for tech in CAMERA_TECHNOLOGIES:
+            if tech in value_lower:
+                return tech.upper()
 
         return None
 
     def _get_camera_type(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Извлечение типа камеры (купольная/поворотная)"""
-        if not self._is_spec_allowed("Форм-фактор", allowed):
+        """Извлечение типа камеры (купольная/поворотная) - СТРОГО портальная характеристика 'Форм-фактор'"""
+        if not is_spec_allowed("Форм-фактор", allowed):
             return None
 
         mapping = {
-            "ru": {"купол": "купольная", "ptz": "поворотная"},
-            "ua": {"купол": "купольна", "ptz": "поворотна"},
+            "ru": {
+                "купол": "купольная", 
+                "ptz": "поворотная",
+                "поворот": "поворотная",  # Поворотний/Поворотная
+                "циліндр": "цилиндрическая",  # Циліндричний/Циліндрична
+                "куб": "кубическая",  # Кубічний/Кубічна
+            },
+            "ua": {
+                "купол": "купольна", 
+                "ptz": "поворотна",
+                "поворот": "поворотна",  # Поворотний/Поворотна
+                "циліндр": "циліндрична",  # Циліндричний/Циліндрична
+                "куб": "кубічна",  # Кубічний/Кубічна
+            },
         }
 
-        for spec in specs:
-            name_lower = spec.get("name", "").lower()
-            if "форм-фактор" in name_lower or "форм" in name_lower:
-                value = spec.get("value", "").lower()
-                for keyword, result in mapping[lang].items():
-                    if keyword in value:
-                        return result
+        value = accessor.value("Форм-фактор")
+        if not value:
+            return None
+        
+        value_lower = value.lower()
+        for keyword, result in mapping[lang].items():
+            if keyword in value_lower:
+                return result
 
         return None
 
     def _get_ip_rating(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Проверка защиты IP65-68 (уличная камера)"""
-        if not self._is_spec_allowed("Захист обладнання", allowed):
+        """Проверка защиты IP65-68 - ТОЛЬКО портальная характеристика 'Захист обладнання від води і пилу IP'"""
+        if not is_spec_allowed("Захист обладнання від води і пилу IP", allowed):
             return None
 
-        for spec in specs:
-            if "захист" in spec.get("name", "").lower():
-                value = str(spec.get("value", ""))
-                if re.search(r"ip6[5-8]", value, re.I):
-                    return "уличная" if lang == "ru" else "вулична"
+        value = accessor.value("Захист обладнання від води і пилу IP")
+        if not value:
+            return None
+        
+        if re.search(r"ip6[5-8]", value, re.I):
+            return "уличная" if lang == "ru" else "вулична"
 
         return None
 
     def _get_channels(
         self,
-        specs: List[Spec],
-        lang: str,
+        accessor: SpecAccessor,
         allowed: Set[str]
     ) -> Optional[str]:
-        """Извлечение количества каналов (строгий поиск по названию характеристики)"""
-        if not self._is_spec_allowed("Кількість каналів", allowed):
+        """Извлечение количества каналов - ТОЛЬКО портальная характеристика 'Кількість каналів'"""
+        if not is_spec_allowed("Кількість каналів", allowed):
             return None
 
-        # Строгий поиск: только точное совпадение названия характеристики
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower().strip()
-            if spec_name_lower == "кількість каналів":
-                value = str(spec.get("value", "")).strip()
-                # Извлекаем число из значения
-                match = re.search(r"\d+", value)
-                if match:
-                    return match.group(0)
+        value = accessor.value("Кількість каналів")
+        if not value:
+            return None
+        
+        # Извлекаем число из значения
+        match = re.search(r"\d+", value)
+        if match:
+            return match.group(0)
 
         return None
 
     def _get_dvr_type_keywords(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         allowed: Set[str]
     ) -> List[str]:
-        """Определение типа видеорегистратора с множественными ключевыми фразами"""
-        if not self._is_spec_allowed("Тип відеореєстратора", allowed):
+        """Определение типа видеорегистратора - ТОЛЬКО портальная характеристика 'Тип відеореєстратора'"""
+        if not is_spec_allowed("Тип відеореєстратора", allowed):
             return []
 
         base = "видеорегистратор" if lang == "ru" else "відеореєстратор"
         keywords = []
-        dvr_type_value = None
 
-        # Ищем характеристику "Тип відеореєстратора"
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower()
-            if "тип відеореєстратора" == spec_name_lower.strip():
-                dvr_type_value = spec.get("value", "").strip()
-                break
-
-        # Если характеристика не найдена, возвращаем пустой список
-        if not dvr_type_value:
+        value = accessor.value("Тип відеореєстратора")
+        if not value:
             return []
 
-        value_lower = dvr_type_value.lower()
+        value_lower = value.lower()
 
         # 1. IP видеорегистратор (NVR)
         if "ip" in value_lower or "nvr" in value_lower:
@@ -908,29 +1167,18 @@ class ProductKeywordsGenerator:
 
     def _get_poe_support(
         self,
-        specs: List[Spec],
+        accessor: SpecAccessor,
         lang: str,
         allowed: Set[str]
     ) -> List[str]:
-        """Проверка поддержки PoE с множественными ключевыми фразами"""
-        if not self._is_spec_allowed("Підтримка PoE", allowed):
+        """Проверка поддержки PoE - ТОЛЬКО портальная характеристика 'Підтримка PoE'"""
+        if not is_spec_allowed("Підтримка PoE", allowed):
             return []
 
         base = "видеорегистратор" if lang == "ru" else "відеореєстратор"
-        poe_found = False
 
-        # Строгий поиск характеристики "Підтримка PoE" = "Так"
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower()
-            # Точное совпадение названия характеристики
-            if "підтримка poe" == spec_name_lower.strip():
-                value = str(spec.get("value", "")).strip().lower()
-                # Только если значение = "Так" (на украинском языке из Prom)
-                if value == "так":
-                    poe_found = True
-                    break
-
-        if not poe_found:
+        value = accessor.value("Підтримка PoE")
+        if not value or value.strip().lower() != "так":
             return []
 
         # Возвращаем все варианты ключевых фраз
@@ -964,160 +1212,44 @@ class ProductKeywordsGenerator:
 
         return False
 
-    def _check_wide_angle(self, specs: List[Spec], allowed: Set[str]) -> bool:
-        """Проверка широкого угла обзора (>90 градусов)"""
-        if not self._is_spec_allowed("Кут огляду по горизонталі", allowed):
+    def _check_wide_angle(self, accessor: SpecAccessor, allowed: Set[str]) -> bool:
+        """Проверка широкого угла обзора (>90 градусов) - ТОЛЬКО портальная характеристика 'Кут огляду по горизонталі'"""
+        if not is_spec_allowed("Кут огляду по горизонталі", allowed):
             return False
 
-        for spec in specs:
-            name_lower = spec.get("name", "").lower()
-            if "кут" in name_lower and "горизонт" in name_lower:
-                value = str(spec.get("value", ""))
-                # Ищем число
-                match = re.search(r"(\d+)", value)
-                if match:
-                    angle = int(match.group(1))
-                    return angle > 90
+        value = accessor.value("Кут огляду по горизонталі")
+        if not value:
+            return False
+        
+        # Ищем число
+        match = re.search(r"(\d+)", value)
+        if match:
+            angle = int(match.group(1))
+            return angle > 90
 
         return False
 
-    def _check_microphone(self, specs: List[Spec], allowed: Set[str]) -> bool:
-        """Проверка наличия встроенного микрофона"""
-        if not self._is_spec_allowed("Вбудований мікрофон", allowed):
+    def _check_microphone(self, accessor: SpecAccessor, allowed: Set[str]) -> bool:
+        """Проверка наличия встроенного микрофона - ТОЛЬКО портальная характеристика 'Вбудований мікрофон'"""
+        if not is_spec_allowed("Вбудований мікрофон", allowed):
             return False
 
-        for spec in specs:
-            name_lower = spec.get("name", "").lower()
-            if "мікрофон" in name_lower or "микрофон" in name_lower:
-                value = str(spec.get("value", "")).lower()
-                return value in {"так", "yes", "true", "є", "вбудований"}
+        value = accessor.value("Вбудований мікрофон")
+        if not value:
+            return False
+        
+        return value.lower() in {"так", "yes", "true", "є", "вбудований"}
 
-        return False
-
-    def _check_sd_card(self, specs: List[Spec], allowed: Set[str]) -> bool:
-        """Проверка наличия порта для SD-карты"""
-        if not self._is_spec_allowed("Порт для SD-карти", allowed):
+    def _check_sd_card(self, accessor: SpecAccessor, allowed: Set[str]) -> bool:
+        """Проверка наличия порта для SD-карты - ТОЛЬКО портальная характеристика 'Порт для SD-карти'"""
+        if not is_spec_allowed("Порт для SD-карти", allowed):
             return False
 
-        for spec in specs:
-            name_lower = spec.get("name", "").lower()
-            if "sd" in name_lower and "карт" in name_lower:
-                value = str(spec.get("value", "")).lower()
-                return value in {"так", "yes", "true", "є"}
-
-        return False
-
-    # =====================================================
-    # HELPERS: HDD ХАРАКТЕРИСТИКИ
-    # =====================================================
-
-    def _get_hdd_capacity_with_size(
-        self,
-        specs: List[Spec],
-        lang: str,
-        allowed: Set[str]
-    ) -> Optional[dict]:
-        """
-        Извлечение объема накопителя с информацией о размере в GB.
-        Формат Prom: value="64", unit="GB" (раздельно)
-        Возвращает: {"formatted": "64gb", "size_gb": 64} или None
-        """
-        if not self._is_spec_allowed("Об'єм накопичувача", allowed):
-            return None
-
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower().strip()
-            if "об'єм накопичувача" == spec_name_lower:
-                value_str = str(spec.get("value", "")).strip()
-                unit = str(spec.get("unit", "")).strip().upper()
-                
-                # Извлекаем число из value
-                match = re.search(r"(\d+)", value_str)
-                if not match:
-                    continue
-                
-                size = int(match.group(1))
-                
-                # Проверяем unit
-                if unit not in ["GB", "TB", "MB"]:
-                    continue
-                
-                # Конвертируем все в GB для сравнения
-                if unit == "GB":
-                    size_gb = size
-                    formatted = f"{size // 1000}tb" if size >= 1000 else f"{size}gb"
-                elif unit == "TB":
-                    size_gb = size * 1000
-                    formatted = f"{size}tb"
-                elif unit == "MB":
-                    size_gb = size / 1000
-                    formatted = f"{size}mb"
-                else:
-                    return None
-                
-                return {
-                    "formatted": formatted,
-                    "size_gb": size_gb
-                }
-
-        return None
-
-    def _get_hdd_interface(
-        self,
-        specs: List[Spec],
-        lang: str,
-        allowed: Set[str]
-    ) -> Optional[str]:
-        """
-        Извлечение интерфейса HDD.
-        Примеры: "SATA III (SATA/600)" -> "sata", "M.2" -> "m.2"
-        """
-        if not self._is_spec_allowed("Інтерфейс", allowed):
-            return None
-
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower().strip()
-            if "інтерфейс" == spec_name_lower:
-                value = str(spec.get("value", "")).strip().lower()
-                
-                # Проверяем популярные интерфейсы
-                if "sata" in value:
-                    return "sata"
-                elif "m.2" in value or "m2" in value:
-                    return "m.2"
-                elif "nvme" in value:
-                    return "nvme"
-                elif "sas" in value:
-                    return "sas"
-                elif "ide" in value:
-                    return "ide"
-
-        return None
-
-    def _get_hdd_rpm(
-        self,
-        specs: List[Spec],
-        lang: str,
-        allowed: Set[str]
-    ) -> Optional[str]:
-        """
-        Извлечение скорости вращения HDD.
-        Примеры: "7200 об/мин" -> "7200", "5400 RPM" -> "5400"
-        """
-        if not self._is_spec_allowed("Швидкість обертання", allowed):
-            return None
-
-        for spec in specs:
-            spec_name_lower = spec.get("name", "").lower().strip()
-            if "швидкість обертання" == spec_name_lower:
-                value = str(spec.get("value", "")).strip()
-                
-                # Ищем число (5400, 7200, 10000)
-                match = re.search(r"(\d{4,5})", value)
-                if match:
-                    return match.group(1)
-
-        return None
+        value = accessor.value("Порт для SD-карти")
+        if not value:
+            return False
+        
+        return value.lower() in {"так", "yes", "true", "є"}
 
     # =====================================================
     # ФИНАЛЬНАЯ ОБРАБОТКА
@@ -1128,17 +1260,26 @@ class ProductKeywordsGenerator:
         *blocks: List[str]
     ) -> str:
         """Объединение блоков ключевых слов с дедупликацией"""
-        seen = set()
-        result = []
-
+        bucket = KeywordBucket(MAX_TOTAL_KEYWORDS)
+        
         for block in blocks:
-            for keyword in block:
-                keyword_lower = keyword.lower().strip()
-                if keyword_lower and keyword_lower not in seen:
-                    seen.add(keyword_lower)
-                    result.append(keyword)
+            bucket.extend(block)
+        
+        return ", ".join(bucket.to_list())
 
-        # Ограничиваем количество
-        result = result[:MAX_TOTAL_KEYWORDS]
 
-        return ", ".join(result)
+# =====================================================
+# РОУТИНГ ПРОЦЕССОРОВ И КАТЕГОРИЙ
+# =====================================================
+
+PROCESSOR_HANDLERS: Dict[ProcessorType, Callable] = {
+    ProcessorType.CAMERA: ProductKeywordsGenerator._generate_camera_keywords,
+    ProcessorType.DVR: ProductKeywordsGenerator._generate_dvr_keywords,
+    ProcessorType.GENERIC: ProductKeywordsGenerator._generate_generic_keywords,
+}
+
+CATEGORY_HANDLERS: Dict[str, Callable] = {
+    "70704": ProductKeywordsGenerator._get_hdd_keywords,      # HDD
+    "63705": ProductKeywordsGenerator._get_sd_card_keywords,  # SD-карты
+    "70501": ProductKeywordsGenerator._get_usb_flash_keywords, # USB-флешки
+}
