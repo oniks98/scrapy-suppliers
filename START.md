@@ -1,11 +1,3 @@
-# Трансформувати data.csv
-
-python scripts/transform_any.py
-
-# Трансформувати data_prom.csv
-
-python scripts/transform_prom.py
-
 # spider'и
 
 python scripts/ultra_clean_run.py viatec_dealer

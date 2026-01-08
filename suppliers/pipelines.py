@@ -24,7 +24,7 @@ from pathlib import Path
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from suppliers.attribute_mapper import AttributeMapper
-from suppliers.keywords_generator import ProductKeywordsGenerator
+from keywords.core.generator import ProductKeywordsGenerator
 
 
 class SuppliersPipeline:
