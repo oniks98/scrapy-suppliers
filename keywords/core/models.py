@@ -60,4 +60,6 @@ CATEGORY_PROCESSORS = {
     "70704": ProcessorType.GENERIC,  # Жорсткі диски (HDD)
     "63705": ProcessorType.GENERIC,  # Карти пам'яті (SD/microSD)
     "70501": ProcessorType.GENERIC,  # USB-флешки
+    "301112": ProcessorType.GENERIC, # Кронштейни та кожухи
+    "5092913": ProcessorType.GENERIC, # Монтажні коробки
 }

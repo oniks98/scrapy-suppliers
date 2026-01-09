@@ -337,6 +337,7 @@ class SuppliersPipeline:
             
             # Постобробка
             specs_list = self._postprocess_weight_in_specs(specs_list, spider)
+            specs_list = self._postprocess_load_capacity_in_specs(specs_list, spider)
             specs_list = self._postprocess_hdd_capacity_in_specs(specs_list, spider)
             specs_list = self._postprocess_battery_capacity_in_specs(specs_list, spider)
         else:
@@ -549,6 +550,85 @@ class SuppliersPipeline:
                 if converted_value != original_value:
                     spec['value'] = converted_value
                     spider.logger.info(f"⚖️ Конвертація ваги: {spec['name']} = '{original_value}' → '{converted_value}'")
+        
+        return specs_list
+    
+    def _postprocess_load_capacity_in_specs(self, specs_list, spider):
+        """Постобробка навантаження ТІЛЬКИ для портальних характеристик (г → кг)"""
+        if not specs_list:
+            return specs_list
+        
+        # Тільки портальні характеристики, БЕЗ "навантаження" постачальника
+        bracket_load_names = [
+            'маx нагрузка на кронштейн',
+            'max нагрузка на кронштейн',
+        ]
+        
+        permitted_load_names = [
+            'максимально допустиме навантаження',
+            'максимальная нагрузка',
+            'максимальне навантаження',
+            'max load capacity',
+            'load capacity',
+        ]
+        
+        for spec in specs_list:
+            spec_name_lower = spec.get('name', '').lower().strip()
+            original_value = spec.get('value', '').strip()
+            
+            # 1. Маx нагрузка на кронштейн: г → кг (БЕЗ /м)
+            if spec_name_lower in bracket_load_names:
+                # Конвертація: 1000 г → 1 кг
+                match_g = re.search(r'([0-9\.]+)\s*г', original_value, re.IGNORECASE)
+                if match_g:
+                    try:
+                        grams = float(match_g.group(1))
+                        kg = grams / 1000
+                        spec['value'] = str(kg).replace('.', ',')
+                        spec['unit'] = 'кг'
+                        spider.logger.info(
+                            f"🔧 Навантаження (кронштейн): {spec['name']} = '{original_value}' → '{kg} кг'"
+                        )
+                    except (ValueError, AttributeError) as e:
+                        spider.logger.warning(f"⚠️ Помилка конвертації навантаження: {e}")
+                
+                # Якщо вже в кг - залишаємо як є
+                elif 'кг' in original_value:
+                    match_kg = re.search(r'([0-9\.]+)\s*кг', original_value, re.IGNORECASE)
+                    if match_kg:
+                        kg_value = match_kg.group(1)
+                        spec['value'] = kg_value
+                        spec['unit'] = 'кг'
+                        spider.logger.info(
+                            f"🔧 Навантаження (кронштейн): {spec['name']} = '{original_value}' → '{kg_value} кг'"
+                        )
+            
+            # 2. Максимально допустиме навантаження: г → кг/м
+            elif spec_name_lower in permitted_load_names:
+                # Конвертація: 1000 г → 1 кг/м
+                match_g = re.search(r'([0-9\.]+)\s*г', original_value, re.IGNORECASE)
+                if match_g:
+                    try:
+                        grams = float(match_g.group(1))
+                        kg = grams / 1000
+                        spec['value'] = str(kg).replace('.', ',')
+                        spec['unit'] = 'кг/м'
+                        spider.logger.info(
+                            f"🔧 Навантаження (допустиме): {spec['name']} = '{original_value}' → '{kg} кг/м'"
+                        )
+                    except (ValueError, AttributeError) as e:
+                        spider.logger.warning(f"⚠️ Помилка конвертації навантаження: {e}")
+                
+                # Якщо вже в кг - додаємо /м
+                elif 'кг' in original_value:
+                    match_kg = re.search(r'([0-9\.]+)\s*кг', original_value, re.IGNORECASE)
+                    if match_kg:
+                        kg_value = match_kg.group(1)
+                        spec['value'] = kg_value
+                        spec['unit'] = 'кг/м'
+                        spider.logger.info(
+                            f"🔧 Навантаження (допустиме): {spec['name']} = '{original_value}' → '{kg_value} кг/м'"
+                        )
         
         return specs_list
     
