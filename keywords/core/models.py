@@ -62,4 +62,5 @@ CATEGORY_PROCESSORS = {
     "70501": ProcessorType.GENERIC,  # USB-флешки
     "301112": ProcessorType.GENERIC, # Кронштейни та кожухи
     "5092913": ProcessorType.GENERIC, # Монтажні коробки
+    "3029": ProcessorType.GENERIC,  # Домофони та відеодомофони
 }

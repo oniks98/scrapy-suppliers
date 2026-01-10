@@ -5,7 +5,7 @@
 from typing import Optional, Callable, List, Set
 
 from keywords.core.helpers import SpecAccessor
-from keywords.categories.viatec import hdd, sd_card, usb_flash, mounts, boxes
+from keywords.categories.viatec import hdd, sd_card, usb_flash, mounts, boxes, intercom
 
 
 # Реєстр обробників категорій
@@ -15,6 +15,7 @@ CATEGORY_HANDLERS = {
     "70501": usb_flash.generate, # USB-флешки
     "301112": mounts.generate,   # Кронштейни та кожухи
     "5092913": boxes.generate,   # Монтажні коробки
+    "3029": intercom.generate,   # Домофони та відеодомофони
 }
 
 
