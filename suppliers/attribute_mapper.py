@@ -237,9 +237,9 @@ class AttributeMapper:
         
         # Шукаємо підходящі правила
         for rule in self.rules:
-            # Фільтр по категорії
+            # Фільтр по категорії (global = застосовується до всіх)
             rule_category = rule.get('category_id', '').strip()
-            if rule_category:
+            if rule_category and rule_category.lower() != 'global':
                 if not category_id or str(rule_category) != str(category_id):
                     continue
             
@@ -349,9 +349,9 @@ class AttributeMapper:
             if not name_pattern:
                 continue
             
-            # Фільтр по категорії
+            # Фільтр по категорії (global = застосовується до всіх)
             rule_category = rule.get('category_id', '').strip()
-            if rule_category:
+            if rule_category and rule_category.lower() != 'global':
                 if not category_id or str(rule_category) != str(category_id):
                     continue
             
