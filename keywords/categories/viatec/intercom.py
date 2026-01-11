@@ -200,25 +200,31 @@ def _generate_panel_keywords(
                         keywords.append(f"{base} на {count} абонентів")
 
     # 2. Кут огляду камери - БОЛЬШЕ 90 = ШИРОКОУГОЛЬНАЯ
-    if is_spec_allowed("Кут огляду камери по горизонталі", allowed):
+    # Перевіряємо обидва варіанти: загальний та з уточненням
+    view_angle = None
+    if is_spec_allowed("Кут огляду камери", allowed):
+        view_angle = accessor.value("Кут огляду камери")
+    
+    if not view_angle and is_spec_allowed("Кут огляду камери по горизонталі", allowed):
         view_angle = accessor.value("Кут огляду камери по горизонталі")
-        if view_angle:
-            match = re.search(r"(\d+)", view_angle)
-            if match:
-                angle = int(match.group(1))
-                
-                # Широкий кут огляду (понад 90 градусів)
-                if angle > 90:
-                    if lang == "ru":
-                        keywords.extend([
-                            f"{base} с широкоугольной камерой",
-                            f"широкоугольная {base}"
-                        ])
-                    else:
-                        keywords.extend([
-                            f"{base} з ширококутною камерою",
-                            f"ширококутна {base}"
-                        ])
+    
+    if view_angle:
+        match = re.search(r"(\d+)", view_angle)
+        if match:
+            angle = int(match.group(1))
+            
+            # Широкий кут огляду (понад 90 градусів)
+            if angle > 90:
+                if lang == "ru":
+                    keywords.extend([
+                        f"{base} с широкоугольной камерой",
+                        f"широкоугольная {base}"
+                    ])
+                else:
+                    keywords.extend([
+                        f"{base} з ширококутною камерою",
+                        f"ширококутна {base}"
+                    ])
 
     # 3. Роздільна здатність камери (ТВЛ) - ЧИСЛО = АНАЛОГОВАЯ
     if is_spec_allowed("Роздільна здатність камери (ТВЛ)", allowed):

@@ -27,7 +27,7 @@ class ProductKeywordsGenerator:
             logger: Опціональний логгер
         """
         self.logger = logger or logging.getLogger(__name__)
-        self.categories: Dict[str, CategoryConfig] = {}
+        self.categories: Dict[str, List[CategoryConfig]] = {}
         self.manufacturers: Dict[str, str] = {}
 
         # Завантажуємо конфігурацію
@@ -60,10 +60,13 @@ class ProductKeywordsGenerator:
             lang = "ru"
 
         # Отримуємо конфігурацію категорії
-        config = self.categories.get(category_id)
-        if not config:
+        configs = self.categories.get(category_id)
+        if not configs:
             self.logger.warning(f"No config for category {category_id}")
             return ""
+
+        # Вибираємо правильну конфігурацію на основі характеристики "Тип устройства"
+        config = self._select_config(configs, specs_list)
 
         # Отримуємо процесор для цієї категорії
         processor = get_processor(config.processor_type)
@@ -90,3 +93,49 @@ class ProductKeywordsGenerator:
         bucket = KeywordBucket(MAX_TOTAL_KEYWORDS)
         bucket.extend(keywords)
         return ", ".join(bucket.to_list())
+
+    @staticmethod
+    def _select_config(configs: List[CategoryConfig], specs_list: List[Spec]) -> CategoryConfig:
+        """
+        Вибір правильної конфігурації на основі характеристики "Тип устройства".
+        
+        Args:
+            configs: Список конфігурацій для категорії
+            specs_list: Список характеристик товару
+            
+        Returns:
+            Правильна конфігурація
+        """
+        # Якщо тільки одна конфігурація - повертаємо її
+        if len(configs) == 1:
+            return configs[0]
+        
+        # Шукаємо характеристику "Тип устройства"
+        device_type_value = None
+        for spec in specs_list:
+            if spec.get("name", "").strip() == "Тип устройства":
+                device_type_value = spec.get("value", "").strip().lower()
+                break
+        
+        # Якщо характеристики немає - повертаємо першу конфігурацію
+        if not device_type_value:
+            return configs[0]
+        
+        # Вибираємо конфігурацію на основі значення "Тип устройства"
+        for config in configs:
+            base_keyword = config.base_keyword_ua.lower()  # Використовуємо український варіант
+            
+            # Відеодомофон
+            if "відеодомофон" in base_keyword and "відеодомофон" in device_type_value:
+                return config
+            
+            # Виклична панель
+            if ("викличн" in base_keyword or "панел" in base_keyword) and ("панел" in device_type_value or "виклич" in device_type_value):
+                return config
+            
+            # Аудіодомофон
+            if "аудіодомофон" in base_keyword and "аудіодомофон" in device_type_value:
+                return config
+        
+        # Якщо нічого не підійшло - повертаємо першу
+        return configs[0]

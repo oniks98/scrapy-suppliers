@@ -14,7 +14,7 @@ class ConfigLoader:
     """Завантажувач конфігурацій категорій"""
 
     @staticmethod
-    def load_keywords_mapping(csv_path: str, logger: logging.Logger) -> Dict[str, CategoryConfig]:
+    def load_keywords_mapping(csv_path: str, logger: logging.Logger) -> Dict[str, List[CategoryConfig]]:
         """
         Завантаження налаштувань категорій з CSV.
 
@@ -23,9 +23,9 @@ class ConfigLoader:
             logger: Логгер
 
         Returns:
-            Словник категорій
+            Словник категорій (кожна категорія може мати кілька конфігурацій)
         """
-        categories: Dict[str, CategoryConfig] = {}
+        categories: Dict[str, List[CategoryConfig]] = {}
 
         try:
             path = Path(csv_path)
@@ -45,7 +45,7 @@ class ConfigLoader:
                         ProcessorType.GENERIC
                     )
 
-                    categories[category_id] = CategoryConfig(
+                    config = CategoryConfig(
                         category_id=category_id,
                         base_keyword_ru=row.get("base_keyword_ru", "").strip(),
                         base_keyword_ua=row.get("base_keyword_ua", "").strip(),
@@ -61,7 +61,13 @@ class ConfigLoader:
                         processor_type=processor_type
                     )
 
-            logger.info(f"Loaded {len(categories)} categories")
+                    # Додаємо конфігурацію до списку для цієї категорії
+                    if category_id not in categories:
+                        categories[category_id] = []
+                    categories[category_id].append(config)
+
+            total_configs = sum(len(configs) for configs in categories.values())
+            logger.info(f"Loaded {len(categories)} categories with {total_configs} configurations")
             return categories
 
         except Exception as e:
