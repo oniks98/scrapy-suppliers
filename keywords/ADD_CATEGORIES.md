@@ -111,6 +111,10 @@ python C:\FullStack\Scrapy\keywords\categories\viatec\check_compliance.py
 
 **Файл:** `keywords/categories/viatec/hdd.py`
 
+### Сложный обработчик+тип
+
+**Файл:** `keywords/categories/viatec/intercom.py`
+
 ### Основной процессор
 
 **Файл:** `keywords/processors/viatec/generic.py`
