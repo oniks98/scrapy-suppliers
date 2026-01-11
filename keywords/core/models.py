@@ -63,4 +63,6 @@ CATEGORY_PROCESSORS = {
     "301112": ProcessorType.GENERIC, # Кронштейни та кожухи
     "5092913": ProcessorType.GENERIC, # Монтажні коробки
     "3029": ProcessorType.GENERIC,  # Домофони та відеодомофони
+    "301010": ProcessorType.GENERIC, # Замки
+    "5280501": ProcessorType.GENERIC, # Акумулятори
 }
